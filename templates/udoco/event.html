@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block "content" %}
+{{ event.title }}
+
+{% if form %}
+<form action="" method="POST">
+{% csrf_token %}
+{{ form }}
+<input type="submit" value="Apply" />
+</form>
+{% endif %}
+{% if can_schedule %}
+You currently have {{ event.applications.count }} applications. <br/>
+You can schedule this game.
+{% endif %}
+
+{% endblock %}

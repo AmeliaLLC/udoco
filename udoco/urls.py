@@ -13,9 +13,25 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url
+from django.conf.urls import include, url
 from django.contrib import admin
 
+from udoco import views
+
+admin.autodiscover()
+
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+
+    url(r'^$', views.splash, name='index'),
+
+    url(r'^events$', views.EventsView.as_view(), name='events'),
+    url(r'^events/new$', views.AddEventView.as_view(), name='add_event'),
+    url(r'^events/(?P<event_id>[0-9]+)', views.EventView.as_view(), name='view_event'),
+
+    url(r'^profile/edit$', views.ProfileView.as_view(), name='profile'),
+
+    # Views outside the scope of this site, but required for functionality.
+    url(r'^manage/', admin.site.urls),
+    url('', include('django.contrib.auth.urls', namespace='auth')),
+    url('', include('social.apps.django_app.urls', namespace='social')),
 ]

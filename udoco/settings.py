@@ -37,6 +37,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'social.apps.django_app.default',
+    'fullcalendar',
+
+    'udoco',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -45,17 +50,29 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.RemoteUserMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+
+AUTHENTICATION_BACKENDS = (
+    'social.backends.facebook.FacebookOAuth2',
+    'social.backends.google.GoogleOAuth2',
+    'social.backends.twitter.TwitterOAuth',
+    'django.contrib.auth.backends.RemoteUserBackend',
+    #'django.contrib.auth.backends.ModelBackend',
+)
 
 ROOT_URLCONF = 'udoco.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -63,6 +80,14 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
+                'django.core.context_processors.i18n',
+                'django.core.context_processors.media',
+                'django.core.context_processors.static',
+                'django.core.context_processors.tz',
+
+                'social.apps.django_app.context_processors.backends',
+                'social.apps.django_app.context_processors.login_redirect',
             ],
         },
     },
@@ -119,3 +144,22 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.abspath(os.path.join(BASE_DIR, 'static')),
+    os.path.abspath(os.path.join(BASE_DIR, '..', 'static')),
+]
+
+AUTH_USER_MODEL = 'udoco.Official'
+
+SOCIAL_AUTH_FACEBOOK_KEY = '1716626438550212'
+SOCIAL_AUTH_FACEBOOK_SECRET = 'c1011da8c6892665432c4a4c82c996af'
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
+    'fields': 'id,name,email',
+}
+FACEBOOK_EXTENDED_PERMISSIONS = ['email', 'public_profile']
+
+SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/profile/edit'
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/events'
+LOGIN_REDIRECT_URL = '/events'
+LOGIN_URL = '/events'
