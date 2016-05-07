@@ -11,7 +11,7 @@ from udoco import forms
 def splash(request):
     """A standard splash page."""
     if request.user.is_authenticated():
-        return redirect('list_events')
+        return redirect('events')
     return render_to_response('udoco/splash.html')
 
 
