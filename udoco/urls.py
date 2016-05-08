@@ -23,6 +23,7 @@ admin.autodiscover()
 urlpatterns = [
 
     url(r'^$', views.splash, name='index'),
+    url(r'^_$', views.health_check, name='health_check'),
 
     url(r'^events$', views.EventsView.as_view(), name='events'),
     url(r'^events/new$', views.AddEventView.as_view(), name='add_event'),

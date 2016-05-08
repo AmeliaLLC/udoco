@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.shortcuts import redirect, render, render_to_response
 from django.utils.decorators import method_decorator
 from django.views.generic import View
@@ -13,6 +14,11 @@ def splash(request):
     if request.user.is_authenticated():
         return redirect('events')
     return render_to_response('udoco/splash.html')
+
+
+def health_check(request):
+    """A health check endpoint."""
+    return HttpResponse('')
 
 
 class EventsView(View):
