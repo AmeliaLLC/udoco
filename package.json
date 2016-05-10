@@ -1,0 +1,18 @@
+{
+  "name": "udoco",
+  "version": "1.0.0",
+  "description": "United Derby Officials Colorado",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AmeliaKnows/udoco.git"
+  },
+  "author": "Paul Hummer",
+  "license": "All rights reserved",
+  "bugs": {
+    "url": "https://github.com/AmeliaKnows/udoco/issues"
+  },
+  "homepage": "https://github.com/AmeliaKnows/udoco#readme",
+  "dependencies": {
+    "material-design-lite": "^1.1.3"
+  }
+}
