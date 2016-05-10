@@ -45,16 +45,14 @@
     <div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
       <header class="demo-header mdl-layout__header mdl-color--grey-100 mdl-color-text--grey-600">
         <div class="mdl-layout__header-row">
-            <span class="mdl-layout-title">{% block "title" %}YouDo Colorado{% endblock %}</span>
+            <span class="mdl-layout-title">{% block "title" %}United Derby Officials Colorado{% endblock %}</span>
         </div>
       </header>
 
       <div class="demo-drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50">
         <header class="demo-drawer-header">
-          <img src="images/user.jpg" class="demo-avatar">
-          <div class="demo-avatar-dropdown">
-              <span>{{ user.display_name }}</span>
-          </div>
+          <img class="demo-avatar">
+          <span>{{ user.display_name }}</span>
         </header>
         <nav class="demo-navigation mdl-navigation mdl-color--blue-grey-800">
           {% if user.can_schedule %}

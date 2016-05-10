@@ -1,17 +1,83 @@
 {% extends "base.html" %}
+{% load staticfiles %}
+{% load udoco_forms %}
+{% block "extra_head" %}
+<link rel="stylesheet" href="{% static 'css/mdl-selectfield.min.css' %}">
+<script src="{% static 'js/mdl-selectfield.min.js' %}"></script>
+{% endblock %}
+
 {% block "content" %}
-{{ event.title }}
-
-{% if form %}
-<form action="" method="POST">
-{% csrf_token %}
-{{ form }}
-<input type="submit" value="Apply" />
-</form>
-{% endif %}
+<div class="mdl-cell mdl-cell--8-col">
+    <ul class="mdl-list">
+        <li class="mdl-list__item">
+            <span class="mdl-list__item-primary-content">
+                <span>{{ event.title }}</span>
+            </span>
+        </li>
+        <li class="mdl-list__item mdl-list__item--two-line">
+            <span class="mdl-list__item-primary-content">
+                <span class="mdl-list__item-sub-title">Hosted by</span>
+                <span>{{ event.league.name }}</span>
+            </span>
+        </li>
+        <li class="mdl-list__item mdl-list__item--two-line">
+            <span class="mdl-list__item-primary-content">
+                <span class="mdl-list__item-sub-title">Location</span>
+                <span>{{ event.location }}</span>
+            </span>
+        </li>
+        <li class="mdl-list__item mdl-list__item--two-line">
+            <span class="mdl-list__item-primary-content">
+                <span class="mdl-list__item-sub-title">Time</span>
+                <span>{{ event.start }}</span>
+            </span>
+        </li>
+        <li class="mdl-list__item mdl-list__item--two-line">
+            <span class="mdl-list__item-primary-content">
+                {% if event.association == 0 %}
+                <span class="mdl-list__item-sub-title">WFTDA</span>
+                {% elif event.association == 1 %}
+                <span class="mdl-list__item-sub-title">MRDA</span>
+                {% elif event.association == 2 %}
+                <span class="mdl-list__item-sub-title">JRDA</span>
+                {% else %}
+                <span class="mdl-list__item-sub-title">Other association</span>
+                {% endif %}
+                {% if event.game_type == 0 %}
+                <span>SANCTIONED</span>
+                {% elif event.game_type == 1 %}
+                <span>REGULATION</span>
+                {% else %}
+                <span>UNSANCTIONED/OTHER</span>
+                {% endif %}
+            </span>
+        </li>
+    </ul>
+</div>
 {% if can_schedule %}
-You currently have {{ event.applications.count }} applications. <br/>
-You can schedule this game.
+<div class="mdl-cell mdl-cell--8-col">
+    You are designated as staff for this league. You have {{ event.applications.count }}
+    applications so far.
+    <div>
+        <a href="">Schedule officials to officiate this event.</a>
+    </div>
+</div>
 {% endif %}
+<div class="mdl-cell mdl-cell--8-col">
+    {% if form %}
+    <form action="" method="POST">
+        {{ form.errors }}
+        {% for field in form %}
+        <div>
+            {{ field | mdl | safe }}
+        </div>
+        {% endfor %}
+        {% csrf_token %}
+        <input class="mdl-button mdl-button--raised" type="submit" value="Complete application" />
+    </form>
+    {% else %}
+    You have already applied to this event.
+    {% endif %}
 
+</div>
 {% endblock %}

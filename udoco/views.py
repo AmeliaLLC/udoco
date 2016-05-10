@@ -29,20 +29,23 @@ class EventsView(View):
 
     @method_decorator(login_required)
     def get(self, request):
-        events = models.Game.objects.all()
+        events = models.Game.objects.all().order_by('start')
         return render(request, self.template, {'events': events})
 
 
 class AddEventView(View):
     """A view for adding a new event."""
-    template = 'udoco/event.html'
+    template = 'udoco/add_event.html'
     form = forms.AddEventForm
 
     def get(self, request):
-        return render(request, self.template, {'form': self.form(request)})
+        form = self.form()
+        form.fields['league'].queryset = request.user.scheduling.all()
+        return render(request, self.template, {'form': form})
 
     def post(self, request):
-        form = self.form(request, request.POST)
+        form = self.form(request.POST)
+        form.fields['league'].queryset = request.user.scheduling.all()
         if form.is_valid():
             game = models.Game()
             game.title = form.cleaned_data['title']

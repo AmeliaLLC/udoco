@@ -66,9 +66,6 @@ class Game(models.Model):
     created = models.DateTimeField(_('created'), auto_now_add=True)
     creator = models.ForeignKey('Official')
 
-#    available = models.ManyToManyField('Official', related_name='+')
-#    staff = models.ManyToManyField('Official', related_name='games')
-
     def official_can_apply(self, official):
         return Application.objects.filter(game=self, official=official).count() == 0
 

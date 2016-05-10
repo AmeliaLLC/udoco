@@ -1,8 +1,14 @@
 {% extends "base.html" %}
 {% block "content" %}
+<div class="events">
 <ul>
 {% for event in events %}
-<li><a href="{% url 'view_event' event.id %}">{{ event.title }}</a></li>
+<li class="event">
+  <h6><a href="{% url 'view_event' event.id %}">{{ event.title }}</a></h6>
+  <span>{{ event.location }}, {{ event.start|date:"j M Y gA" }}</span>
+  <div class="host">hosted by {{ event.league.name }}</div>
+</li>
 {% endfor %}
 </ul>
+</div>
 {% endblock %}

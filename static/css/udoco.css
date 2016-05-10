@@ -1,0 +1,28 @@
+div.events {
+}
+div.events ul {
+    list-style-type: none;
+    padding-left: 10px;
+}
+
+li.event {
+    display: block;
+    margin-bottom: 30px;
+}
+li.event h6 {
+    margin-top: 0;
+    margin-bottom: 0;
+    line-height: 0;
+}
+li.event h6 a {
+    text-decoration: none;
+}
+li.event span {
+    font-size: 90%;
+    font-weight: bold;
+}
+li.event .host {
+    margin-top: 0px;
+    line-height; 100%;
+    font-style: oblique;
+}

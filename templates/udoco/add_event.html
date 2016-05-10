@@ -1,8 +1,23 @@
 {% extends "base.html" %}
+{% load staticfiles %}
+{% load udoco_forms %}
+{% block "extra_head" %}
+<link rel="stylesheet" href="{% static 'css/mdl-selectfield.min.css' %}">
+<script src="{% static 'js/mdl-selectfield.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/datepicker.css' %}">
+<script src="{% static 'js/datepicker.standalone.js' %}"></script>
+{% endblock %}
+
 {% block "content" %}
 <form action="" method="POST">
+{{ form.errors }}
+{% for field in form %}
+    <div class="mdl-cell mdl-cell--12-col">
+    {{ field | mdl | safe }}
+    </div>
+{% endfor %}
+
+    <input class="mdl-button mdl-button--raised" type="submit" value="Save event" />
     {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Save event" />
 </form>
 {% endblock %}

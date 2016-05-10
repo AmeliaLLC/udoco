@@ -1,8 +1,13 @@
 {% extends "base.html" %}
+{% load udoco_forms %}
 {% block "content" %}
 <form action="" method="POST">
+    {% for field in form %}
+        <div class="mdl-cell mdl-cell--12-col">
+        {{ field | mdl | safe }}
+        </div>
+    {% endfor %}
     {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Save" />
+    <input class="mdl-button mdl-button--raised" type="submit" value="Save" />
 </form>
 {% endblock %}
