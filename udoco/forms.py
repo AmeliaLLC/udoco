@@ -72,21 +72,21 @@ class GameApplicationForm(forms.Form):
     """Form for applying to officiate a game."""
 
     so_first_choice = forms.ChoiceField(
-        label='First choice (skating official)',
+        label='First choice (Skating official)',
         choices=choices.SkatingPositions.choices)
     so_second_choice = forms.ChoiceField(
-        label='First choice (skating official)',
+        label='Second choice (Skating official)',
         choices=choices.SkatingPositions.choices)
     so_third_choice = forms.ChoiceField(
-        label='First choice (skating official)',
+        label='Third choice (Skating official)',
         choices=choices.SkatingPositions.choices)
 
     nso_first_choice = forms.ChoiceField(
-        label='First choice (skating official)',
+        label='First choice (Non-skating official)',
         choices=choices.NonskatingPositions.choices)
     nso_second_choice = forms.ChoiceField(
-        label='First choice (skating official)',
+        label='Second choice (Non-skating official)',
         choices=choices.NonskatingPositions.choices)
     nso_third_choice = forms.ChoiceField(
-        label='First choice (skating official)',
+        label='Third choice (Non-skating official)',
         choices=choices.NonskatingPositions.choices)
