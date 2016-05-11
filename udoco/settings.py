@@ -100,10 +100,23 @@ WSGI_APPLICATION = 'udoco.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
-import dj_database_url
 DATABASES = {
-    'default': dj_database_url.config(conn_max_age=500)
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
 }
+
+if 'DATABASE_URL' in os.environ:
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.config(conn_max_age=500)
+    }
+    STATICFILES_LOCATION = 'static'
+    AWS_STORAGE_BUCKET_NAME = 'udoco'
+    AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+    STATIC_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, STATICFILES_LOCATION)
+    STATICFILES_STORAGE = 'udoco.storages.StaticStorage'
 
 
 # Password validation
