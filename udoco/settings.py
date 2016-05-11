@@ -107,17 +107,6 @@ DATABASES = {
     }
 }
 
-if 'DATABASE_URL' in os.environ:
-    import dj_database_url
-    DATABASES = {
-        'default': dj_database_url.config(conn_max_age=500)
-    }
-    STATICFILES_LOCATION = 'static'
-    AWS_STORAGE_BUCKET_NAME = 'udoco'
-    AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
-    STATIC_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, STATICFILES_LOCATION)
-    STATICFILES_STORAGE = 'udoco.storages.StaticStorage'
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
@@ -191,6 +180,17 @@ AWS_ACCESS_KEY_ID = 'AKIAIUM5IHXVVDTZDQZA'
 AWS_SECRET_ACCESS_KEY = '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'
 
 AWS_S3_HOST = "s3-us-west-1.amazonaws.com"
+
+if 'DATABASE_URL' in os.environ:
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.config(conn_max_age=500)
+    }
+    STATICFILES_LOCATION = 'static'
+    AWS_STORAGE_BUCKET_NAME = 'udoco'
+    AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+    STATIC_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, STATICFILES_LOCATION)
+    STATICFILES_STORAGE = 'udoco.storages.StaticStorage'
 
 try:
     from ._settings import *  # NOQA
