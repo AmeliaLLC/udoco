@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     'social.apps.django_app.default',
     'fullcalendar',
+    'storages',
 
     'udoco',
 ]
@@ -158,7 +159,7 @@ STATICFILES_FINDERS = [
 AUTH_USER_MODEL = 'udoco.Official'
 
 SOCIAL_AUTH_FACEBOOK_KEY = '1716626438550212'
-SOCIAL_AUTH_FACEBOOK_SECRET = 'c1011da8c6892665432c4a4c82c996af'
+SOCIAL_AUTH_FACEBOOK_SECRET = '1d381fa1d46c9410bc4c73609efd796a'
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
 SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
     'fields': 'id,name,email',
@@ -169,3 +170,18 @@ SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/profile/edit'
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/events'
 LOGIN_REDIRECT_URL = '/events'
 LOGIN_URL = '/events'
+
+# see http://developer.yahoo.com/performance/rules.html#expires
+#AWS_HEADERS = {
+#    'Expires': 'Thu, 31 Dec 2099 20:00:00 GMT',
+#    'Cache-Control': 'max-age=94608000',
+#}
+AWS_ACCESS_KEY_ID = 'AKIAIUM5IHXVVDTZDQZA'
+AWS_SECRET_ACCESS_KEY = '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'
+
+AWS_S3_HOST = "s3-us-west-1.amazonaws.com"
+
+try:
+    from ._settings import *  # NOQA
+except ImportError:
+    pass

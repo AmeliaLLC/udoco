@@ -4,5 +4,7 @@ Django==1.9.6
 python-social-auth==0.2.19
 smartchoices==1.1
 django-npm==1.0.0
+django-storages==1.4.1
+boto==2.40.0
 
 git+https://github.com/rockstar/django-fullcalendar.git#egg=django-fullcalendar
