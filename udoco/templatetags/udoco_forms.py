@@ -30,11 +30,9 @@ def mdl(field):
 
     try:
         parent_class = field.field.widget.attrs['class'].split('__')[0]
-        if widget_type in (forms.widgets.Select,):
-            parent_class = '{} {}'.format(
-                parent_class, 'mdl-selectfield--floating-label')
         js_class = parent_class.replace('mdl-', 'mdl-js-')
-        div_class = '{} {}'.format(parent_class, js_class)
+        floating_label_class = '{}--floating-label'.format(parent_class)
+        div_class = ' '.join([parent_class, js_class, floating_label_class])
     except KeyError:
         parent_class = div_class = ''
 
