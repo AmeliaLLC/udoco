@@ -1,3 +1,4 @@
+{% load staticfiles %}
 <!DOCTYPE HTML>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -5,7 +6,6 @@
 
 <title>United Derby Officials Colorado</title>
 
-<link rel="stylesheet" href="style.css">
 <style type="text/css">
 body, html  { height: 100%; }html, body, div, span, applet, object, iframe,/*h1,2, h3, h4, h5, h6,*/ p, blockquote, pre,a, abbr, acronym, address,del, dfn, em, font, img, ins, kbd, q, s, samp,small, strike, strong, sub, sup, tt, var,b, u, i, center,dl, dt, dd, ol, ul, li,fieldset, form, label, legend,table, caption, tbody, tfoot, thead, tr, th, td {margin: 0;padding: 0;border: 0;outline: 0;font-size: 100%;vertical-align: baseline;background: transparent;}body { line-height: 1; }ol, ul { list-style: none; }blockquote, q { quotes: none; }blockquote:before, blockquote:after, q:before, q:after { content: ''; content: none; }:focus { outline: 0; }del { text-decoration: line-through; }table {border-spacing: 0; }
 .clear {clear: both;display: block;overflow: hidden;visibility: hidden;width: 0;height: 0;}
@@ -19,7 +19,7 @@ body{
     font-family: sans-serif;
     line-height: 20px;
     text-shadow: 0 1px 1px rgba(0,0,0,0.75);
-    background: #55575c url(/static/img/splash.jpg);
+    background: #55575c url({% static 'img/splash.jpg' %});
     -webkit-box-shadow: inset 0 0 300px rgba(0,0,0,0.5);
        -moz-box-shadow: inset 0 0 300px rgba(0,0,0,0.5);
             box-shadow: inset 0 0 300px rgba(0,0,0,0.5);
