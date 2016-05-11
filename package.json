@@ -13,7 +13,9 @@
   },
   "homepage": "https://github.com/AmeliaKnows/udoco#readme",
   "dependencies": {
+    "jquery": "^2.2.3",
     "material-design-lite": "^1.1.3",
-    "mdl-selectfield": "^1.0.1"
+    "mdl-selectfield": "^1.0.1",
+    "moment": "^2.13.0"
   }
 }

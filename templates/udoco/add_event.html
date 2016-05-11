@@ -4,8 +4,10 @@
 {% block "extra_head" %}
 <link rel="stylesheet" href="{% static 'mdl-selectfield/dist/mdl-selectfield.min.css' %}">
 <script src="{% static 'mdl-selectfield/dist/mdl-selectfield.min.js' %}"></script>
-<link rel="stylesheet" href="{% static 'css/datepicker.css' %}">
-<script src="{% static 'js/datepicker.standalone.js' %}"></script>
+<link rel="stylesheet" href="{% static 'vendor/bootstrap-material-datetimepicker.css' %}">
+<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'moment/moment.js' %}"></script>
+<script src="{% static 'vendor/bootstrap-material-datetimepicker.js' %}"></script>
 {% endblock %}
 
 {% block "content" %}

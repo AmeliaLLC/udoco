@@ -38,16 +38,12 @@ class DateTimePicker(forms.widgets.DateTimeInput):
     https://github.com/ripjar/material-datetime-picker
     """
 
-    # TODO: rockstar (8 May 2016) - Fix this to work, likely requiring some
-    # bullshit django-npm package.
     TEXT = '''<script>
-/*
-var MaterialDateTimePicker = require('material-datetime-picker');
-var element = document.querySelector('.datetimepicker');
-var picker = new MaterialDatePicker({
-    el: element, openedBy: 'focus'
-    });
-*/
+$('.datetimepicker').bootstrapMaterialDatePicker({
+    format: 'YYYY-MM-DD HH:mm',
+    shortTime: true,
+    minDate: moment()
+});
 </script>
 '''
 
