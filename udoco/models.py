@@ -16,13 +16,10 @@ class Official(AbstractUser):
     game_history = models.URLField(blank=True)
 
     def __str__(self):
-        return str(unicode(self))
-
-    def __unicode__(self):
         if len(self.display_name) > 0:
             return self.display_name
         else:
-            return u'{} {}'.format(
+            return '{} {}'.format(
                 self.first_name, self.last_name)
 
     def can_schedule(self):
