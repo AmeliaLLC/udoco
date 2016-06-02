@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from udoco import choices
+from udoco import choices, validators
 
 
 class Official(AbstractUser):
@@ -12,8 +12,14 @@ class Official(AbstractUser):
     # NOTE: rockstar (9 Jan 2016) - Django's default user allows email
     # to be blank and non-unique. That is insane.
     display_name = models.CharField(_('name'), max_length=256)
+    phone_number = models.CharField(
+        validators=[validators.PHONE_NUMBER_VALIDATOR], blank=True, max_length=16)
 
     game_history = models.URLField(blank=True)
+
+    emergency_contact_name = models.CharField(_('name'), max_length=256)
+    emergency_contact_number = models.CharField(
+        validators=[validators.PHONE_NUMBER_VALIDATOR], blank=True, max_length=16)
 
     def __str__(self):
         if len(self.display_name) > 0:

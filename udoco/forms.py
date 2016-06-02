@@ -1,12 +1,22 @@
 from django import forms
 from django.utils.safestring import mark_safe
 
-from udoco import choices, models
+from udoco import choices, models, validators
 
 
 class ContinueSignUpForm(forms.Form):
     display_name = forms.CharField(label='Derby name', max_length=100)
     game_history = forms.URLField(required=False)
+
+    phone_number = forms.CharField(
+        label='Phone number', max_length=16,
+        validators=[validators.PHONE_NUMBER_VALIDATOR])
+
+    emergency_contact_name = forms.CharField(
+        label='Emergency Contact Name', max_length=256)
+    emergency_contact_number = forms.CharField(
+        label='Emergency Contact Number', max_length=16,
+        validators=[validators.PHONE_NUMBER_VALIDATOR])
 
 
 class SimplifiedLeagueSelect(forms.widgets.Select):

@@ -121,6 +121,9 @@ class ProfileView(View):
             form = self.form({
                 'display_name': display_name,
                 'game_history': request.user.game_history,
+                'phone_number': request.user.phone_number,
+                'emergency_contact_name': request.user.emergency_contact_name,
+                'emergency_contact_number': request.user.emergency_contact_number,
             })
         return render(request, self.template, {'form': form})
 
@@ -129,6 +132,9 @@ class ProfileView(View):
         if form.is_valid():
             request.user.display_name = form.cleaned_data['display_name']
             request.user.game_history = form.cleaned_data['game_history']
+            request.user.phone_number = form.cleaned_data['phone_number']
+            request.user.emergency_contact_name = form.cleaned_data['emergency_contact_name']
+            request.user.emergency_contact_number = form.cleaned_data['emergency_contact_number']
             request.user.save()
             messages.add_message(request, messages.INFO, 'Profile saved')
             return redirect('profile')
