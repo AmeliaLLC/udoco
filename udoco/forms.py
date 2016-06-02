@@ -79,20 +79,26 @@ class GameApplicationForm(forms.Form):
 
     so_first_choice = forms.ChoiceField(
         label='First choice (Skating official)',
-        choices=choices.SkatingPositions.choices)
+        required=False,
+        choices=[(100, ' - ')] + list(choices.SkatingPositions.choices))
     so_second_choice = forms.ChoiceField(
         label='Second choice (Skating official)',
-        choices=choices.SkatingPositions.choices)
+        required=False,
+        choices=[(100, ' - ')] + list(choices.SkatingPositions.choices))
     so_third_choice = forms.ChoiceField(
         label='Third choice (Skating official)',
-        choices=choices.SkatingPositions.choices)
+        required=False,
+        choices=[(100, ' - ')] + list(choices.SkatingPositions.choices))
 
     nso_first_choice = forms.ChoiceField(
         label='First choice (Non-skating official)',
-        choices=choices.NonskatingPositions.choices)
+        required=False,
+        choices=[(100, ' - ')] + list(choices.NonskatingPositions.choices))
     nso_second_choice = forms.ChoiceField(
         label='Second choice (Non-skating official)',
-        choices=choices.NonskatingPositions.choices)
+        required=False,
+        choices=[(100, ' - ')] + list(choices.NonskatingPositions.choices))
     nso_third_choice = forms.ChoiceField(
         label='Third choice (Non-skating official)',
-        choices=choices.NonskatingPositions.choices)
+        required=False,
+        choices=[(100, ' - ')] + list(choices.NonskatingPositions.choices))
