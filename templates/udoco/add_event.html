@@ -12,12 +12,12 @@
 
 {% block "content" %}
 <form action="" method="POST">
-{{ form.errors }}
-{% for field in form %}
+    {{ form.errors }}
+    {% for field in form %}
     <div class="mdl-cell mdl-cell--12-col">
-    {{ field | mdl | safe }}
+        {{ field | mdl | safe }}
     </div>
-{% endfor %}
+    {% endfor %}
 
     <input class="mdl-button mdl-button--raised" type="submit" value="Save event" />
     {% csrf_token %}

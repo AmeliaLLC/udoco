@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% load udoco_forms %}
+{% load staticfiles %}
+{% block "extra_head" %}
+<link rel="stylesheet" href="{% static 'mdl-selectfield/dist/mdl-selectfield.min.css' %}">
+<script src="{% static 'mdl-selectfield/dist/mdl-selectfield.min.js' %}"></script>
+{% endblock %}
+
+{% block "content" %}
+<div class="mdl-cell mdl-cell--8-col">
+<table class="mdl-data-table mdl-js-data-table">
+    <thead>
+        <tr>
+            <th class="mdl-data-table__cell--non-numeric">Name</th>
+            <th class="mdl-data-table__cell--non-numeric">SO Pref 1</th>
+            <th class="mdl-data-table__cell--non-numeric">So Pref 2</th>
+            <th class="mdl-data-table__cell--non-numeric">SO Pref 3</th>
+            <th class="mdl-data-table__cell--non-numeric">NS Pref 1</th>
+            <th class="mdl-data-table__cell--non-numeric">NS Pref 2</th>
+            <th class="mdl-data-table__cell--non-numeric">NS Pref 3</th>
+        </tr>
+    </thead>
+{% for application in event.applications.all %}
+<tr>
+    <td>rockstar</td>
+    <td>
+        {% if application.so_first_choice == 0 %}
+        HR
+        {% elif application.so_first_choice == 1 %}
+        IPR
+        {% elif application.so_first_choice == 2 %}
+        JR
+        {% elif application.so_first_choice == 3 %}
+        OPR
+        {% elif application.so_first_choice == 101 %}
+        ANY
+        {% endif %}
+    </td>
+    <td>
+        {% if application.so_second_choice == 0 %}
+        HR
+        {% elif application.so_second_choice == 1 %}
+        IPR
+        {% elif application.so_second_choice == 2 %}
+        JR
+        {% elif application.so_second_choice == 3 %}
+        OPR
+        {% elif application.so_second_choice == 101 %}
+        ANY
+        {% endif %}
+    </td>
+    <td>
+        {% if application.so_third_choice == 0 %}
+        HR
+        {% elif application.so_third_choice == 1 %}
+        IPR
+        {% elif application.so_third_choice == 2 %}
+        JR
+        {% elif application.so_third_choice == 3 %}
+        OPR
+        {% elif application.so_third_choice == 101 %}
+        ANY
+        {% endif %}
+    </td>
+
+    <td>
+        {% if application.nso_first_choice == 0 %}
+        JT
+        {% elif application.nso_first_choice == 1 %}
+        SK
+        {% elif application.nso_first_choice == 2 %}
+        PBM
+        {% elif application.nso_first_choice == 3 %}
+        PBT
+        {% elif application.nso_first_choice == 4 %}
+        PT
+        {% elif application.nso_first_choice == 5 %}
+        PW
+        {% elif application.nso_first_choice == 6 %}
+        IW
+        {% elif application.nso_first_choice == 7 %}
+        LT
+        {% elif application.nso_first_choice == 101 %}
+        ANY
+        {% endif %}
+    </td>
+    <td>
+        {% if application.nso_second_choice == 0 %}
+        JT
+        {% elif application.nso_second_choice == 1 %}
+        SK
+        {% elif application.nso_second_choice == 2 %}
+        PBM
+        {% elif application.nso_second_choice == 3 %}
+        PBT
+        {% elif application.nso_second_choice == 4 %}
+        PT
+        {% elif application.nso_second_choice == 5 %}
+        PW
+        {% elif application.nso_second_choice == 6 %}
+        IW
+        {% elif application.nso_second_choice == 7 %}
+        LT
+        {% elif application.nso_second_choice == 101 %}
+        ANY
+        {% endif %}
+    </td>
+    <td>
+        {% if application.nso_third_choice == 0 %}
+        JT
+        {% elif application.nso_third_choice == 1 %}
+        SK
+        {% elif application.nso_third_choice == 2 %}
+        PBM
+        {% elif application.nso_third_choice == 3 %}
+        PBT
+        {% elif application.nso_third_choice == 4 %}
+        PT
+        {% elif application.nso_third_choice == 5 %}
+        PW
+        {% elif application.nso_third_choice == 6 %}
+        IW
+        {% elif application.nso_third_choice == 7 %}
+        LT
+        {% elif application.nso_third_choice == 101 %}
+        ANY
+        {% endif %}
+    </td>
+</tr>
+{% endfor %}
+    <tfoot>
+    </tfoot>
+</table>
+</div>
+
+<div class="mdl-cell mdl-cell--8-col">
+  <form action="" method="POST">
+    {{ form.errors }}
+    {% for field in form %}
+    <div class="mdl-cell mdl-cell--12-col">
+      {{ field | mdl | safe }}
+    </div>
+    {% endfor %}
+    {% csrf_token %}
+    <input class="mdl-button mdl-button--raised" type="submit" value="Complete application" />
+  </form>
+</div>
+{% endblock %}

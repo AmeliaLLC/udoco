@@ -102,3 +102,35 @@ class GameApplicationForm(forms.Form):
         label='Third choice (Non-skating official)',
         required=False,
         choices=[(100, ' - ')] + list(choices.NonskatingPositions.choices))
+
+
+class SchedulingForm(forms.Form):
+    """Form for scheduling an event."""
+
+    hr = forms.ModelChoiceField(
+        label='Head Ref', empty_label='', queryset=None)
+    ipr = forms.ModelChoiceField(
+        label='Inside Pack Ref', empty_label='', queryset=None,
+        required=False)
+    jr1 = forms.ModelChoiceField(
+        label='Jam Ref', empty_label='', queryset=None)
+    jr2 = forms.ModelChoiceField(
+        label='Jam Ref', empty_label='', queryset=None)
+    opr1 = forms.ModelChoiceField(
+        label='Outside Pack Ref', empty_label='', queryset=None,
+        required=False)
+    opr2 = forms.ModelChoiceField(
+        label='Outside Pack Ref', empty_label='', queryset=None,
+        required=False)
+    opr3 = forms.ModelChoiceField(
+        label='Outside Pack Ref', empty_label='', queryset=None,
+        required=False)
+    alt = forms.ModelChoiceField(
+        label='Alternate', empty_label='', queryset=None,
+        required=False)
+
+    def __init__(self, qs, *args, **kwargs):
+        super(SchedulingForm, self).__init__(*args, **kwargs)
+        for label, field in self.base_fields.items():
+            if isinstance(field, forms.ModelChoiceField):
+                field.queryset = qs

@@ -1,6 +1,8 @@
+from datetime import datetime
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render, render_to_response
 from django.utils.decorators import method_decorator
 from django.views.generic import View
@@ -29,7 +31,8 @@ class EventsView(View):
 
     @method_decorator(login_required)
     def get(self, request):
-        events = models.Game.objects.all().order_by('start')
+        events = models.Game.objects.filter(
+            start__gt=datetime.now()).order_by('start')
         return render(request, self.template, {'events': events})
 
 
@@ -105,6 +108,63 @@ class EventView(View):
             return redirect('view_event', event_id)
         else:
             return self.get(request, event_id, form=form)
+
+
+class SchedulingView(View):
+    """A view for scheduling officials for games."""
+    template = 'udoco/schedule_event.html'
+
+    def get(self, request, event_id):
+        event = models.Game.objects.get(id=event_id)
+        if not event.can_schedule(request.user):
+            raise Http404()
+        form = forms.SchedulingForm(
+            models.Application.objects.filter(game=event))
+        context = {
+            'form': form,
+            'event': event,
+            }
+        return render(request, self.template, context)
+
+    def post(self, request, event_id):
+        event = models.Game.objects.get(id=event_id)
+        if not event.can_schedule(request.user):
+            raise Http404()
+        form = forms.SchedulingForm(
+            models.Application.objects.filter(game=event),
+            request.POST)
+        if form.is_valid():
+            roster = models.Roster()
+            roster.game = event
+            roster.hr = form.cleaned_data['hr'].official
+            try:
+                roster.ipr = form.cleaned_data['ipr'].official
+            except AttributeError:
+                pass
+            roster.jr1 = form.cleaned_data['jr1'].official
+            roster.jr2 = form.cleaned_data['jr2'].official
+            try:
+                roster.opr1 = form.cleaned_data['opr1'].official
+            except AttributeError:
+                pass
+            try:
+                roster.opr2 = form.cleaned_data['opr2'].official
+            except AttributeError:
+                pass
+            try:
+                roster.opr3 = form.cleaned_data['opr3'].official
+            except AttributeError:
+                pass
+            try:
+                roster.alt = form.cleaned_data['alt'].official
+            except AttributeError:
+                pass
+            roster.save()
+            messages.add_message(
+                request, messages.INFO, 'Game roster has been saved.')
+            return redirect('view_event', event_id)
+        else:
+            return self.get(request, event_id)
 
 
 class ProfileView(View):

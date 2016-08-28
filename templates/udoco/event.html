@@ -54,15 +54,21 @@
         </li>
     </ul>
 </div>
+
 {% if can_schedule %}
 <div class="mdl-cell mdl-cell--8-col">
+{% if event.roster %}
+    <a href="{% url 'schedule_event' event.id %}">Edit roster</a>
+{% else %}
     You are designated as staff for this league. You have {{ event.applications.count }}
     applications so far.
     <div>
-        <a href="">Schedule officials to officiate this event.</a>
+        <a href="{% url 'schedule_event' event.id %}">Schedule officials to officiate this event.</a>
     </div>
+{% endif %}
 </div>
 {% endif %}
+
 <div class="mdl-cell mdl-cell--8-col">
     {% if form %}
     <form action="" method="POST">

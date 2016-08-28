@@ -95,3 +95,25 @@ class Application(models.Model):
         choices=choices.NonskatingPositions.choices)
     nso_third_choice = models.PositiveIntegerField(
         choices=choices.NonskatingPositions.choices)
+
+    def __unicode__(self):
+        return unicode(self.official)
+
+    def __str__(self):
+        return str(self.official)
+
+
+class Roster(models.Model):
+    """A roster for an event."""
+
+    game = models.OneToOneField(
+        Game, on_delete=models.CASCADE, primary_key=True)
+
+    hr = models.ForeignKey(Official, related_name='hr_games')
+    ipr = models.ForeignKey(Official, related_name='ipr_games', null=True)
+    jr1 = models.ForeignKey(Official, related_name='jr1_games')
+    jr2 = models.ForeignKey(Official, related_name='jr2_games')
+    opr1 = models.ForeignKey(Official, related_name='opr1_games', null=True)
+    opr2 = models.ForeignKey(Official, related_name='opr2_games', null=True)
+    opr3 = models.ForeignKey(Official, related_name='opr3_games', null=True)
+    alt = models.ForeignKey(Official, related_name='alt_games', null=True)
