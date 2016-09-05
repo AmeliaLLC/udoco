@@ -127,8 +127,20 @@ class SchedulingView(View):
         if not event.can_schedule(request.user):
             raise Http404()
         if form is None:
+            initial = {}
+            if event.roster is not None:
+                initial = {
+                    'hr': event.roster.hr,
+                    'ipr': event.roster.ipr,
+                    'jr1': event.roster.jr1,
+                    'jr2': event.roster.jr2,
+                    'opr1': event.roster.opr1,
+                    'opr2': event.roster.opr2,
+                    'opr3': event.roster.opr3,
+                }
             form = forms.SchedulingForm(
-                models.Application.objects.filter(game=event))
+                models.Application.objects.filter(game=event),
+                initial=initial)
         context = {
             'form': form,
             'event': event,
@@ -187,7 +199,7 @@ class ProfileView(View):
             display_name = '{} {}'.format(
                 request.user.first_name, request.user.last_name)
         if form is None:
-            form = self.form({
+            form = self.form(initial={
                 'display_name': display_name,
                 'game_history': request.user.game_history,
                 'phone_number': request.user.phone_number,
