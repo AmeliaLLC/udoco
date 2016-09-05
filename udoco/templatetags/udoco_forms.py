@@ -25,7 +25,6 @@ def mdl(field):
         for key, val in attrs.items():
             field.field.widget.attrs[key] = val
     except KeyError:
-        print(widget_type)
         pass
 
     try:
@@ -50,10 +49,15 @@ def mdl(field):
     label = field.label
     if "hidden" in form_element:
         label = ''
+    error = ''
+    if len(field.errors) > 0:
+        error = ' '.join([e for e in field.errors])
+        error = '<span>{}</span>'.format(error)
     return '''
 <div class="{div_class}">
 <label for="{name}" class="{class}">{label}</label>
 {form_element}
+{errors}
 </div>
 '''.format(**{
         'name': field.name,
@@ -61,5 +65,5 @@ def mdl(field):
         'form_element': form_element,
         'label': label,
         'div_class': div_class,
+        'errors': error,
         })
-    return '<input type="" name="" value="" class="" />'

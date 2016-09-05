@@ -1,9 +1,8 @@
-from datetime import datetime
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render, render_to_response
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import View
 
@@ -31,9 +30,16 @@ class EventsView(View):
 
     @method_decorator(login_required)
     def get(self, request):
+        admin_events = models.Game.objects.filter(
+            league__in=request.user.scheduling.all(),
+            start__gt=timezone.now()).order_by('start')
+
         events = models.Game.objects.filter(
-            start__gt=datetime.now()).order_by('start')
-        return render(request, self.template, {'events': events})
+            start__gt=timezone.now()).order_by('start')
+        return render(request, self.template, {
+            'events': events,
+            'admin_events': admin_events,
+            })
 
 
 class AddEventView(View):
@@ -81,7 +87,9 @@ class EventView(View):
             'event': event,
             'form': form,
             }
-        if event.official_can_apply(request.user) and form is None:
+        if request.user.is_authenticated() \
+                and event.official_can_apply(request.user) \
+                and form is None:
             context['form'] = self.form()
         return render(request, self.template, context)
 
@@ -114,12 +122,13 @@ class SchedulingView(View):
     """A view for scheduling officials for games."""
     template = 'udoco/schedule_event.html'
 
-    def get(self, request, event_id):
+    def get(self, request, event_id, form=None):
         event = models.Game.objects.get(id=event_id)
         if not event.can_schedule(request.user):
             raise Http404()
-        form = forms.SchedulingForm(
-            models.Application.objects.filter(game=event))
+        if form is None:
+            form = forms.SchedulingForm(
+                models.Application.objects.filter(game=event))
         context = {
             'form': form,
             'event': event,
@@ -164,7 +173,7 @@ class SchedulingView(View):
                 request, messages.INFO, 'Game roster has been saved.')
             return redirect('view_event', event_id)
         else:
-            return self.get(request, event_id)
+            return self.get(request, event_id, form=form)
 
 
 class ProfileView(View):
@@ -197,6 +206,6 @@ class ProfileView(View):
             request.user.emergency_contact_number = form.cleaned_data['emergency_contact_number']
             request.user.save()
             messages.add_message(request, messages.INFO, 'Profile saved')
-            return redirect('profile')
+            return redirect(request.GET.get('next', 'profile'))
         else:
             return self.get(request, form=form)

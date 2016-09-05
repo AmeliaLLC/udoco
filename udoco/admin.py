@@ -26,8 +26,7 @@ class OfficialAdmin(admin.ModelAdmin):
         ('Authorization', {
             'description': 'What are the user\'s capabilities?',
             'classes': ('collapse',),
-            'fields': (
-                'is_superuser', 'is_staff', 'is_active',)}))
+            'fields': ('is_staff', 'is_active',)}))
 
 
 @admin.register(models.League)

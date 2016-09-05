@@ -131,6 +131,6 @@ class SchedulingForm(forms.Form):
 
     def __init__(self, qs, *args, **kwargs):
         super(SchedulingForm, self).__init__(*args, **kwargs)
-        for label, field in self.base_fields.items():
+        for label, field in self.fields.items():
             if isinstance(field, forms.ModelChoiceField):
                 field.queryset = qs

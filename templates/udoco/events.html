@@ -1,6 +1,22 @@
 {% extends "base.html" %}
 {% block "content" %}
 <div class="events">
+
+{% if admin_events %}
+<h6>Events you need to schedule</h6>
+<ul>
+{% for event in admin_events %}
+<li class="event">
+  <h6><a href="{% url 'view_event' event.id %}">{{ event.title }}</a></h6>
+  <span>{{ event.location }}, {{ event.start|date:"j M Y gA" }}</span>
+  <div class="host">hosted by {{ event.league.name }}</div>
+</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+{% if events %}
+<h6>Events you've been scheduled for</h6>
 <ul>
 {% for event in events %}
 <li class="event">
@@ -10,5 +26,9 @@
 </li>
 {% endfor %}
 </ul>
+{% else %}
+<div>You are not currently scheduled for any events.</div>
+{% endif %}
+
 </div>
 {% endblock %}

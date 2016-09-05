@@ -4,6 +4,43 @@
 {% block "extra_head" %}
 <link rel="stylesheet" href="{% static 'mdl-selectfield/dist/mdl-selectfield.min.css' %}">
 <script src="{% static 'mdl-selectfield/dist/mdl-selectfield.min.js' %}"></script>
+
+<style type="text/css">
+a#login {
+    text-decoration: none;
+}
+
+button {
+    padding-right: 45px;
+    height: 35px;
+    background: none;
+    border: none;
+    display: block;
+    background-size: 35px 35px;
+    background-position: right center;
+    background-repeat: no-repeat;
+    border-radius: 4px;
+    color: white;
+    font-family:"Merriweather Sans", sans-serif;
+    font-size: 14px;
+    width: 205px;
+    border-bottom: 2px solid transparent;
+    border-left: 1px solid transparent;
+    border-right: 1px solid transparent;
+    text-shadow: rgba(0, 0, 0, .5) -1px -1px 0;
+
+    border-color: #2d5073;
+    background-color: #3b5998;
+    background-image: url(http://icons.iconarchive.com/icons/danleech/simple/512/facebook-icon.png);
+}
+
+
+#disclaimer {
+    font-size: 80%;
+}
+</style>
+
+
 {% endblock %}
 
 {% block "content" %}
@@ -69,6 +106,20 @@
 </div>
 {% endif %}
 
+{% if not user.is_authenticated %}
+<div class="mdl-cell mdl-cell--8-col">
+    <a id="login" href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">
+    <button>Log in to apply</button>
+    </a>
+</div>
+<div class="mdl-cell mdl-cell--8-col" id="disclaimer">
+    Facebook is used only for account management. We won't post anything.
+    You just don't need yet another username and password to remember, right?
+</div>
+{% endif %}
+
+{% if user.is_authenticated %}
+{% if not event.roster %}
 <div class="mdl-cell mdl-cell--8-col">
     {% if form %}
     <form action="" method="POST">
@@ -84,6 +135,12 @@
     {% else %}
     You have already applied to this event.
     {% endif %}
-
 </div>
+{% else %}
+<div class="mdl-cell mdl-cell--8-col">
+    Scheduling for this event is complete.
+</div>
+{% endif %}
+{% endif %}
+
 {% endblock %}
