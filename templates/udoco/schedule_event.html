@@ -22,7 +22,7 @@
     </thead>
 {% for application in event.applications.all %}
 <tr>
-    <td>rockstar</td>
+    <td>{{ application.official.display_name }}</td>
     <td>
         {% if application.so_first_choice == 0 %}
         HR
