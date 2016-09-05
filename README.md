@@ -1,3 +1,14 @@
+Deploying the site
+==================
+
+To deploy:
+
+    git push heroku master
+    heroku run python manage.py migrate
+
+Create a superuser
+==================
+
 To create a new superuser, do `manage.py shell` pointed at the production database, and
 then:
 
