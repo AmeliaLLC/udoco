@@ -5,6 +5,7 @@ To deploy:
 
     git push heroku master
     heroku run python manage.py migrate
+    manage.py collectstatic
 
 Create a superuser
 ==================
