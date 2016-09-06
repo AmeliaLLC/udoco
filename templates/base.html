@@ -52,7 +52,11 @@
       <div class="demo-drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50">
         {% if user.is_authenticated %}
         <header class="demo-drawer-header">
+          {% if user.avatar %}
+          <img class="demo-avatar" style="background-image: url({{ user.avatar.url }})">
+          {% else %}
           <img class="demo-avatar">
+          {% endif %}
           <span>{{ user.display_name }}</span>
         </header>
         {% endif %}

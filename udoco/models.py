@@ -21,6 +21,8 @@ class Official(AbstractUser):
     emergency_contact_number = models.CharField(
         validators=[validators.PHONE_NUMBER_VALIDATOR], blank=True, max_length=16)
 
+    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
+
     def __str__(self):
         if len(self.display_name) > 0:
             return self.display_name

@@ -166,6 +166,20 @@ SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
 }
 FACEBOOK_EXTENDED_PERMISSIONS = ['email', 'public_profile']
 
+SOCIAL_AUTH_PIPELINE = (
+    'social.pipeline.social_auth.social_details',
+    'social.pipeline.social_auth.social_uid',
+    'social.pipeline.social_auth.auth_allowed',
+    'social.pipeline.social_auth.social_user',
+    'social.pipeline.user.get_username',
+    'social.pipeline.user.create_user',
+    'social.pipeline.social_auth.associate_user',
+    'social.pipeline.social_auth.load_extra_data',
+    'social.pipeline.user.user_details',
+
+    'udoco.pipelines.save_profile_picture',
+)
+
 SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/profile/edit'
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/events'
 LOGIN_REDIRECT_URL = '/events'
@@ -187,10 +201,16 @@ if 'DATABASE_URL' in os.environ:
         'default': dj_database_url.config(conn_max_age=500)
     }
     STATICFILES_LOCATION = 'static'
+    MEDIAFILES_LOCATION = 'media'
     AWS_STORAGE_BUCKET_NAME = 'udoco'
     AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
     STATIC_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, STATICFILES_LOCATION)
     STATICFILES_STORAGE = 'udoco.storages.StaticStorage'
+    DEFAULT_FILE_STORAGE = 'udoco.storages.MediaStorage'
+    MEDIA_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, MEDIAFILES_LOCATION)
+else:
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+    MEDIA_URL = '/media/'
 
 try:
     from ._settings import *  # NOQA
