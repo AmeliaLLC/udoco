@@ -15,10 +15,10 @@
 </ul>
 {% endif %}
 
-{% if events %}
-<h6>Events you've been scheduled for</h6>
+{% if applications %}
+<h6>Events you've applied to</h6>
 <ul>
-{% for event in events %}
+{% for event in applications %}
 <li class="event">
   <h6><a href="{% url 'view_event' event.id %}">{{ event.title }}</a></h6>
   <span>{{ event.location }}, {{ event.start|date:"j M Y gA" }}</span>
@@ -26,8 +26,19 @@
 </li>
 {% endfor %}
 </ul>
-{% else %}
-<div>You are not currently scheduled for any events.</div>
+{% endif %}
+
+{% if rosters %}
+<h6>Events you've been scheduled for</h6>
+<ul>
+{% for event in rosters %}
+<li class="event">
+  <h6><a href="{% url 'view_event' event.id %}">{{ event.title }}</a></h6>
+  <span>{{ event.location }}, {{ event.start|date:"j M Y gA" }}</span>
+  <div class="host">hosted by {{ event.league.name }}</div>
+</li>
+{% endfor %}
+</ul>
 {% endif %}
 
 </div>

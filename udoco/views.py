@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponse
@@ -34,10 +35,25 @@ class EventsView(View):
             league__in=request.user.scheduling.all(),
             start__gt=timezone.now()).order_by('start')
 
-        events = models.Game.objects.filter(
+        applications = models.Game.objects.filter(
+            roster=None,
+            applications__in=models.Application.objects.filter(
+                official=request.user),
+            start__gt=timezone.now()).order_by('start')
+
+        rosters = []
+        rosters = models.Game.objects.filter(
+            Q(roster__hr=request.user) |
+            Q(roster__ipr=request.user) |
+            Q(roster__jr1=request.user) |
+            Q(roster__jr2=request.user) |
+            Q(roster__opr1=request.user) |
+            Q(roster__opr2=request.user) |
+            Q(roster__opr3=request.user)).filter(
             start__gt=timezone.now()).order_by('start')
         return render(request, self.template, {
-            'events': events,
+            'rosters': rosters,
+            'applications': applications,
             'admin_events': admin_events,
             })
 
@@ -156,8 +172,7 @@ class SchedulingView(View):
         if not event.can_schedule(request.user):
             raise Http404()
         if form is None:
-            initial = {}
-            if event.roster is not None:
+            try:
                 initial = {
                     'hr': event.roster.hr,
                     'ipr': event.roster.ipr,
@@ -167,6 +182,8 @@ class SchedulingView(View):
                     'opr2': event.roster.opr2,
                     'opr3': event.roster.opr3,
                 }
+            except models.Roster.DoesNotExist:
+                initial = {}
             form = forms.SchedulingForm(
                 models.Application.objects.filter(game=event),
                 initial=initial)
