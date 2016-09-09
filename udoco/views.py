@@ -118,6 +118,18 @@ class EventView(View):
             return self.get(request, event_id, form=form)
 
 
+class EventDeleteView(View):
+    """A view for deleting events."""
+
+    def post(self, request, event_id):
+        # XXX: rockstar (8 Sep 2016) - Emit an email notification
+        # to applications that the event has been cancelled.
+        event = models.Game.objects.get(id=event_id)
+        event.delete()
+        messages.add_message(request, messages.INFO, 'Game has been deleted.')
+        return redirect('events')
+
+
 class SchedulingView(View):
     """A view for scheduling officials for games."""
     template = 'udoco/schedule_event.html'

@@ -29,6 +29,9 @@ urlpatterns = [
     url(r'^events$', views.EventsView.as_view(), name='events'),
     url(r'^events/new$', views.AddEventView.as_view(), name='add_event'),
     url(r'^events/(?P<event_id>[0-9]+)$', views.EventView.as_view(), name='view_event'),
+    url(r'^events/(?P<event_id>[0-9]+)/delete$',
+        views.EventDeleteView.as_view(),
+        name='delete_event'),
     url(r'^events/(?P<event_id>[0-9]+)/schedule$', views.SchedulingView.as_view(),
         name='schedule_event'),
 
@@ -42,7 +45,8 @@ urlpatterns = [
 
 
 if settings.MEDIA_ROOT.startswith('/'):
+    from django.views.static import serve
     urlpatterns += [
-        url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {
+        url(r'^media/(?P<path>.*)$', serve, {
             'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
     ]

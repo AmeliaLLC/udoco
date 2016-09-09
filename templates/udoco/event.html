@@ -10,7 +10,7 @@ a#login {
     text-decoration: none;
 }
 
-button {
+button#fb-login {
     padding-right: 45px;
     height: 35px;
     background: none;
@@ -103,13 +103,17 @@ button {
         <a href="{% url 'schedule_event' event.id %}">Schedule officials to officiate this event.</a>
     </div>
 {% endif %}
+    <form method="POST" action="{% url 'delete_event' event.id %}">
+        {% csrf_token %}
+        <input class="mdl-button mdl-button--raised" type="submit" value="Cancel event" />
+    </form>
 </div>
 {% endif %}
 
 {% if not user.is_authenticated %}
 <div class="mdl-cell mdl-cell--8-col">
     <a id="login" href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">
-    <button>Log in to apply</button>
+    <button id="fb-login">Log in to apply</button>
     </a>
 </div>
 <div class="mdl-cell mdl-cell--8-col" id="disclaimer">
