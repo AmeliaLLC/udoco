@@ -32,6 +32,9 @@ urlpatterns = [
     url(r'^events/(?P<event_id>[0-9]+)/delete$',
         views.EventDeleteView.as_view(),
         name='delete_event'),
+    url(r'^events/(?P<event_id>[0-9]+)/withdraw$',
+        views.EventWithdrawalView.as_view(),
+        name='event_withdrawal'),
     url(r'^events/(?P<event_id>[0-9]+)/schedule$', views.SchedulingView.as_view(),
         name='schedule_event'),
 

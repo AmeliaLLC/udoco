@@ -118,6 +118,23 @@ class EventView(View):
             return self.get(request, event_id, form=form)
 
 
+class EventWithdrawalView(View):
+    """A view for withdrawing a roster."""
+
+    def post(self, request, event_id):
+        event = models.Game.objects.get(id=event_id)
+        try:
+            application = models.Application.objects.get(
+                official=request.user, game=event)
+            application.delete()
+            messages.add_message(
+                request, messages.INFO,
+                'You have withdrawn from the event.')
+            return redirect('events')
+        except models.Application.DoesNotExist:
+            raise Http404
+
+
 class EventDeleteView(View):
     """A view for deleting events."""
 
