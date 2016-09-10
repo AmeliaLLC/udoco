@@ -129,6 +129,37 @@ class SchedulingForm(forms.Form):
         label='Alternate', empty_label='', queryset=None,
         required=False)
 
+    jt = forms.ModelChoiceField(
+        label='Jam Timer', empty_label='', queryset=None,
+        required=False)
+    sk1 = forms.ModelChoiceField(
+        label='Score Keeper', empty_label='', queryset=None,
+        required=False)
+    sk2 = forms.ModelChoiceField(
+        label='Score Keeper', empty_label='', queryset=None,
+        required=False)
+    pbm = forms.ModelChoiceField(
+        label='Penalty Box Manager', empty_label='', queryset=None,
+        required=False)
+    pbt1 = forms.ModelChoiceField(
+        label='Penalty Box Timer', empty_label='', queryset=None,
+        required=False)
+    pbt2 = forms.ModelChoiceField(
+        label='Penalty Box Timer', empty_label='', queryset=None,
+        required=False)
+    pw = forms.ModelChoiceField(
+        label='Penalty Wrangler', empty_label='', queryset=None,
+        required=False)
+    iwb = forms.ModelChoiceField(
+        label='Inside Whiteboard', empty_label='', queryset=None,
+        required=False)
+    lt1 = forms.ModelChoiceField(
+        label='Lineup Tracker', empty_label='', queryset=None,
+        required=False)
+    lt2 = forms.ModelChoiceField(
+        label='Lineup Tracker', empty_label='', queryset=None,
+        required=False)
+
     def __init__(self, qs, *args, **kwargs):
         super(SchedulingForm, self).__init__(*args, **kwargs)
         for label, field in self.fields.items():

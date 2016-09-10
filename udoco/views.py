@@ -235,6 +235,16 @@ class SchedulingView(View):
                 roster.alt = form.cleaned_data['alt'].official
             except AttributeError:
                 pass
+            roster.jt = form.cleaned_data['jt'].official
+            roster.sk1 = form.cleaned_data['sk1'].official
+            roster.sk2 = form.cleaned_data['sk2'].official
+            roster.pbm = form.cleaned_data['pbm'].official
+            roster.pbt1 = form.cleaned_data['pbt1'].official
+            roster.pbt2 = form.cleaned_data['pbt2'].official
+            roster.pw = form.cleaned_data['pw'].official
+            roster.iwb = form.cleaned_data['iwb'].official
+            roster.lt1 = form.cleaned_data['lt1'].official
+            roster.lt2 = form.cleaned_data['lt2'].official
             roster.save()
             messages.add_message(
                 request, messages.INFO, 'Game roster has been saved.')
