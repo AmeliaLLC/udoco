@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'social.apps.django_app.default',
     'fullcalendar',
     'storages',
+    'anymail',
 
     'udoco',
 ]
@@ -194,6 +195,13 @@ AWS_ACCESS_KEY_ID = 'AKIAIUM5IHXVVDTZDQZA'
 AWS_SECRET_ACCESS_KEY = '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'
 
 AWS_S3_HOST = "s3-us-west-1.amazonaws.com"
+
+ANYMAIL = {
+    'MAILGUN_API_KEY': 'key-7bd652048999a824cbd8b5fd00fcd63d',
+    'MAILGUN_SENDER_DOMAIN': 'mg.udoco.org',
+}
+EMAIL_BACKEND = 'anymail.backends.mailgun.MailgunBackend'
+DEFAULT_FROM_EMAIL = 'no-reply@udoco.org'
 
 if 'DATABASE_URL' in os.environ:
     import dj_database_url

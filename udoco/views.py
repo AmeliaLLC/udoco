@@ -1,6 +1,7 @@
 from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core import mail
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render, render_to_response
 from django.utils import timezone
@@ -129,6 +130,14 @@ class EventView(View):
             application.save()
             messages.add_message(
                 request, messages.INFO, 'Your application has been received.')
+
+            with mail.get_connection() as connection:
+                email = mail.EmailMessage(
+                    'Thank you for applying to "{}"'.format(event.title),
+                    'Your willingness to help is greatly appreciated',
+                    'United Derby Officials Colorado <no-reply@udoco.org>',
+                    [request.user.email], connection=connection)
+                email.send()
             return redirect('view_event', event_id)
         else:
             return self.get(request, event_id, form=form)

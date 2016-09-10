@@ -9,5 +9,6 @@ boto==2.40.0
 dj-database-url==0.4.1
 psycopg2==2.6.1
 Pillow==3.3.1
+django-anymail==0.5
 
 git+https://github.com/rockstar/django-fullcalendar.git#egg=django-fullcalendar
