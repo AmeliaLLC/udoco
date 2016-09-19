@@ -42,3 +42,12 @@ class NonskatingPositions(smartchoices.Choices):
     PENALTY_WRANGLER = smartchoices.Choice()
     INSIDE_WHITEBOARD = smartchoices.Choice()
     LINEUP_TRACKER = smartchoices.Choice()
+
+
+class OfficialType(smartchoices.Choices):
+    """An enum for official types."""
+    class Meta:
+        smart_names = True
+    ALL = smartchoices.Choice()
+    SKATING = smartchoices.Choice()
+    NONSKATING = smartchoices.Choice()

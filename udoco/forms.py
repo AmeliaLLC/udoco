@@ -6,6 +6,10 @@ from udoco import choices, models, validators
 
 class ContinueSignUpForm(forms.Form):
     display_name = forms.CharField(label='Derby name', max_length=100)
+    email = forms.CharField(
+        label='Email address',
+        widget=forms.TextInput(attrs={
+            'readonly': 'readonly'}))
     game_history = forms.URLField(required=False)
 
     phone_number = forms.CharField(
@@ -17,6 +21,13 @@ class ContinueSignUpForm(forms.Form):
     emergency_contact_number = forms.CharField(
         label='Emergency Contact Number', max_length=16,
         validators=[validators.PHONE_NUMBER_VALIDATOR])
+
+    official_type = forms.ChoiceField(
+        label='Preferred officiating type',
+        required=True, choices=choices.OfficialType.choices)
+    league_affiliation = forms.CharField(
+        label='League Affiliation', max_length=255,
+        required=False)
 
 
 class SimplifiedLeagueSelect(forms.widgets.Select):

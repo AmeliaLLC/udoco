@@ -23,6 +23,11 @@ class Official(AbstractUser):
 
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
 
+    official_type = models.PositiveIntegerField(
+        choices=choices.OfficialType.choices, default=choices.OfficialType.ALL)
+    league_affiliation = models.CharField(
+        _('affiliation'), max_length=256, blank=True)
+
     def __str__(self):
         if len(self.display_name) > 0:
             return self.display_name

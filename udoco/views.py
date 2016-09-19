@@ -266,10 +266,13 @@ class ProfileView(View):
         if form is None:
             form = self.form(initial={
                 'display_name': display_name,
+                'email': request.user.email,
                 'game_history': request.user.game_history,
                 'phone_number': request.user.phone_number,
                 'emergency_contact_name': request.user.emergency_contact_name,
                 'emergency_contact_number': request.user.emergency_contact_number,
+                'official_type': request.user.official_type,
+                'league_affiliation': request.user.league_affiliation,
             })
         return render(request, self.template, {'form': form})
 
@@ -281,6 +284,8 @@ class ProfileView(View):
             request.user.phone_number = form.cleaned_data['phone_number']
             request.user.emergency_contact_name = form.cleaned_data['emergency_contact_name']
             request.user.emergency_contact_number = form.cleaned_data['emergency_contact_number']
+            request.user.official_type = form.cleaned_data['official_type']
+            request.user.league_affiliation = form.cleaned_data['league_affiliation']
             request.user.save()
             messages.add_message(request, messages.INFO, 'Profile saved')
             return redirect(request.GET.get('next', 'profile'))

@@ -1,5 +1,11 @@
 {% extends "base.html" %}
+{% load staticfiles %}
 {% load udoco_forms %}
+{% block "extra_head" %}
+<link rel="stylesheet" href="{% static 'mdl-selectfield/dist/mdl-selectfield.min.css' %}">
+<script src="{% static 'mdl-selectfield/dist/mdl-selectfield.min.js' %}"></script>
+{% endblock %}
+
 {% block "content" %}
 {% if form.errors %}
 {% endif %}
