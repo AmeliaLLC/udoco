@@ -131,6 +131,8 @@ class Roster(models.Model):
     pbm = models.ForeignKey(Official, related_name="pbm_games", null=True)
     pbt1 = models.ForeignKey(Official, related_name="pbt1_games", null=True)
     pbt2 = models.ForeignKey(Official, related_name="pbt2_games", null=True)
+    pt1 = models.ForeignKey(Official, related_name="pt1_games", null=True)
+    pt2 = models.ForeignKey(Official, related_name="pt2_games", null=True)
     pw = models.ForeignKey(Official, related_name="pw_games", null=True)
     iwb = models.ForeignKey(Official, related_name="iwb_games", null=True)
     lt1 = models.ForeignKey(Official, related_name="lt1_games", null=True)

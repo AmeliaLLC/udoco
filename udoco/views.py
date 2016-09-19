@@ -190,11 +190,25 @@ class SchedulingView(View):
                     'opr1': event.roster.opr1,
                     'opr2': event.roster.opr2,
                     'opr3': event.roster.opr3,
+                    'alt': event.roster.alt,
+                    'jt': event.roster.jt,
+                    'sk1': event.roster.sk1,
+                    'sk2': event.roster.sk2,
+                    'pbm': event.roster.pbm,
+                    'pbt1': event.roster.pbt1,
+                    'pbt2': event.roster.pbt2,
+                    'pt1': event.roster.pt1,
+                    'pt2': event.roster.pt2,
+                    'pw': event.roster.pw,
+                    'iwb': event.roster.iwb,
+                    'lt1': event.roster.lt1,
+                    'lt2': event.roster.lt2,
                 }
             except models.Roster.DoesNotExist:
                 initial = {}
             form = forms.SchedulingForm(
-                models.Application.objects.filter(game=event),
+                models.Official.objects.filter(
+                    applications__in=models.Application.objects.filter(game=event)),
                 initial=initial)
         context = {
             'form': form,
@@ -207,44 +221,47 @@ class SchedulingView(View):
         if not event.can_schedule(request.user):
             raise Http404()
         form = forms.SchedulingForm(
-            models.Application.objects.filter(game=event),
+            models.Official.objects.filter(
+                applications__in=models.Application.objects.filter(game=event)),
             request.POST)
         if form.is_valid():
             roster = models.Roster()
             roster.game = event
-            roster.hr = form.cleaned_data['hr'].official
+            roster.hr = form.cleaned_data['hr']
             try:
-                roster.ipr = form.cleaned_data['ipr'].official
+                roster.ipr = form.cleaned_data['ipr']
             except AttributeError:
                 pass
-            roster.jr1 = form.cleaned_data['jr1'].official
-            roster.jr2 = form.cleaned_data['jr2'].official
+            roster.jr1 = form.cleaned_data['jr1']
+            roster.jr2 = form.cleaned_data['jr2']
             try:
-                roster.opr1 = form.cleaned_data['opr1'].official
-            except AttributeError:
-                pass
-            try:
-                roster.opr2 = form.cleaned_data['opr2'].official
+                roster.opr1 = form.cleaned_data['opr1']
             except AttributeError:
                 pass
             try:
-                roster.opr3 = form.cleaned_data['opr3'].official
+                roster.opr2 = form.cleaned_data['opr2']
             except AttributeError:
                 pass
             try:
-                roster.alt = form.cleaned_data['alt'].official
+                roster.opr3 = form.cleaned_data['opr3']
             except AttributeError:
                 pass
-            roster.jt = form.cleaned_data['jt'].official
-            roster.sk1 = form.cleaned_data['sk1'].official
-            roster.sk2 = form.cleaned_data['sk2'].official
-            roster.pbm = form.cleaned_data['pbm'].official
-            roster.pbt1 = form.cleaned_data['pbt1'].official
-            roster.pbt2 = form.cleaned_data['pbt2'].official
-            roster.pw = form.cleaned_data['pw'].official
-            roster.iwb = form.cleaned_data['iwb'].official
-            roster.lt1 = form.cleaned_data['lt1'].official
-            roster.lt2 = form.cleaned_data['lt2'].official
+            try:
+                roster.alt = form.cleaned_data['alt']
+            except AttributeError:
+                pass
+            roster.jt = form.cleaned_data['jt']
+            roster.sk1 = form.cleaned_data['sk1']
+            roster.sk2 = form.cleaned_data['sk2']
+            roster.pbm = form.cleaned_data['pbm']
+            roster.pbt1 = form.cleaned_data['pbt1']
+            roster.pbt2 = form.cleaned_data['pbt2']
+            roster.pt1 = form.cleaned_data['pt1']
+            roster.pt2 = form.cleaned_data['pt2']
+            roster.pw = form.cleaned_data['pw']
+            roster.iwb = form.cleaned_data['iwb']
+            roster.lt1 = form.cleaned_data['lt1']
+            roster.lt2 = form.cleaned_data['lt2']
             roster.save()
             messages.add_message(
                 request, messages.INFO, 'Game roster has been saved.')

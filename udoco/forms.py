@@ -158,11 +158,17 @@ class SchedulingForm(forms.Form):
     pbt2 = forms.ModelChoiceField(
         label='Penalty Box Timer', empty_label='', queryset=None,
         required=False)
+    pt1 = forms.ModelChoiceField(
+        label='Penalty Tracker', empty_label='', queryset=None,
+        required=False)
+    pt2 = forms.ModelChoiceField(
+        label='Penalty Tracker', empty_label='', queryset=None,
+        required=False)
     pw = forms.ModelChoiceField(
-        label='Penalty Wrangler', empty_label='', queryset=None,
+        label='Penalty Wrangler (optional)', empty_label='', queryset=None,
         required=False)
     iwb = forms.ModelChoiceField(
-        label='Inside Whiteboard', empty_label='', queryset=None,
+        label='Inside Whiteboard (optional)', empty_label='', queryset=None,
         required=False)
     lt1 = forms.ModelChoiceField(
         label='Lineup Tracker', empty_label='', queryset=None,

@@ -42,6 +42,7 @@ class NonskatingPositions(smartchoices.Choices):
     PENALTY_WRANGLER = smartchoices.Choice()
     INSIDE_WHITEBOARD = smartchoices.Choice()
     LINEUP_TRACKER = smartchoices.Choice()
+    SCOREBOARD_OPERATOR = smartchoices.Choice()
 
 
 class OfficialType(smartchoices.Choices):
