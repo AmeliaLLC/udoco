@@ -3,6 +3,8 @@ from django import forms, template
 from udoco.forms import DateTimePicker, SimplifiedLeagueSelect
 
 MDLFORM_MAP = {
+    forms.widgets.EmailInput: {
+        'class': 'mdl-textfield__input'},
     forms.widgets.TextInput: {
         'class': 'mdl-textfield__input'},
     forms.widgets.Select: {
@@ -32,6 +34,8 @@ def mdl(field):
         js_class = parent_class.replace('mdl-', 'mdl-js-')
         floating_label_class = '{}--floating-label'.format(parent_class)
         div_class = ' '.join([parent_class, js_class, floating_label_class])
+        if len(field.errors):
+            div_class = ' '.join([div_class, 'is-invalid'])
     except KeyError:
         parent_class = div_class = ''
 
@@ -52,7 +56,7 @@ def mdl(field):
     error = ''
     if len(field.errors) > 0:
         error = ' '.join([e for e in field.errors])
-        error = '<span>{}</span>'.format(error)
+        error = '<span class="udoco-form-errors">{}</span>'.format(error)
     return '''
 <div class="{div_class}">
 <label for="{name}" class="{class}">{label}</label>

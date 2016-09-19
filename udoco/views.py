@@ -297,6 +297,7 @@ class ProfileView(View):
         form = self.form(request.POST)
         if form.is_valid():
             request.user.display_name = form.cleaned_data['display_name']
+            request.user.email = form.cleaned_data['email']
             request.user.game_history = form.cleaned_data['game_history']
             request.user.phone_number = form.cleaned_data['phone_number']
             request.user.emergency_contact_name = form.cleaned_data['emergency_contact_name']

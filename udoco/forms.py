@@ -6,10 +6,7 @@ from udoco import choices, models, validators
 
 class ContinueSignUpForm(forms.Form):
     display_name = forms.CharField(label='Derby name', max_length=100)
-    email = forms.CharField(
-        label='Email address',
-        widget=forms.TextInput(attrs={
-            'readonly': 'readonly'}))
+    email = forms.EmailField(label='Preferred email address')
     game_history = forms.URLField(required=False)
 
     phone_number = forms.CharField(

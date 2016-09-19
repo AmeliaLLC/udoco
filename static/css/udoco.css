@@ -26,3 +26,9 @@ li.event .host {
     line-height; 100%;
     font-style: oblique;
 }
+
+span.udoco-form-errors {
+    font-weight: bold;
+    color: #d50000;
+    font-size: 80%;
+}
