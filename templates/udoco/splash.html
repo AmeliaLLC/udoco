@@ -72,31 +72,7 @@ img.center {
     margin-left: auto;
     margin-right: auto;
 }
-#content {
-    background: rgba(0,0,0,0.0);
-    display: block;
-    position: absolute;
-    width: 800px;
-    height: 280px;
-    top: 50%;
-    left: 50%;
-    margin: -160px 0 0 -400px;
-}
-#content h1 {
-    text-align: center;
-    font-size: 35px;
-}
-#content img {
-    clear: both;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 20px;
-}
-#content p {
-    text-align: center;
-}
-#content button {
+button.fb {
     padding-right: 45px;
     height: 35px;
     background: none;
@@ -121,8 +97,23 @@ img.center {
     background-image: url(http://icons.iconarchive.com/icons/danleech/simple/512/facebook-icon.png);
 }
 
-#content #disclaimer {
-    font-size: 70%;
+#content {
+    background: rgba(0,0,0,0.0);
+    display: block;
+    width: 100%;
+    position: absolute;
+    height: 280px;
+    margin-top: 25%;
+}
+#content h1 {
+    text-align: center;
+    font-size: 35px;
+    line-height: 100%;
+}
+#content p#disclaimer {
+    font-size: 80%;
+    text-align: center;
+    margin: 0 10px 0 10px;
 }
 </style>
 
@@ -132,7 +123,7 @@ img.center {
 
 <div id="content">
 
-<h1>United Derby Officials Colorado</h1>
+    <h1>United Derby Officials Colorado</h1>
 
 {% comment %}
 <p>Lorem ipsum bettini res firma mitescere nescit venga venga venga bahati monte paschi
@@ -142,7 +133,7 @@ classification bahamontes e3 prijs vlaanderen ten dam bartali berg ter stene.</p
 
 <p>
 <a href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">
-<button>Log in with Facebook</button>
+<button class="fb">Log in with Facebook</button>
 </a>
 </p>
 
