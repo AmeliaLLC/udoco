@@ -5,7 +5,7 @@ To deploy:
 
     git push heroku master
     heroku run python manage.py migrate
-    DATABASE_URL=sqlite:// manage.py collectstatic
+    DATABASE_URL=sqlite:// manage.py collectstatic --noinput
 
 Create a superuser
 ==================
