@@ -1,0 +1,6 @@
+Thank you for your willingness to officiate. Unfortunately, you were not staffed
+for this game. We look forward to staffing you in future games.
+
+Thank you,
+{% for scheduler in event.league.schedulers.all %}{{ scheduler.display_name }}
+{% endfor %}

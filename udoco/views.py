@@ -264,7 +264,7 @@ class SchedulingView(View):
             #roster.complete = True
 
             with mail.get_connection() as connection:
-                email = mail.EmailMessage(
+                mail.EmailMessage(
                     render_to_string(
                         'email/scheduling_title.txt',
                         {'event': event}),
@@ -272,8 +272,22 @@ class SchedulingView(View):
                         'email/scheduling_body.txt',
                         {'event': event}),
                     'United Derby Officials Colorado <no-reply@udoco.org>',
-                    [user.email for user in roster.staff], connection=connection)
-                email.send()
+                    [user.email for user in roster.staff],
+                    connection=connection).send()
+
+                nonrostered = models.Official.objects.filter(
+                    applications__in=roster.game.applications.all()).exclude(
+                    pk__in=[user.pk for user in roster.staff])
+                mail.EmailMessage(
+                    render_to_string(
+                        'email/scheduling_title.txt',
+                        {'event': event}),
+                    render_to_string(
+                        'email/nonrostered_body.txt',
+                        {'event': event}),
+                    'United Derby Officials Colorado <no-reply@udoco.org>',
+                    [user.email for user in nonrostered],
+                    connection=connection).send()
 
         roster.save()
         messages.add_message(
