@@ -52,12 +52,18 @@
       <div class="demo-drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50">
         {% if user.is_authenticated %}
         <header class="demo-drawer-header">
-          {% if user.avatar %}
-          <img class="demo-avatar" style="background-image: url({{ user.avatar.url }})">
-          {% else %}
-          <img class="demo-avatar">
+          <span class="avatar mdl-badge mdl-badge--overlap"
+          {% if request.user.notifications %}
+              data-badge="10"
           {% endif %}
-          <span>{{ user.display_name }}</span>
+          >
+          <img class="demo-avatar"
+          {% if user.avatar %}
+          style="background-image: url({{ user.avatar.url }})"
+          {% endif %}
+          >
+          </span>
+          <span class="udoco-avatar-text">{{ user.display_name }}</span>
         </header>
         {% endif %}
         <nav class="demo-navigation mdl-navigation mdl-color--blue-grey-800">

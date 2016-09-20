@@ -1,3 +1,9 @@
+.avatar:not([data-badge]) {
+    margin-right: 24px;
+}
+.avatar[data-badge] {
+    margin-right: 24px;
+}
 div.events {
 }
 div.events ul {
