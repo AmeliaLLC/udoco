@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.core import mail
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render, render_to_response
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import View
@@ -131,13 +132,6 @@ class EventView(View):
             messages.add_message(
                 request, messages.INFO, 'Your application has been received.')
 
-            with mail.get_connection() as connection:
-                email = mail.EmailMessage(
-                    'Thank you for applying to "{}"'.format(event.title),
-                    'Your willingness to help is greatly appreciated',
-                    'United Derby Officials Colorado <no-reply@udoco.org>',
-                    [request.user.email], connection=connection)
-                email.send()
             return redirect('view_event', event_id)
         else:
             return self.get(request, event_id, form=form)
@@ -224,50 +218,67 @@ class SchedulingView(View):
             models.Official.objects.filter(
                 applications__in=models.Application.objects.filter(game=event)),
             request.POST)
-        if form.is_valid():
-            roster = models.Roster()
-            roster.game = event
-            roster.hr = form.cleaned_data['hr']
-            try:
-                roster.ipr = form.cleaned_data['ipr']
-            except AttributeError:
-                pass
-            roster.jr1 = form.cleaned_data['jr1']
-            roster.jr2 = form.cleaned_data['jr2']
-            try:
-                roster.opr1 = form.cleaned_data['opr1']
-            except AttributeError:
-                pass
-            try:
-                roster.opr2 = form.cleaned_data['opr2']
-            except AttributeError:
-                pass
-            try:
-                roster.opr3 = form.cleaned_data['opr3']
-            except AttributeError:
-                pass
-            try:
-                roster.alt = form.cleaned_data['alt']
-            except AttributeError:
-                pass
-            roster.jt = form.cleaned_data['jt']
-            roster.sk1 = form.cleaned_data['sk1']
-            roster.sk2 = form.cleaned_data['sk2']
-            roster.pbm = form.cleaned_data['pbm']
-            roster.pbt1 = form.cleaned_data['pbt1']
-            roster.pbt2 = form.cleaned_data['pbt2']
-            roster.pt1 = form.cleaned_data['pt1']
-            roster.pt2 = form.cleaned_data['pt2']
-            roster.pw = form.cleaned_data['pw']
-            roster.iwb = form.cleaned_data['iwb']
-            roster.lt1 = form.cleaned_data['lt1']
-            roster.lt2 = form.cleaned_data['lt2']
-            roster.save()
-            messages.add_message(
-                request, messages.INFO, 'Game roster has been saved.')
-            return redirect('view_event', event_id)
-        else:
+        if not form.is_valid():
             return self.get(request, event_id, form=form)
+
+        roster = models.Roster()
+        roster.game = event
+        roster.hr = form.cleaned_data['hr']
+        try:
+            roster.ipr = form.cleaned_data['ipr']
+        except AttributeError:
+            pass
+        roster.jr1 = form.cleaned_data['jr1']
+        roster.jr2 = form.cleaned_data['jr2']
+        try:
+            roster.opr1 = form.cleaned_data['opr1']
+        except AttributeError:
+            pass
+        try:
+            roster.opr2 = form.cleaned_data['opr2']
+        except AttributeError:
+            pass
+        try:
+            roster.opr3 = form.cleaned_data['opr3']
+        except AttributeError:
+            pass
+        try:
+            roster.alt = form.cleaned_data['alt']
+        except AttributeError:
+            pass
+        roster.jt = form.cleaned_data['jt']
+        roster.sk1 = form.cleaned_data['sk1']
+        roster.sk2 = form.cleaned_data['sk2']
+        roster.pbm = form.cleaned_data['pbm']
+        roster.pbt1 = form.cleaned_data['pbt1']
+        roster.pbt2 = form.cleaned_data['pbt2']
+        roster.pt1 = form.cleaned_data['pt1']
+        roster.pt2 = form.cleaned_data['pt2']
+        roster.pw = form.cleaned_data['pw']
+        roster.iwb = form.cleaned_data['iwb']
+        roster.lt1 = form.cleaned_data['lt1']
+        roster.lt2 = form.cleaned_data['lt2']
+        roster.so = form.cleaned_data['so']
+
+        if request.POST.get('action', '').startswith('Commit'):
+            #roster.complete = True
+
+            with mail.get_connection() as connection:
+                email = mail.EmailMessage(
+                    render_to_string(
+                        'email/scheduling_title.txt',
+                        {'event': event}),
+                    render_to_string(
+                        'email/scheduling_body.txt',
+                        {'event': event}),
+                    'United Derby Officials Colorado <no-reply@udoco.org>',
+                    [user.email for user in roster.staff], connection=connection)
+                email.send()
+
+        roster.save()
+        messages.add_message(
+            request, messages.INFO, 'Game roster has been saved.')
+        return redirect('view_event', event_id)
 
 
 class ProfileView(View):
@@ -309,3 +320,35 @@ class ProfileView(View):
             return redirect(request.GET.get('next', 'profile'))
         else:
             return self.get(request, form=form)
+
+
+class LeagueView(View):
+    """A view for league management."""
+    template = 'udoco/league.html'
+    form = forms.LeagueEditForm
+
+    def get(self, request, form=None):
+        if form is None:
+            # XXX: rockstar (19 Sep 2016) - This only works for scheduler
+            # who has access to a single league.
+            league = request.user.scheduling.all()[0]
+            form = self.form(initial={
+                'league': league,
+                'email_template': league.email_template
+                })
+            form.fields['league'].queryset = request.user.scheduling.all()
+
+        return render(request, self.template, {'form': form})
+
+    def post(self, request):
+        form = self.form(request.POST)
+        form.fields['league'].queryset = request.user.scheduling.all()
+        if not form.is_valid():
+            return self.get(request, form=form)
+
+        league = form.cleaned_data['league']
+        league.email_template = form.cleaned_data['email_template']
+        league.save()
+        messages.add_message(
+            request, messages.INFO, 'League settings changed')
+        return redirect('leagues')

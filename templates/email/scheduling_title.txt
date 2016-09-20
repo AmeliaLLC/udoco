@@ -1,0 +1,1 @@
+Officials Staffing - {{ event.title }} -- {{ event.start|date:"j M Y" }}

@@ -1,0 +1,40 @@
+Officials,
+
+  Thank you for your willingness to officiate at this event. Below is the officiating
+roster.
+
+Skating Officials
+-----------------
+
+{% if event.roster.hr %}Head Referee - {{ event.roster.hr.display_name }}{% endif %}
+{% if event.roster.jr1 %}Jam Referee - {{ event.roster.jr1.display_name }}{% endif %}
+{% if event.roster.jr2 %}Jam Referee - {{ event.roster.jr2.display_name }}{% endif %}
+{% if event.roster.ipr %}Inside Pack Referee - {{ event.roster.ipr.display_name }}{% endif %}
+{% if event.roster.opr1 %}Outside Pack Referee - {{ event.roster.opr.display_name }}{% endif %}
+{% if event.roster.opr2 %}Outside Pack Referee - {{ event.roster.opr.display_name }}{% endif %}
+{% if event.roster.opr3 %}Outside Pack Referee - {{ event.roster.opr.display_name }}{% endif %}
+{% if event.roster.alt %}Alternate Referee - {{ event.roster.alt.display_name }}{% endif %}
+
+
+Non-skating Officials
+---------------------
+
+{% if event.roster.jt %}Jam Timer - {{ event.roster.jt.display_name }}{% endif %}
+{% if event.roster.sk1 %}Scorekeeper - {{ event.roster.sk1.display_name }}{% endif %}
+{% if event.roster.sk2 %}Scorekeeper - {{ event.roster.sk2.display_name }}{% endif %}
+{% if event.roster.pbm %}Penalty Box Manager - {{ event.roster.pbm.display_name }}{% endif %}
+{% if event.roster.pbt1 %}Penalty Box Timer - {{ event.roster.pbt1.display_name }}{% endif %}
+{% if event.roster.pbt2 %}Penalty Box Timer - {{ event.roster.pbt2.display_name }}{% endif %}
+{% if event.roster.pt1 %}Penalty Tracker - {{ event.roster.pt1.display_name }}{% endif %}
+{% if event.roster.pt2 %}Penalty Tracker - {{ event.roster.pt2.display_name }}{% endif %}
+{% if event.roster.pw %}Penalty Wrangler - {{ event.roster.pw.display_name }}{% endif %}
+{% if event.roster.iwb %}Inside Whiteboard - {{ event.roster.iwb.display_name }}{% endif %}
+{% if event.roster.lt1 %}Lineup Tracker - {{ event.roster.lt1.display_name }}{% endif %}
+{% if event.roster.lt2 %}Lineup Tracker - {{ event.roster.lt2.display_name }}{% endif %}
+{% if event.roster.so %}Scoreboard Operator - {{ event.roster.so.display_name }}{% endif %}
+
+{{ event.league.email_template|safe }}
+
+Thank you,
+{% for scheduler in event.league.schedulers.all %}
+{{ scheduler.display_name }}{% endfor %}

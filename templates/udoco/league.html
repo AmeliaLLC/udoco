@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load udoco_forms %}
+{% block "extra_head" %}
+<link rel="stylesheet" href="{% static 'mdl-selectfield/dist/mdl-selectfield.min.css' %}">
+<script src="{% static 'mdl-selectfield/dist/mdl-selectfield.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'vendor/bootstrap-material-datetimepicker.css' %}">
+<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'moment/moment.js' %}"></script>
+<script src="{% static 'vendor/bootstrap-material-datetimepicker.js' %}"></script>
+{% endblock %}
+
+{% block "content" %}
+<form action="" method="POST">
+    <div class="mdl-grid">
+    {% for field in form %}
+    <div class="mdl-cell mdl-cell--12-col">
+        {{ field | mdl | safe }}
+    </div>
+    {% endfor %}
+    </div>
+
+    <input class="mdl-button mdl-button--raised" type="submit" value="Save league" />
+    {% csrf_token %}
+</form>
+{% endblock %}

@@ -141,7 +141,10 @@
     </div>
     {% endfor %}
     {% csrf_token %}
-    <input class="mdl-button mdl-button--raised" type="submit" value="Complete application" />
+    <input class="mdl-button mdl-button--raised" type="submit" name="action" value="Save roster" />
+    {% if not event.roster.complete %}
+    <input class="mdl-button mdl-button--raised mdl-button--accent" type="submit" name="action" value="Commit" />
+    {% endif %}
   </form>
 </div>
 {% endblock %}

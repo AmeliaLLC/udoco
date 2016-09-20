@@ -26,6 +26,8 @@ urlpatterns = [
     url(r'^$', views.splash, name='index'),
     url(r'^_$', views.health_check, name='health_check'),
 
+    url(r'^leagues$', views.LeagueView.as_view(), name='leagues'),
+
     url(r'^events$', views.EventsView.as_view(), name='events'),
     url(r'^events/new$', views.AddEventView.as_view(), name='add_event'),
     url(r'^events/(?P<event_id>[0-9]+)$', views.EventView.as_view(), name='view_event'),

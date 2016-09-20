@@ -116,14 +116,17 @@ class SchedulingForm(forms.Form):
     """Form for scheduling an event."""
 
     hr = forms.ModelChoiceField(
-        label='Head Ref', empty_label='', queryset=None)
+        label='Head Ref', empty_label='', queryset=None,
+        required=False)
     ipr = forms.ModelChoiceField(
         label='Inside Pack Ref', empty_label='', queryset=None,
         required=False)
     jr1 = forms.ModelChoiceField(
-        label='Jam Ref', empty_label='', queryset=None)
+        label='Jam Ref', empty_label='', queryset=None,
+        required=False)
     jr2 = forms.ModelChoiceField(
-        label='Jam Ref', empty_label='', queryset=None)
+        label='Jam Ref', empty_label='', queryset=None,
+        required=False)
     opr1 = forms.ModelChoiceField(
         label='Outside Pack Ref', empty_label='', queryset=None,
         required=False)
@@ -173,9 +176,20 @@ class SchedulingForm(forms.Form):
     lt2 = forms.ModelChoiceField(
         label='Lineup Tracker', empty_label='', queryset=None,
         required=False)
+    so = forms.ModelChoiceField(
+        label='Scoreboard Operator', empty_label='', queryset=None,
+        required=False)
 
     def __init__(self, qs, *args, **kwargs):
         super(SchedulingForm, self).__init__(*args, **kwargs)
         for label, field in self.fields.items():
             if isinstance(field, forms.ModelChoiceField):
                 field.queryset = qs
+
+
+class LeagueEditForm(forms.Form):
+
+    league = forms.ModelChoiceField(
+        queryset=models.League.objects.none(),
+        widget=SimplifiedLeagueSelect)
+    email_template = forms.CharField(widget=forms.Textarea)

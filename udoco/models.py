@@ -49,6 +49,8 @@ class League(models.Model):
 
     created = models.DateTimeField(_('created'), auto_now_add=True)
 
+    email_template = models.TextField(blank=True)
+
     schedulers = models.ManyToManyField(Official, blank=True, related_name='scheduling')
 
     def __unicode__(self):
@@ -116,10 +118,10 @@ class Roster(models.Model):
     game = models.OneToOneField(
         Game, on_delete=models.CASCADE, primary_key=True)
 
-    hr = models.ForeignKey(Official, related_name='hr_games')
+    hr = models.ForeignKey(Official, related_name='hr_games', null=True)
     ipr = models.ForeignKey(Official, related_name='ipr_games', null=True)
-    jr1 = models.ForeignKey(Official, related_name='jr1_games')
-    jr2 = models.ForeignKey(Official, related_name='jr2_games')
+    jr1 = models.ForeignKey(Official, related_name='jr1_games', null=True)
+    jr2 = models.ForeignKey(Official, related_name='jr2_games', null=True)
     opr1 = models.ForeignKey(Official, related_name='opr1_games', null=True)
     opr2 = models.ForeignKey(Official, related_name='opr2_games', null=True)
     opr3 = models.ForeignKey(Official, related_name='opr3_games', null=True)
@@ -137,3 +139,15 @@ class Roster(models.Model):
     iwb = models.ForeignKey(Official, related_name="iwb_games", null=True)
     lt1 = models.ForeignKey(Official, related_name="lt1_games", null=True)
     lt2 = models.ForeignKey(Official, related_name="lt2_games", null=True)
+    so = models.ForeignKey(Official, related_name="so_games", null=True)
+
+    complete = models.BooleanField(default=False)
+
+    @property
+    def staff(self):
+        staff = [
+            self.hr, self.ipr, self.jr1, self.jr2, self.opr1, self.opr2,
+            self.opr3, self.alt, self.jt, self.sk1, self.sk2, self.pbm,
+            self.pbt1, self.pbt2, self.pt1, self.pt2, self.pw, self.iwb,
+            self.lt1, self.lt2]
+        return tuple([user for user in staff if user is not None])
