@@ -261,7 +261,7 @@ class SchedulingView(View):
         roster.so = form.cleaned_data['so']
 
         if request.POST.get('action', '').startswith('Commit'):
-            #roster.complete = True
+            roster.complete = True
 
             with mail.get_connection() as connection:
                 mail.EmailMessage(
