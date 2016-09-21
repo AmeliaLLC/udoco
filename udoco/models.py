@@ -115,7 +115,7 @@ class Application(models.Model):
 class Roster(models.Model):
     """A roster for an event."""
 
-    game = models.OneToOneField(
+    game = models.ForeignKey(
         Game, on_delete=models.CASCADE, primary_key=True)
 
     hr = models.ForeignKey(Official, related_name='hr_games', null=True)
