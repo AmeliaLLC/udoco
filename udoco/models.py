@@ -78,11 +78,36 @@ class Game(models.Model):
     created = models.DateTimeField(_('created'), auto_now_add=True)
     creator = models.ForeignKey('Official')
 
+    complete = models.BooleanField(default=False)
+
     def official_can_apply(self, official):
-        return Application.objects.filter(game=self, official=official).count() == 0
+        return (
+            not self.complete and
+            Application.objects.filter(game=self, official=official).count() == 0)
 
     def can_schedule(self, official):
         return official in self.league.schedulers.all()
+
+    @property
+    def staff(self):
+        staff = set()
+
+        for roster in self.rosters.all():
+            items = [
+                roster.hr, roster.ipr, roster.jr1, roster.jr2, roster.opr1, roster.opr2,
+                roster.opr3, roster.alt, roster.jt, roster.sk1, roster.sk2, roster.pbm,
+                roster.pbt1, roster.pbt2, roster.pt1, roster.pt2, roster.pw, roster.iwb,
+                roster.lt1, roster.lt2]
+            for item in items:
+                staff.add(item)
+        staff.remove(None)
+        return staff
+
+    @property
+    def nonrostered(self):
+        return Official.objects.filter(
+            applications__in=self.applications.all()).exclude(
+            pk__in=[user.pk for user in self.staff])
 
 
 class Application(models.Model):
@@ -116,7 +141,7 @@ class Roster(models.Model):
     """A roster for an event."""
 
     game = models.ForeignKey(
-        Game, on_delete=models.CASCADE, primary_key=True)
+        Game, on_delete=models.CASCADE, related_name='rosters')
 
     hr = models.ForeignKey(Official, related_name='hr_games', null=True)
     ipr = models.ForeignKey(Official, related_name='ipr_games', null=True)
@@ -140,14 +165,3 @@ class Roster(models.Model):
     lt1 = models.ForeignKey(Official, related_name="lt1_games", null=True)
     lt2 = models.ForeignKey(Official, related_name="lt2_games", null=True)
     so = models.ForeignKey(Official, related_name="so_games", null=True)
-
-    complete = models.BooleanField(default=False)
-
-    @property
-    def staff(self):
-        staff = [
-            self.hr, self.ipr, self.jr1, self.jr2, self.opr1, self.opr2,
-            self.opr3, self.alt, self.jt, self.sk1, self.sk2, self.pbm,
-            self.pbt1, self.pbt2, self.pt1, self.pt2, self.pw, self.iwb,
-            self.lt1, self.lt2]
-        return tuple([user for user in staff if user is not None])

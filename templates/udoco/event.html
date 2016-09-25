@@ -137,11 +137,15 @@ button#fb-login {
         <input class="mdl-button mdl-button--raised" type="submit" value="Complete application" />
     </form>
     {% else %}
+    {% if event.complete %}
+    Enrollment for this event is complete.
+    {% else %}
     You have already applied to this event.
     <form method="POST" action="{% url 'event_withdrawal' event.id %}">
         {% csrf_token %}
         <input class="mdl-button mdl-button--raised" type="submit" value="Withdraw application" />
     </form>
+    {% endif %}
     {% endif %}
 </div>
 {% else %}

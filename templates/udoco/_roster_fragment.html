@@ -1,0 +1,17 @@
+{% load udoco_forms %}
+<div class="mdl-tabs__panel {% if forloop.counter == 1 %} is-active{% endif %}"
+     id="{% if form.roster.value == None %}new-roster{% else %}game-{{forloop.counter}}{% endif %}">
+  <form action="" method="POST">
+    {% for field in form %}
+    <div class="mdl-cell mdl-cell--12-col">
+      {{ field | mdl | safe }}
+    </div>
+    {% endfor %}
+    {% csrf_token %}
+
+    <input class="mdl-button mdl-button--raised" type="submit" name="action" value="Save roster" />
+    {% if not event.complete %}
+    <input class="mdl-button mdl-button--raised mdl-button--accent" type="submit" name="action" value="Commit" />
+    {% endif %}
+  </form>
+</div>

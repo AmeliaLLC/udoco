@@ -134,17 +134,34 @@
 </div>
 
 <div class="mdl-cell mdl-cell--8-col">
-  <form action="" method="POST">
-    {% for field in form %}
-    <div class="mdl-cell mdl-cell--12-col">
-      {{ field | mdl | safe }}
+
+<div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+
+    {% if event.rosters.count != 0 %}
+    <div class="mdl-tabs__tab-bar">
+        {% for roster in event.rosters.all %}
+        <a href="#game-{{ forloop.counter }}" class="mdl-tabs__tab{% if forloop.counter == 1 %} is-active{% endif %}">
+            Game {{ forloop.counter }}
+        </a>
+        {% endfor %}
+        <a href="#new-roster" class="mdl-tabs__tab">
+          {% comment %}
+          <i class="mdl-color-text--blue-grey-400 material-icons"
+              role="presentation">add_circle_outline </i>
+          {% endcomment %}
+          Add new roster
+        </a>
     </div>
-    {% endfor %}
-    {% csrf_token %}
-    <input class="mdl-button mdl-button--raised" type="submit" name="action" value="Save roster" />
-    {% if not event.roster.complete %}
-    <input class="mdl-button mdl-button--raised mdl-button--accent" type="submit" name="action" value="Commit" />
     {% endif %}
-  </form>
+
+    {% for form in forms %}
+    {% include 'udoco/_roster_fragment.html' %}
+    {% endfor %}
+
+    {% with form=blank_form %}
+    {% include 'udoco/_roster_fragment.html' %}
+    {% endwith %}
+</div>
+
 </div>
 {% endblock %}

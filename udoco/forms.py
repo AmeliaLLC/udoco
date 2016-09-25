@@ -115,6 +115,8 @@ class GameApplicationForm(forms.Form):
 class SchedulingForm(forms.Form):
     """Form for scheduling an event."""
 
+    roster = forms.IntegerField(widget=forms.HiddenInput, required=False)
+
     hr = forms.ModelChoiceField(
         label='Head Ref', empty_label='', queryset=None,
         required=False)

@@ -37,21 +37,23 @@ class EventsView(View):
             league__in=request.user.scheduling.all(),
             start__gt=timezone.now()).order_by('start')
 
+        # XXX: rockstar (20 Sep 2016) - Since making Roster a
+        # ForeignKey, this doesn't work.
         applications = models.Game.objects.filter(
-            roster=None,
             applications__in=models.Application.objects.filter(
                 official=request.user),
-            start__gt=timezone.now()).order_by('start')
+            start__gt=timezone.now()).exclude(
+            rosters__in=models.Roster.objects.all()).order_by('start')
 
         rosters = []
         rosters = models.Game.objects.filter(
-            Q(roster__hr=request.user) |
-            Q(roster__ipr=request.user) |
-            Q(roster__jr1=request.user) |
-            Q(roster__jr2=request.user) |
-            Q(roster__opr1=request.user) |
-            Q(roster__opr2=request.user) |
-            Q(roster__opr3=request.user)).filter(
+            Q(rosters__hr=request.user) |
+            Q(rosters__ipr=request.user) |
+            Q(rosters__jr1=request.user) |
+            Q(rosters__jr2=request.user) |
+            Q(rosters__opr1=request.user) |
+            Q(rosters__opr2=request.user) |
+            Q(rosters__opr3=request.user)).filter(
             start__gt=timezone.now()).order_by('start')
         return render(request, self.template, {
             'rosters': rosters,
@@ -174,38 +176,49 @@ class SchedulingView(View):
         event = models.Game.objects.get(id=event_id)
         if not event.can_schedule(request.user):
             raise Http404()
-        if form is None:
-            try:
-                initial = {
-                    'hr': event.roster.hr,
-                    'ipr': event.roster.ipr,
-                    'jr1': event.roster.jr1,
-                    'jr2': event.roster.jr2,
-                    'opr1': event.roster.opr1,
-                    'opr2': event.roster.opr2,
-                    'opr3': event.roster.opr3,
-                    'alt': event.roster.alt,
-                    'jt': event.roster.jt,
-                    'sk1': event.roster.sk1,
-                    'sk2': event.roster.sk2,
-                    'pbm': event.roster.pbm,
-                    'pbt1': event.roster.pbt1,
-                    'pbt2': event.roster.pbt2,
-                    'pt1': event.roster.pt1,
-                    'pt2': event.roster.pt2,
-                    'pw': event.roster.pw,
-                    'iwb': event.roster.iwb,
-                    'lt1': event.roster.lt1,
-                    'lt2': event.roster.lt2,
-                }
-            except models.Roster.DoesNotExist:
-                initial = {}
-            form = forms.SchedulingForm(
+
+        blank_form = forms.SchedulingForm(
+            models.Official.objects.filter(
+                applications__in=models.Application.objects.filter(game=event)))
+        if form is not None and form.cleaned_data['roster'] is None:
+            blank_form = form
+
+        roster_forms = []
+        for roster in event.rosters.all():
+            if form is not None and roster.id == form.cleaned_data['roster']:
+                roster_forms.append(form)
+                continue
+            initial = {
+                'roster': roster.id,
+                'hr': roster.hr,
+                'ipr': roster.ipr,
+                'jr1': roster.jr1,
+                'jr2': roster.jr2,
+                'opr1': roster.opr1,
+                'opr2': roster.opr2,
+                'opr3': roster.opr3,
+                'alt': roster.alt,
+                'jt': roster.jt,
+                'sk1': roster.sk1,
+                'sk2': roster.sk2,
+                'pbm': roster.pbm,
+                'pbt1': roster.pbt1,
+                'pbt2': roster.pbt2,
+                'pt1': roster.pt1,
+                'pt2': roster.pt2,
+                'pw': roster.pw,
+                'iwb': roster.iwb,
+                'lt1': roster.lt1,
+                'lt2': roster.lt2,
+            }
+            roster_forms.append(forms.SchedulingForm(
                 models.Official.objects.filter(
                     applications__in=models.Application.objects.filter(game=event)),
-                initial=initial)
+                initial=initial))
+
         context = {
-            'form': form,
+            'blank_form': blank_form,
+            'forms': roster_forms,
             'event': event,
             }
         return render(request, self.template, context)
@@ -214,6 +227,7 @@ class SchedulingView(View):
         event = models.Game.objects.get(id=event_id)
         if not event.can_schedule(request.user):
             raise Http404()
+
         form = forms.SchedulingForm(
             models.Official.objects.filter(
                 applications__in=models.Application.objects.filter(game=event)),
@@ -221,31 +235,19 @@ class SchedulingView(View):
         if not form.is_valid():
             return self.get(request, event_id, form=form)
 
-        roster = models.Roster()
-        roster.game = event
+        if form.cleaned_data['roster']:
+            roster = models.Roster.objects.get(id=form.cleaned_data['roster'])
+        else:
+            roster = models.Roster()
+            roster.game = event
         roster.hr = form.cleaned_data['hr']
-        try:
-            roster.ipr = form.cleaned_data['ipr']
-        except AttributeError:
-            pass
+        roster.ipr = form.cleaned_data['ipr']
         roster.jr1 = form.cleaned_data['jr1']
         roster.jr2 = form.cleaned_data['jr2']
-        try:
-            roster.opr1 = form.cleaned_data['opr1']
-        except AttributeError:
-            pass
-        try:
-            roster.opr2 = form.cleaned_data['opr2']
-        except AttributeError:
-            pass
-        try:
-            roster.opr3 = form.cleaned_data['opr3']
-        except AttributeError:
-            pass
-        try:
-            roster.alt = form.cleaned_data['alt']
-        except AttributeError:
-            pass
+        roster.opr1 = form.cleaned_data['opr1']
+        roster.opr2 = form.cleaned_data['opr2']
+        roster.opr3 = form.cleaned_data['opr3']
+        roster.alt = form.cleaned_data['alt']
         roster.jt = form.cleaned_data['jt']
         roster.sk1 = form.cleaned_data['sk1']
         roster.sk2 = form.cleaned_data['sk2']
@@ -259,9 +261,12 @@ class SchedulingView(View):
         roster.lt1 = form.cleaned_data['lt1']
         roster.lt2 = form.cleaned_data['lt2']
         roster.so = form.cleaned_data['so']
+        roster.save()
 
         if request.POST.get('action', '').startswith('Commit'):
-            roster.complete = True
+            event.complete = True
+            event.save()
+            event = models.Game.objects.get(id=event.id)  # Refresh object
 
             with mail.get_connection() as connection:
                 mail.EmailMessage(
@@ -272,12 +277,9 @@ class SchedulingView(View):
                         'email/scheduling_body.txt',
                         {'event': event}),
                     'United Derby Officials Colorado <no-reply@udoco.org>',
-                    [user.email for user in roster.staff],
+                    [user.email for user in event.staff],
                     connection=connection).send()
 
-                nonrostered = models.Official.objects.filter(
-                    applications__in=roster.game.applications.all()).exclude(
-                    pk__in=[user.pk for user in roster.staff])
                 mail.EmailMessage(
                     render_to_string(
                         'email/scheduling_title.txt',
@@ -286,10 +288,9 @@ class SchedulingView(View):
                         'email/nonrostered_body.txt',
                         {'event': event}),
                     'United Derby Officials Colorado <no-reply@udoco.org>',
-                    [user.email for user in nonrostered],
+                    [user.email for user in event.nonrostered],
                     connection=connection).send()
 
-        roster.save()
         messages.add_message(
             request, messages.INFO, 'Game roster has been saved.')
         return redirect('view_event', event_id)

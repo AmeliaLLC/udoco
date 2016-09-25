@@ -3,6 +3,7 @@ from django import forms, template
 from udoco.forms import DateTimePicker, SimplifiedLeagueSelect
 
 MDLFORM_MAP = {
+    forms.HiddenInput: {'class': ''},
     forms.Textarea: {
         'class': 'mdl-textfield__input'},
     forms.widgets.EmailInput: {
