@@ -6,8 +6,10 @@ import requests
 def save_profile_picture(
         strategy, user, response, details, is_new=False, *args,
         **kwargs):
-    # XXX: rockstar (5 Sep 2016) - This should probably make sure
-    # that we're actually talking about Facebook.
+    if kwargs['backend'].name != 'facebook':
+        raise Exception('unsupported authentication backend: {}'.format(
+            kwargs['backend'].name))
+
     if not bool(user.avatar):
         url = 'https://graph.facebook.com/{}/picture'.format(
             response['id'])

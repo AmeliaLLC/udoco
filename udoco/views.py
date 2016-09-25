@@ -160,9 +160,23 @@ class EventDeleteView(View):
     """A view for deleting events."""
 
     def post(self, request, event_id):
-        # XXX: rockstar (8 Sep 2016) - Emit an email notification
-        # to applications that the event has been cancelled.
         event = models.Game.objects.get(id=event_id)
+
+        if event.complete:
+            recipients = [user.email for user in event.staff]
+        else:
+            recipients = [application.official.email for application in event.applications.all()]
+        with mail.get_connection() as connection:
+            mail.EmailMessage(
+                render_to_string(
+                    'email/cancelled_title.txt',
+                    {'event': event}),
+                render_to_string(
+                    'email/cancelled_body.txt',
+                    {'event': event}),
+                'United Derby Officials Colorado <no-reply@udoco.org>',
+                recipients, connection=connection).send()
+
         event.delete()
         messages.add_message(request, messages.INFO, 'Game has been deleted.')
         return redirect('events')

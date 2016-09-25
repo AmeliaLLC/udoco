@@ -1,0 +1,1 @@
+Event cancelled -- {{ event.title|safe }} -- {{ event.start|date:"j M Y" }}

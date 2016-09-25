@@ -1,5 +1,5 @@
 {% load udoco_forms %}
-<div class="mdl-tabs__panel {% if forloop.counter == 1 %} is-active{% endif %}"
+<div class="mdl-tabs__panel{% if not forloop %} is-active{% endif %}{% if forloop.counter == 1 %} is-active{% endif %}"
      id="{% if form.roster.value == None %}new-roster{% else %}game-{{forloop.counter}}{% endif %}">
   <form action="" method="POST">
     {% for field in form %}

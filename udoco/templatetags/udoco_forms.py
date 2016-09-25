@@ -50,11 +50,9 @@ def mdl(field):
             pass
 
     form_element = field.as_widget()
-    # XXX: rockstar (8 May 2016) - This is gross. Don't show a label
-    # if the form item is a hidden element (in the case of
-    # SimplifiedLeagueSelect.
     label = field.label
     if "hidden" in form_element:
+        # Don't show a label on a hidden form element.
         label = ''
     error = ''
     if len(field.errors) > 0:

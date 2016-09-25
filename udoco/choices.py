@@ -26,8 +26,7 @@ class SkatingPositions(smartchoices.Choices):
     INSIDE_PACK_REF = smartchoices.Choice()
     JAM_REF = smartchoices.Choice()
     OUTSIDE_PACK_REF = smartchoices.Choice()
-
-    # TODO: do we have an alt?
+    ALT = smartchoices.Choice()
 
 
 class NonskatingPositions(smartchoices.Choices):
