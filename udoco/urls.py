@@ -22,7 +22,6 @@ from udoco import views
 admin.autodiscover()
 
 urlpatterns = [
-
     url(r'^$', views.splash, name='index'),
 
     url(r'^leagues$', views.LeagueView.as_view(), name='leagues'),
