@@ -2,7 +2,7 @@ from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core import mail
-from django.http import Http404, HttpResponse
+from django.http import Http404
 from django.shortcuts import redirect, render, render_to_response
 from django.template.loader import render_to_string
 from django.utils import timezone
