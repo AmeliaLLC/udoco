@@ -20,11 +20,6 @@ def splash(request):
     return render_to_response('udoco/splash.html')
 
 
-def health_check(request):
-    """A health check endpoint."""
-    return HttpResponse('')
-
-
 class EventsView(View):
     """A view for seeing all events."""
     # TODO: this should become a calendar view.

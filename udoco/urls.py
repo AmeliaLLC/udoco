@@ -24,7 +24,6 @@ admin.autodiscover()
 urlpatterns = [
 
     url(r'^$', views.splash, name='index'),
-    url(r'^_$', views.health_check, name='health_check'),
 
     url(r'^leagues$', views.LeagueView.as_view(), name='leagues'),
 
