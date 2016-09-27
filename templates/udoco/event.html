@@ -1,7 +1,17 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load udoco_forms %}
+{% block title %}{{ event.title }}{% endblock %}
 {% block "extra_head" %}
+<meta property="og:url" content="{% url 'view_event' event.id %}" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="{{ event.title }}" />
+<meta property="og:description" content="Presented by {{ event.league.name }} - {{ event.location }} @ {{ event.start }}" />
+<meta property="fb:app_id" content="1716626438550212" />
+{% comment %}
+<meta property="og:image" content="{% url 'view_event' event.id %}" />
+{% endcomment %}
+
 <link rel="stylesheet" href="{% static 'mdl-selectfield/dist/mdl-selectfield.min.css' %}">
 <script src="{% static 'mdl-selectfield/dist/mdl-selectfield.min.js' %}"></script>
 
