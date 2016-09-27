@@ -3,7 +3,7 @@
 {% load udoco_forms %}
 {% block title %}{{ event.title }}{% endblock %}
 {% block "extra_head" %}
-<meta property="og:url" content="{% url 'view_event' event.id %}" />
+<meta property="og:url" content="{{ request.build_absolute_uri }}" />
 <meta property="og:type" content="website" />
 <meta property="og:title" content="{{ event.title }}" />
 <meta property="og:description" content="Presented by {{ event.league.name }} - {{ event.location }} @ {{ event.start }}" />
