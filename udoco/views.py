@@ -62,11 +62,13 @@ class AddEventView(View):
     template = 'udoco/add_event.html'
     form = forms.AddEventForm
 
+    @method_decorator(login_required)
     def get(self, request):
         form = self.form()
         form.fields['league'].queryset = request.user.scheduling.all()
         return render(request, self.template, {'form': form})
 
+    @method_decorator(login_required)
     def post(self, request):
         form = self.form(request.POST)
         form.fields['league'].queryset = request.user.scheduling.all()
@@ -108,6 +110,7 @@ class EventView(View):
             context['form'] = self.form()
         return render(request, self.template, context)
 
+    @method_decorator(login_required)
     def post(self, request, event_id):
         event = models.Game.objects.get(id=event_id)
         if not event.official_can_apply(request.user):
@@ -137,6 +140,7 @@ class EventView(View):
 class EventWithdrawalView(View):
     """A view for withdrawing a roster."""
 
+    @method_decorator(login_required)
     def post(self, request, event_id):
         event = models.Game.objects.get(id=event_id)
         try:
@@ -154,6 +158,7 @@ class EventWithdrawalView(View):
 class EventDeleteView(View):
     """A view for deleting events."""
 
+    @method_decorator(login_required)
     def post(self, request, event_id):
         event = models.Game.objects.get(id=event_id)
 
@@ -181,6 +186,7 @@ class SchedulingView(View):
     """A view for scheduling officials for games."""
     template = 'udoco/schedule_event.html'
 
+    @method_decorator(login_required)
     def get(self, request, event_id, form=None):
         event = models.Game.objects.get(id=event_id)
         if not event.can_schedule(request.user):
@@ -232,6 +238,7 @@ class SchedulingView(View):
             }
         return render(request, self.template, context)
 
+    @method_decorator(login_required)
     def post(self, request, event_id):
         event = models.Game.objects.get(id=event_id)
         if not event.can_schedule(request.user):
@@ -310,6 +317,7 @@ class ProfileView(View):
     template = 'udoco/continue_signup.html'
     form = forms.ContinueSignUpForm
 
+    @method_decorator(login_required)
     def get(self, request, form=None):
         display_name = request.user.display_name
         if len(display_name) is 0:
@@ -328,6 +336,7 @@ class ProfileView(View):
             })
         return render(request, self.template, {'form': form})
 
+    @method_decorator(login_required)
     def post(self, request):
         form = self.form(request.POST)
         if form.is_valid():
@@ -351,6 +360,7 @@ class LeagueView(View):
     template = 'udoco/league.html'
     form = forms.LeagueEditForm
 
+    @method_decorator(login_required)
     def get(self, request, form=None):
         if form is None:
             # XXX: rockstar (19 Sep 2016) - This only works for scheduler
@@ -364,6 +374,7 @@ class LeagueView(View):
 
         return render(request, self.template, {'form': form})
 
+    @method_decorator(login_required)
     def post(self, request):
         form = self.form(request.POST)
         form.fields['league'].queryset = request.user.scheduling.all()
