@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core import mail
 from django.http import Http404
-from django.shortcuts import redirect, render, render_to_response
+from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -17,7 +17,7 @@ def splash(request):
     """A standard splash page."""
     if request.user.is_authenticated():
         return redirect('events')
-    return render_to_response('udoco/splash.html')
+    return render(request, 'udoco/splash.html', {})
 
 
 class EventsView(View):
