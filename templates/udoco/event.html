@@ -117,6 +117,9 @@ button#fb-login {
         {% csrf_token %}
         <input class="mdl-button mdl-button--raised" type="submit" value="Cancel event" />
     </form>
+    <a href="{% url 'edit_event' event.id %}">
+        <button class="mdl-button mdl-button--raised">Edit event</button>
+    </a>
 </div>
 {% endif %}
 

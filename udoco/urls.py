@@ -29,6 +29,7 @@ urlpatterns = [
     url(r'^events$', views.EventsView.as_view(), name='events'),
     url(r'^events/new$', views.AddEventView.as_view(), name='add_event'),
     url(r'^events/(?P<event_id>[0-9]+)$', views.EventView.as_view(), name='view_event'),
+    url(r'^events/(?P<event_id>[0-9]+)/edit$', views.AddEventView.as_view(), name='edit_event'),
     url(r'^events/(?P<event_id>[0-9]+)/delete$',
         views.EventDeleteView.as_view(),
         name='delete_event'),

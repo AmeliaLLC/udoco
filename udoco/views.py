@@ -63,17 +63,38 @@ class AddEventView(View):
     form = forms.AddEventForm
 
     @method_decorator(login_required)
-    def get(self, request):
-        form = self.form()
-        form.fields['league'].queryset = request.user.scheduling.all()
+    def get(self, request, event_id=None):
+        if event_id is not None:
+            event = models.Game.objects.get(id=event_id)
+            if request.user not in event.league.schedulers.all():
+                raise Http404
+            initial = {
+                'league': event.league,
+                'title': event.title,
+                'start': event.start,
+                'location': event.location,
+                'association': event.association,
+                'game_type': event.game_type,
+            }
+            form = self.form(initial=initial)
+            form.fields['league'].queryset = request.user.scheduling.all()
+            form.fields['league'].readonly = True
+        else:
+            form = self.form()
+            form.fields['league'].queryset = request.user.scheduling.all()
         return render(request, self.template, {'form': form})
 
     @method_decorator(login_required)
-    def post(self, request):
+    def post(self, request, event_id=None):
         form = self.form(request.POST)
         form.fields['league'].queryset = request.user.scheduling.all()
         if form.is_valid():
-            game = models.Game()
+            if event_id is not None:
+                game = models.Game.objects.get(id=event_id)
+                if request.user not in game.league.schedulers.all():
+                    raise Http404
+            else:
+                game = models.Game()
             game.title = form.cleaned_data['title']
             game.start = form.cleaned_data['start']
             # TODO: support multi-day events
@@ -86,7 +107,10 @@ class AddEventView(View):
             game.league = form.cleaned_data['league']
             game.creator = request.user
             game.save()
-            messages.add_message(request, messages.INFO, 'Game created')
+            if event_id is not None:
+                messages.add_message(request, messages.INFO, 'Game updated')
+            else:
+                messages.add_message(request, messages.INFO, 'Game created')
             return redirect('view_event', event_id=game.id)
         else:
             return render(request, self.template, {'form': form})
