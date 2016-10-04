@@ -8,9 +8,11 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import View
+from rest_framework import viewsets
 
-from udoco import models
 from udoco import forms
+from udoco import models
+from udoco import serializers
 
 
 def splash(request):
@@ -18,6 +20,11 @@ def splash(request):
     if request.user.is_authenticated():
         return redirect('events')
     return render(request, 'udoco/splash.html', {})
+
+
+def js(request):
+    """An Ember.js page."""
+    return render(request, 'udoco/js.html', {})
 
 
 class EventsView(View):
@@ -411,3 +418,29 @@ class LeagueView(View):
         messages.add_message(
             request, messages.INFO, 'League settings changed')
         return redirect('leagues')
+
+
+# REST Framework
+class OfficialViewSet(viewsets.ModelViewSet):
+    queryset = models.Official.objects.all()
+    serializer_class = serializers.OfficialSerializer
+
+
+class LeagueViewSet(viewsets.ModelViewSet):
+    queryset = models.League.objects.all()
+    serializer_class = serializers.LeagueSerializer
+
+
+class GameViewSet(viewsets.ModelViewSet):
+    queryset = models.Game.objects.all()
+    serializer_class = serializers.GameSerializer
+
+
+class ApplicationViewSet(viewsets.ModelViewSet):
+    queryset = models.Application.objects.all()
+    serializer_class = serializers.ApplicationSerializer
+
+
+class RosterViewSet(viewsets.ModelViewSet):
+    queryset = models.Roster.objects.all()
+    serializer_class = serializers.RosterSerializer

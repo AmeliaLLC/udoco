@@ -10,5 +10,8 @@ dj-database-url==0.4.1
 psycopg2==2.6.1
 Pillow==3.3.1
 django-anymail==0.5
+djangorestframework==3.4.7
+djangorestframework-jsonapi==2.1.1
+django-cors-headers==1.2.1
 
 git+https://github.com/rockstar/django-fullcalendar.git#egg=django-fullcalendar

@@ -16,13 +16,23 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
+from rest_framework import routers
 
 from udoco import views
+
+
+router = routers.DefaultRouter(trailing_slash=False)
+router.register('officials', views.OfficialViewSet)
+router.register('leagues', views.LeagueViewSet)
+router.register('games', views.GameViewSet)
+router.register('applications', views.ApplicationViewSet)
+router.register('rosters', views.RosterViewSet)
 
 admin.autodiscover()
 
 urlpatterns = [
     url(r'^$', views.splash, name='index'),
+    url(r'^js$', views.js, name='js'),
 
     url(r'^leagues$', views.LeagueView.as_view(), name='leagues'),
 
@@ -40,6 +50,8 @@ urlpatterns = [
         name='schedule_event'),
 
     url(r'^profile/edit$', views.ProfileView.as_view(), name='profile'),
+
+    url(r'^api/', include(router.urls)),
 
     # Views outside the scope of this site, but required for functionality.
     url(r'^manage/', admin.site.urls),
