@@ -51,6 +51,9 @@ urlpatterns = [
         name='event_withdrawal'),
     url(r'^events/(?P<event_id>[0-9]+)/schedule$', views.SchedulingView.as_view(),
         name='schedule_event'),
+    url(r'^events/(?P<event_id>[0-9]+)/schedule/commit$', views.CommitScheduleView.as_view(),
+        name='commit_event'),
+
 
     url(r'^profile/edit$', views.ProfileView.as_view(), name='profile'),
 

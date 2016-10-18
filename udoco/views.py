@@ -312,35 +312,63 @@ class SchedulingView(View):
         roster.save()
 
         if request.POST.get('action', '').startswith('Commit'):
-            event.complete = True
-            event.save()
-            event = models.Game.objects.get(id=event.id)  # Refresh object
+            return redirect('commit_event', event_id)
+        else:
+            messages.add_message(
+                request, messages.INFO, 'Game roster has been saved.')
+            return redirect('schedule_event', event_id)
 
-            with mail.get_connection() as connection:
-                mail.EmailMessage(
-                    render_to_string(
-                        'email/scheduling_title.txt',
-                        {'event': event}),
-                    render_to_string(
-                        'email/scheduling_body.txt',
-                        {'event': event}),
-                    'United Derby Officials Colorado <no-reply@udoco.org>',
-                    [user.email for user in event.staff],
-                    connection=connection).send()
 
-                mail.EmailMessage(
-                    render_to_string(
-                        'email/scheduling_title.txt',
-                        {'event': event}),
-                    render_to_string(
-                        'email/nonrostered_body.txt',
-                        {'event': event}),
-                    'United Derby Officials Colorado <no-reply@udoco.org>',
-                    [user.email for user in event.nonrostered],
-                    connection=connection).send()
+class CommitScheduleView(View):
+    """A view for committing officials for games."""
+    template = 'udoco/commit_event.html'
 
+    @method_decorator(login_required)
+    def get(self, request, event_id):
+        event = models.Game.objects.get(id=event_id)
+        if not event.can_schedule(request.user):
+            raise Http404()
+
+        context = {
+            'event': event,
+            'email': render_to_string('email/scheduling_body.txt', {'event': event}),
+        }
+        return render(request, self.template, context)
+
+    @method_decorator(login_required)
+    def post(self, request, event_id):
+        event = models.Game.objects.get(id=event_id)
+        if not event.can_schedule(request.user):
+            raise Http404()
+
+        event.complete = True
+        event.save()
+        event = models.Game.objects.get(id=event.id)  # Refresh object
+
+        with mail.get_connection() as connection:
+            mail.EmailMessage(
+                render_to_string(
+                    'email/scheduling_title.txt',
+                    {'event': event}),
+                render_to_string(
+                    'email/scheduling_body.txt',
+                    {'event': event}),
+                'United Derby Officials Colorado <no-reply@udoco.org>',
+                [user.email for user in event.staff],
+                connection=connection).send()
+
+            mail.EmailMessage(
+                render_to_string(
+                    'email/scheduling_title.txt',
+                    {'event': event}),
+                render_to_string(
+                    'email/nonrostered_body.txt',
+                    {'event': event}),
+                'United Derby Officials Colorado <no-reply@udoco.org>',
+                [user.email for user in event.nonrostered],
+                connection=connection).send()
         messages.add_message(
-            request, messages.INFO, 'Game roster has been saved.')
+            request, messages.INFO, 'Schedule finalized and officials notified.')
         return redirect('view_event', event_id)
 
 

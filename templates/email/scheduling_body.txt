@@ -1,9 +1,10 @@
 Officials,
 
-  Thank you for your willingness to officiate at this event. Below is the officiating
-roster. Below are the rosters.
+  Thank you for your willingness to officiate at this event. Below are the rosters.
 
 {% for roster in event.rosters.all %}
+{% if event.rosters.count > 1 %}Game {{ forloop.counter }}
+{% endif %}
 Skating Officials
 -----------------
 
@@ -16,7 +17,6 @@ Skating Officials
 {% endif %}{% if roster.opr3 %}Outside Pack Referee - {{ roster.opr.display_name }}
 {% endif %}{% if roster.alt %}Alternate Referee - {{ roster.alt.display_name }}
 {% endif %}
-
 
 Non-skating Officials
 ---------------------
