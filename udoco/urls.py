@@ -17,6 +17,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 from rest_framework import routers
+#from rest_framework.authtoken.views import obtain_auth_token
 
 from udoco import views
 
@@ -33,6 +34,8 @@ admin.autodiscover()
 urlpatterns = [
     url(r'^$', views.splash, name='index'),
     url(r'^js$', views.js, name='js'),
+    url(r'^auth/', include('rest_framework_social_oauth2.urls')),
+    url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 
     url(r'^leagues$', views.LeagueView.as_view(), name='leagues'),
 

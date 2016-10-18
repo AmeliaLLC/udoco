@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_json_api',
+    'oauth2_provider',
+    'rest_framework_social_oauth2',
 
     'social.apps.django_app.default',
     'fullcalendar',
@@ -66,10 +68,14 @@ MIDDLEWARE_CLASSES = [
 
 
 AUTHENTICATION_BACKENDS = (
+    'social.backends.facebook.FacebookAppOAuth2',
     'social.backends.facebook.FacebookOAuth2',
-    'social.backends.google.GoogleOAuth2',
-    'social.backends.twitter.TwitterOAuth',
-    'django.contrib.auth.backends.RemoteUserBackend',
+
+    'rest_framework_social_oauth2.backends.DjangoOAuth2',
+
+    #'social.backends.google.GoogleOAuth2',
+    #'social.backends.twitter.TwitterOAuth',
+    #'django.contrib.auth.backends.RemoteUserBackend',
     #'django.contrib.auth.backends.ModelBackend',
 )
 
@@ -103,11 +109,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'udoco.wsgi.application'
 
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_WHITELIST = ['http://www.udoco.org', ]
+CORS_ALLOW_METHODS = (
+    'GET',
+    'POST',
+)
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
+
+        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
+        'rest_framework_social_oauth2.authentication.SocialAuthentication',
     ),
     'PAGE_SIZE': 100,
     'EXCEPTION_HANDLER': 'rest_framework_json_api.exceptions.exception_handler',
@@ -245,6 +259,7 @@ if 'DATABASE_URL' in os.environ:
 else:
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
     MEDIA_URL = '/media/'
+    CORS_ORIGIN_ALLOW_ALL = True
 
 try:
     from ._settings import *  # NOQA
