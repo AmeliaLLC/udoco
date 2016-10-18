@@ -256,6 +256,7 @@ class SchedulingView(View):
                 'iwb': roster.iwb,
                 'lt1': roster.lt1,
                 'lt2': roster.lt2,
+                'so': roster.so,
             }
             roster_forms.append(forms.SchedulingForm(
                 models.Official.objects.filter(
