@@ -137,13 +137,13 @@
 
 <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
 
-    {% if event.rosters.count != 0 %}
     <div class="mdl-tabs__tab-bar">
         {% for roster in event.rosters.all %}
         <a href="#game-{{ forloop.counter }}" class="mdl-tabs__tab{% if forloop.counter == 1 %} is-active{% endif %}">
             Game {{ forloop.counter }}
         </a>
         {% endfor %}
+        {% if event.rosters.count != 0 %}
         <a href="#new-roster" class="mdl-tabs__tab">
           {% comment %}
           <i class="mdl-color-text--blue-grey-400 material-icons"
@@ -151,8 +151,12 @@
           {% endcomment %}
           Add new roster
         </a>
+        {% else %}
+        <a href="#new-roster" class="mdl-tabs__tab">
+            Adding first roster
+        </a>
+        {% endif %}
     </div>
-    {% endif %}
 
     {% for form in forms %}
     {% include 'udoco/_roster_fragment.html' %}
