@@ -1,12 +1,5 @@
 {% extends "base.html" %}
 {% block "content" %}
-<div id="js"></div>
-<script type="text/babel">
-ReactDOM.render(<h1>Hello, World!</h1>, document.getElementById('js'));
-</script>
-
-
-
 <div class="events">
 
 {% if not admin_events and not applications and not rosters %}
