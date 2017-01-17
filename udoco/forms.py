@@ -37,7 +37,8 @@ class SimplifiedLeagueSelect(forms.widgets.Select):
 
     def render(self, name, value, attrs=None):
         if self.choices.queryset.count() > 1:
-            return super(SimplifiedLeagueSelect, self).render(name, value, attrs)
+            return super(SimplifiedLeagueSelect, self).render(
+                name, value, attrs)
         else:
             league = self.choices.queryset[0]
             return mark_safe(
