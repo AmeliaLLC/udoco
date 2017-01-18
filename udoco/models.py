@@ -38,6 +38,12 @@ class Official(AbstractUser):
     def can_schedule(self):
         return self.scheduling.count() > 0
 
+    # XXX: rockstar (17 Jan 2017) - This makes it impossible to schedule
+    # for multiple leagues. I think that's okay, for now.
+    @property
+    def league(self):
+        return self.scheduling.all()[0]
+
 
 class League(models.Model):
     """A derby league."""
