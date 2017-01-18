@@ -10,16 +10,173 @@
 <script src="{% static 'vendor/bootstrap-material-datetimepicker.js' %}"></script>
 {% endblock %}
 
-{% block "content" %}
-<form action="" method="POST">
-    {{ form.errors }}
-    {% for field in form %}
-    <div class="mdl-cell mdl-cell--12-col">
-        {{ field | mdl | safe }}
-    </div>
-    {% endfor %}
+{% block "extra_foot" %}
+<script type="text/babel">
+class TextInput extends React.Component {
+    constructor(props) {
+        super(props);
+        this.onBlur = this.onBlur.bind(this);
+        this.onChange = this.onChange.bind(this);
 
-    <input class="mdl-button mdl-button--raised" type="submit" value="Save event" />
-    {% csrf_token %}
+        this.state = {
+            value: "",
+            errorMessage: "Input is invalid",
+            errorStyle: {}
+        }
+    }
+    onChange(event) {
+        this.validation(event.target.value);
+    }
+    onBlur(event) {
+        var valid = this.props.validate(event.target.value);
+        this.validation(event.target.value, valid)
+    }
+    validation(value, valid) {
+        if (typeof valid == 'undefined') { valid = true; }
+
+        var message = "";
+        var errorStyle = {};
+
+        if (!valid) {
+            message = this.props.errorMessage;
+            valid = false;
+            errorStyle = {visibility: 'visible'};
+        }
+
+        this.setState({
+            value: value,
+            errorMessage: message,
+            errorStyle: errorStyle
+        });
+    }
+    render() {
+        return (
+        <div className="mdl-cell mdl-cell--12-col">
+            <div className="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input className={'mdl-textfield__input '+this.props.extraClassNames} id={'id_'+this.props.uniqueName} name={this.props.uniqueName.toLowerCase()} type="text" value={this.state.value} onBlur={this.onBlur} onChange={this.onChange}/>
+                <label htmlFor={'id_'+this.props.uniqueName} className="mdl-textfield__label">{this.props.uniqueName}</label>
+                <span className="mdl-textfield__error" style={this.state.errorStyle}>{this.state.errorMessage}</span>
+            </div>
+        </div>
+        );
+    }
+}
+
+
+class DateTimePicker extends React.Component {
+    validateStart(value) {
+        // XXX: rockstar (17 Jan 2017) - We need a better date picker.
+        // Validation never fires on set of date. Just on blur.
+        //if (value.length < 1) { return false; }
+        return true;
+    }
+
+    componentDidMount() {
+        $('.datetimepicker').bootstrapMaterialDatePicker({
+            format: 'YYYY-MM-DD HH:mm',
+            shortTime: true,
+            minDate: moment()
+        });
+    }
+
+    render() {
+        return (
+<TextInput
+    extraClassNames="datetimepicker"
+    uniqueName="Start"
+    validate={this.validateStart}
+    errorMessage="Start date is invalid" />
+        )
+    }
+}
+
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+class AddEventForm extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            csrftoken: getCookie('csrftoken')
+        };
+    }
+
+    validateTitle(value) {
+        return !value.length < 1;
+    }
+
+    validateLocation(value) {
+        return !value.length < 1;
+    }
+
+    // XXX: rockstar (6 Jan 2017) - This doesn't have the
+    // SimplifiedLeagueSelect functionality.
+    render() {
+        return (
+<form action="" method="POST" >
+    <div className="mdl-cell mdl-cell--12-col">
+        <div className="mdl-selectfield mdl-js-selectfield mdl-selectfield--floating-label">
+            <label htmlFor="league" className="mdl-selectfield__label"></label>
+            <input name="league" type="hidden" value="{{request.user.league.id}}" />{{ request.user.league.name }}
+        </div>
+    </div>
+
+    <TextInput
+        uniqueName="Title"
+        validate={this.validateTitle}
+        errorMessage="Title is required" />
+
+    <DateTimePicker />
+
+    <TextInput
+        uniqueName="Location"
+        validate={this.validateLocation}
+        errorMessage="Location is required" />
+
+    <div className="mdl-cell mdl-cell--12-col">
+        <div className="mdl-selectfield mdl-js-selectfield mdl-selectfield--floating-label">
+            <label htmlFor="association" className="mdl-selectfield__label">Association</label>
+            <select onChange={this.onChange} value="" className="mdl-selectfield__select" id="id_association" name="association">
+                <option value="0">WFTDA</option>
+                <option value="1">MRDA</option>
+                <option value="2">JRDA</option>
+                <option value="99">OTHER</option>
+            </select>
+        </div>
+    </div>
+
+    <div className="mdl-cell mdl-cell--12-col">
+        <div className="mdl-selectfield mdl-js-selectfield mdl-selectfield--floating-label">
+            <label htmlFor="game_type" className="mdl-selectfield__label">Game type</label>
+            <select onChange={this.onChange} className="mdl-selectfield__select" id="id_game_type" name="game_type">
+                <option value="0">SANCTIONED</option>
+                <option value="1">REGULATION</option>
+                <option value="99">OTHER</option>
+            </select>
+        </div>
+    </div>
+
+    <input type="hidden" name="csrfmiddlewaretoken" value={this.state.csrftoken} />
+    <input className="mdl-button mdl-button--raised" type="submit" value="Save event" />
 </form>
+        );
+    }
+}
+
+ReactDOM.render(<AddEventForm />, document.getElementById('js'));
+</script>
 {% endblock %}
