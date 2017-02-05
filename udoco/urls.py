@@ -37,23 +37,25 @@ urlpatterns = [
     url(r'^auth/', include('rest_framework_social_oauth2.urls')),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 
+    url(r'^calendar', views.CalendarView.as_view(), name='calendar'),
     url(r'^leagues$', views.LeagueView.as_view(), name='leagues'),
 
     url(r'^events$', views.EventsView.as_view(), name='events'),
     url(r'^events/new$', views.AddEventView.as_view(), name='add_event'),
-    url(r'^events/(?P<event_id>[0-9]+)$', views.EventView.as_view(), name='view_event'),
-    url(r'^events/(?P<event_id>[0-9]+)/edit$', views.AddEventView.as_view(), name='edit_event'),
+    url(r'^events/(?P<event_id>[0-9]+)$',
+        views.EventView.as_view(), name='view_event'),
+    url(r'^events/(?P<event_id>[0-9]+)/edit$',
+        views.AddEventView.as_view(), name='edit_event'),
     url(r'^events/(?P<event_id>[0-9]+)/delete$',
         views.EventDeleteView.as_view(),
         name='delete_event'),
     url(r'^events/(?P<event_id>[0-9]+)/withdraw$',
         views.EventWithdrawalView.as_view(),
         name='event_withdrawal'),
-    url(r'^events/(?P<event_id>[0-9]+)/schedule$', views.SchedulingView.as_view(),
-        name='schedule_event'),
-    url(r'^events/(?P<event_id>[0-9]+)/schedule/commit$', views.CommitScheduleView.as_view(),
-        name='commit_event'),
-
+    url(r'^events/(?P<event_id>[0-9]+)/schedule$',
+        views.SchedulingView.as_view(), name='schedule_event'),
+    url(r'^events/(?P<event_id>[0-9]+)/schedule/commit$',
+        views.CommitScheduleView.as_view(), name='commit_event'),
 
     url(r'^profile/edit$', views.ProfileView.as_view(), name='profile'),
 

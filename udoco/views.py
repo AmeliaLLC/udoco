@@ -27,6 +27,15 @@ def js(request):
     return render(request, 'udoco/js.html', {})
 
 
+class CalendarView(View):
+    """A calendar view."""
+
+    template = 'udoco/calendar.html'
+
+    def get(self, request):
+        return render(request, self.template, {})
+
+
 class EventsView(View):
     """A view for seeing all events."""
     # TODO: this should become a calendar view.
@@ -61,7 +70,7 @@ class EventsView(View):
             'rosters': rosters,
             'applications': applications,
             'admin_events': admin_events,
-            })
+        })
 
 
 class AddEventView(View):
@@ -134,7 +143,7 @@ class EventView(View):
             'can_schedule': event.can_schedule(request.user),
             'event': event,
             'form': form,
-            }
+        }
         if request.user.is_authenticated() \
                 and event.official_can_apply(request.user) \
                 and form is None:
@@ -157,7 +166,8 @@ class EventView(View):
             application.so_second_choice = form.cleaned_data['so_second_choice']
             application.so_third_choice = form.cleaned_data['so_third_choice']
             application.nso_first_choice = form.cleaned_data['nso_first_choice']
-            application.nso_second_choice = form.cleaned_data['nso_second_choice']
+            application.nso_second_choice = form.cleaned_data[
+                'nso_second_choice']
             application.nso_third_choice = form.cleaned_data['nso_third_choice']
             application.save()
             messages.add_message(
@@ -196,7 +206,9 @@ class EventDeleteView(View):
         if event.complete:
             recipients = [user.email for user in event.staff]
         else:
-            recipients = [application.official.email for application in event.applications.all()]
+            recipients = [
+                application.official.email
+                for application in event.applications.all()]
         with mail.get_connection() as connection:
             mail.EmailMessage(
                 render_to_string(
@@ -260,14 +272,15 @@ class SchedulingView(View):
             }
             roster_forms.append(forms.SchedulingForm(
                 models.Official.objects.filter(
-                    applications__in=models.Application.objects.filter(game=event)),
+                    applications__in=models.Application.objects.filter(
+                        game=event)),
                 initial=initial))
 
         context = {
             'blank_form': blank_form,
             'forms': roster_forms,
             'event': event,
-            }
+        }
         return render(request, self.template, context)
 
     @method_decorator(login_required)
@@ -331,7 +344,8 @@ class CommitScheduleView(View):
 
         context = {
             'event': event,
-            'email': render_to_string('email/scheduling_body.txt', {'event': event}),
+            'email': render_to_string('email/scheduling_body.txt', {
+                'event': event}),
         }
         return render(request, self.template, context)
 
@@ -368,7 +382,8 @@ class CommitScheduleView(View):
                 [user.email for user in event.nonrostered],
                 connection=connection).send()
         messages.add_message(
-            request, messages.INFO, 'Schedule finalized and officials notified.')
+            request, messages.INFO,
+            'Schedule finalized and officials notified.')
         return redirect('view_event', event_id)
 
 
@@ -390,7 +405,7 @@ class ProfileView(View):
                 'game_history': request.user.game_history,
                 'phone_number': request.user.phone_number,
                 'emergency_contact_name': request.user.emergency_contact_name,
-                'emergency_contact_number': request.user.emergency_contact_number,
+                'emergency_contact_number': request.user.emergency_contact_number,  # NOQA
                 'official_type': request.user.official_type,
                 'league_affiliation': request.user.league_affiliation,
             })
@@ -404,10 +419,10 @@ class ProfileView(View):
             request.user.email = form.cleaned_data['email']
             request.user.game_history = form.cleaned_data['game_history']
             request.user.phone_number = form.cleaned_data['phone_number']
-            request.user.emergency_contact_name = form.cleaned_data['emergency_contact_name']
-            request.user.emergency_contact_number = form.cleaned_data['emergency_contact_number']
+            request.user.emergency_contact_name = form.cleaned_data['emergency_contact_name']  # NOQA
+            request.user.emergency_contact_number = form.cleaned_data['emergency_contact_number']  # NOQA
             request.user.official_type = form.cleaned_data['official_type']
-            request.user.league_affiliation = form.cleaned_data['league_affiliation']
+            request.user.league_affiliation = form.cleaned_data['league_affiliation']  # NOQA
             request.user.save()
             messages.add_message(request, messages.INFO, 'Profile saved')
             return redirect(request.GET.get('next', 'profile'))
@@ -429,7 +444,7 @@ class LeagueView(View):
             form = self.form(initial={
                 'league': league,
                 'email_template': league.email_template
-                })
+            })
             form.fields['league'].queryset = request.user.scheduling.all()
 
         return render(request, self.template, {'form': form})

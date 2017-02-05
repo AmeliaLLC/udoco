@@ -1,0 +1,48 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{% block title %}United Derby Officials Colorado{% endblock %}</title>
+    <meta charset="utf-8" />
+    <meta name="description" content="You do Colorado">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    {# Add to homescreen for Chrome on Android #}
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="icon" sizes="192x192" href="{% static 'img/android.png' %}">
+
+    {# Add to homescreen for Safari on iOS #}
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="UDO">
+    <link rel="apple-touch-icon-precomposed" href="{% static 'img/ios.png' %}">
+
+    {# Tile icon for Win8 (144x144 + tile color) #}
+    <meta name="msapplication-TileImage" content="{% static 'img/ms.png' %}">
+    <meta name="msapplication-TileColor" content="#3372DF">
+
+    <link rel="shortcut icon" href="{% static 'img/favicon.png' %}">
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    {% comment %}
+    <link rel="stylesheet" href="{% static 'material-design-lite/material.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/vendor.css' %}">
+    <link rel="stylesheet" href="{% static 'css/udoco.css' %}">
+
+    <script src="{% static 'react/dist/react.js' %}"></script>
+    <script src="{% static 'react-dom/dist/react-dom.js' %}"></script>
+    <script src="{% static 'babel-standalone/babel.min.js' %}"></script>
+    <script src="{% static 'material-design-lite/material.min.js' %}"></script>
+    {% endcomment %}
+
+    <script src="{% static 'js/udoco.js' %}"></script>
+
+    {% block "extra_head" %}{% endblock %}
+  </head>
+  <body>{% block "body" %}<div id="js"></div>{% endblock %}</body>
+  {% block "extra_foot" %}{% endblock %}
+</html>

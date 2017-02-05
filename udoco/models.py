@@ -13,13 +13,15 @@ class Official(AbstractUser):
     # to be blank and non-unique. That is insane.
     display_name = models.CharField(_('name'), max_length=256)
     phone_number = models.CharField(
-        validators=[validators.PHONE_NUMBER_VALIDATOR], blank=True, max_length=16)
+        validators=[validators.PHONE_NUMBER_VALIDATOR], blank=True,
+        max_length=16)
 
     game_history = models.URLField(blank=True)
 
     emergency_contact_name = models.CharField(_('name'), max_length=256)
     emergency_contact_number = models.CharField(
-        validators=[validators.PHONE_NUMBER_VALIDATOR], blank=True, max_length=16)
+        validators=[validators.PHONE_NUMBER_VALIDATOR], blank=True,
+        max_length=16)
 
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
 
@@ -57,7 +59,8 @@ class League(models.Model):
 
     email_template = models.TextField(blank=True)
 
-    schedulers = models.ManyToManyField(Official, blank=True, related_name='scheduling')
+    schedulers = models.ManyToManyField(
+        Official, blank=True, related_name='scheduling')
 
     def __unicode__(self):
         return self.name
@@ -89,7 +92,8 @@ class Game(models.Model):
     def official_can_apply(self, official):
         return (
             not self.complete and
-            Application.objects.filter(game=self, official=official).count() == 0)
+            Application.objects.filter(
+                game=self, official=official).count() == 0)
 
     def can_schedule(self, official):
         return official in self.league.schedulers.all()
@@ -100,10 +104,11 @@ class Game(models.Model):
 
         for roster in self.rosters.all():
             items = [
-                roster.hr, roster.ipr, roster.jr1, roster.jr2, roster.opr1, roster.opr2,
-                roster.opr3, roster.alt, roster.jt, roster.sk1, roster.sk2, roster.pbm,
-                roster.pbt1, roster.pbt2, roster.pt1, roster.pt2, roster.pw, roster.iwb,
-                roster.lt1, roster.lt2]
+                roster.hr, roster.ipr, roster.jr1, roster.jr2, roster.opr1,
+                roster.opr2, roster.opr3, roster.alt, roster.jt, roster.sk1,
+                roster.sk2, roster.pbm, roster.pbt1, roster.pbt2,
+                roster.pt1, roster.pt2, roster.pw, roster.iwb, roster.lt1,
+                roster.lt2]
             for item in items:
                 staff.add(item)
         staff.remove(None)

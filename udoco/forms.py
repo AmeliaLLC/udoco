@@ -42,7 +42,7 @@ class SimplifiedLeagueSelect(forms.widgets.Select):
         else:
             league = self.choices.queryset[0]
             return mark_safe(
-                '<input name="{name}" type="hidden" value="{value}"/>{league}'.format(
+                '<input name="{name}" type="hidden" value="{value}"/>{league}'.format(  # NOQA
                     **{
                         'league': league.name,
                         'name': name,
