@@ -12,9 +12,9 @@ Skating Officials
 {% endif %}{% if roster.jr1 %}Jam Referee - {{ roster.jr1.display_name }}
 {% endif %}{% if roster.jr2 %}Jam Referee - {{ roster.jr2.display_name }}
 {% endif %}{% if roster.ipr %}Inside Pack Referee - {{ roster.ipr.display_name }}
-{% endif %}{% if roster.opr1 %}Outside Pack Referee - {{ roster.opr.display_name }}
-{% endif %}{% if roster.opr2 %}Outside Pack Referee - {{ roster.opr.display_name }}
-{% endif %}{% if roster.opr3 %}Outside Pack Referee - {{ roster.opr.display_name }}
+{% endif %}{% if roster.opr1 %}Outside Pack Referee - {{ roster.opr1.display_name }}
+{% endif %}{% if roster.opr2 %}Outside Pack Referee - {{ roster.opr2.display_name }}
+{% endif %}{% if roster.opr3 %}Outside Pack Referee - {{ roster.opr3.display_name }}
 {% endif %}{% if roster.alt %}Alternate Referee - {{ roster.alt.display_name }}
 {% endif %}
 
