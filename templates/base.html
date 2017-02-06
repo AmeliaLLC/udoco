@@ -32,8 +32,8 @@
     <link rel="stylesheet" href="{% static 'css/vendor.css' %}">
     <link rel="stylesheet" href="{% static 'css/udoco.css' %}">
 
-    <script src="{% static 'react/dist/react.js' %}"></script>
-    <script src="{% static 'react-dom/dist/react-dom.js' %}"></script>
+    <script src="{% static 'react/dist/react.min.js' %}"></script>
+    <script src="{% static 'react-dom/dist/react-dom.min.js' %}"></script>
     <script src="{% static 'babel-standalone/babel.min.js' %}"></script>
     <script src="{% static 'material-design-lite/material.min.js' %}"></script>
     <script src="{% static 'js/vendor.js' %}"></script>
@@ -144,15 +144,10 @@
 
         <div class="mdl-grid demo-content">
           <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-            {% if form.errors %}
-            {{ form.errors }}
-            {% endif %}
-            <div id="js"></div>
             {% block "content" %}{% endblock %}
           </div>
         </div>
       </main>
     </div>
   </body>
-  {% block "extra_foot" %}{% endblock %}
 </html>
