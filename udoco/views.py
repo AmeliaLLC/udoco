@@ -16,16 +16,8 @@ from udoco import models
 from udoco import serializers
 
 
-def splash(request):
-    """A standard splash page."""
-    if request.user.is_authenticated():
-        return render(request, 'udoco/index.html')
-    return render(request, 'udoco/splash.html', {})
-
-
-def js(request):
-    """An Ember.js page."""
-    return render(request, 'udoco/js.html', {})
+def index(request):
+    return render(request, 'udoco/index.html')
 
 
 def _events(request):

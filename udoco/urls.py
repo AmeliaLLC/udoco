@@ -32,8 +32,7 @@ router.register('rosters', views.RosterViewSet)
 admin.autodiscover()
 
 urlpatterns = [
-    url(r'^$', views.splash, name='index'),
-    url(r'^js$', views.js, name='js'),
+    url(r'^$', views.index, name='index'),
     url(r'^auth/', include('rest_framework_social_oauth2.urls')),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 

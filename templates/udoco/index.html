@@ -6,7 +6,42 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.1.0/fullcalendar.min.js"></script>
 
 <script type="text/template" id="app-template">
-<div id="calendar"></div>
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+  <header class="mdl-layout__header">
+    <div class="mdl-layout__header-row">
+      <span class="mdl-layout-title">United Derby Officials</span>
+      <div class="mdl-layout-spacer"></div>
+      <nav class="mdl-navigation mdl-layout--large-screen-only">
+      {% if user.is_authenticated %}
+        {% if user.can_schedule %}
+        <a class="mdl-navigation__link" href="{% url 'events' %}">Manage league</a>
+        {% endif %}
+        <a class="mdl-navigation__link" href="{% url 'profile' %}">Settings</a>
+        <a class="mdl-navigation__link" href="{% url 'auth:logout' %}?next=/">Log out</a>
+      {% else %}
+        <a class="mdl-navigation__link" href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">Log in</a>
+      {% endif %}
+      </nav>
+    </div>
+  </header>
+  <div class="mdl-layout__drawer">
+    <span class="mdl-layout-title">United Derby Officials</span>
+    <nav class="mdl-navigation">
+      {% if user.is_authenticated %}
+        {% if user.can_schedule %}
+        <a class="mdl-navigation__link" href="{% url 'events' %}">Manage league</a>
+        {% endif %}
+        <a class="mdl-navigation__link" href="{% url 'profile' %}">Settings</a>
+        <a class="mdl-navigation__link" href="{% url 'auth:logout' %}?next=/">Log out</a>
+      {% else %}
+        <a class="mdl-navigation__link" href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">Log in</a>
+      {% endif %}
+    </nav>
+  </div>
+  <main class="mdl-layout__content">
+    <div id="calendar"></div>
+  </main>
+</div>
 </script>
 
 <script>
@@ -25,7 +60,8 @@ var App = Backbone.View.extend({
           {% if user.can_schedule %}
             customButtons: {
                 addEventButton: {
-                    text: 'Add event'
+                    text: 'Add event',
+                    click: _.bind(this.onAddEventClick, this)
                 }
             },
           {% endif %}
@@ -50,6 +86,9 @@ var App = Backbone.View.extend({
     },
 
     events: null,
+    onAddEventClick: function(event) {
+        window.location = '/events/new';
+    },
     onEventClick: function(event) {
         window.location = '/events/' + event.id;
     }
