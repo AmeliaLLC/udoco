@@ -1,3 +1,59 @@
-{% extends "base.html" %}
-{% block "content" %}
+{% extends "_base.html" %}
+
+{% block "extra_foot" %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.1.0/fullcalendar.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.1.0/fullcalendar.min.js"></script>
+
+<script type="text/template" id="app-template">
+<div id="calendar"></div>
+</script>
+
+<script>
+var App = Backbone.View.extend({
+    el: "#js",
+    template: _.template($('#app-template').html()),
+    initialize: function() {
+        $.getJSON('/_/events', null, _.bind(function(res) {
+            this.events = res.data;
+            this.render();
+        }, this));
+    },
+    render: function() {
+        this.$el.html(this.template(this));
+        this.$el.find('#calendar').fullCalendar({
+          {% if user.can_schedule %}
+            customButtons: {
+                addEventButton: {
+                    text: 'Add event'
+                }
+            },
+          {% endif %}
+            editable: false,
+            events: this.events,
+            displayEventTime: true,
+            handleWindowResize: true,
+            weekends: true,
+            defaultView: 'month',
+            columnFormat: 'ddd',
+            eventClick: _.bind(this.onEventClick, this),
+            header: {
+                left: 'prev,next',
+                center: 'title',
+          {% if user.can_schedule %}
+                right: 'addEventButton'
+          {% else %}
+                right: ''
+          {% endif %}
+            }
+        });
+    },
+
+    events: null,
+    onEventClick: function(event) {
+        window.location = '/events/' + event.id;
+    }
+});
+new App();
+</script>
 {% endblock %}

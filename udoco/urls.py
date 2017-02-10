@@ -61,6 +61,8 @@ urlpatterns = [
 
     url(r'^api/', include(router.urls)),
 
+    url(r'^_/events', views._events, name='api_events'),
+
     # Views outside the scope of this site, but required for functionality.
     url(r'^manage/', admin.site.urls),
     url('', include('django.contrib.auth.urls', namespace='auth')),

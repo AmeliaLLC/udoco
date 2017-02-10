@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core import mail
 from django.http import Http404
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -18,13 +19,20 @@ from udoco import serializers
 def splash(request):
     """A standard splash page."""
     if request.user.is_authenticated():
-        return redirect('events')
+        return render(request, 'udoco/index.html')
     return render(request, 'udoco/splash.html', {})
 
 
 def js(request):
     """An Ember.js page."""
     return render(request, 'udoco/js.html', {})
+
+
+def _events(request):
+    events = models.Game.objects.filter(start__gt=timezone.now())
+    return JsonResponse({'data': [{
+        'id': event.id, 'title': event.title, 'start': event.start.isoformat()}
+        for event in events]})
 
 
 class CalendarView(View):
