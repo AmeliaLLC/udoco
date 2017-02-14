@@ -421,16 +421,16 @@ class CommitScheduleView(View):
                 [user.email for user in event.staff],
                 connection=connection).send()
 
-            mail.EmailMessage(
-                render_to_string(
-                    'email/scheduling_title.txt',
-                    {'event': event}),
-                render_to_string(
-                    'email/nonrostered_body.txt',
-                    {'event': event}),
-                'United Derby Officials Colorado <no-reply@udoco.org>',
-                [user.email for user in event.nonrostered],
-                connection=connection).send()
+            #mail.EmailMessage(
+            #    render_to_string(
+            #        'email/scheduling_title.txt',
+            #        {'event': event}),
+            #    render_to_string(
+            #        'email/nonrostered_body.txt',
+            #        {'event': event}),
+            #    'United Derby Officials Colorado <no-reply@udoco.org>',
+            #    [user.email for user in event.nonrostered],
+            #    connection=connection).send()
         messages.add_message(
             request, messages.INFO,
             'Schedule finalized and officials notified.')
