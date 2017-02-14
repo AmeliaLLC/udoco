@@ -92,8 +92,8 @@ class Game(models.Model):
     def official_can_apply(self, official):
         return (
             not self.complete and
-            Application.objects.filter(
-                game=self, official=official).count() == 0)
+            ApplicationEntry.objects.filter(
+                event=self, official=official).count() == 0)
 
     def can_schedule(self, official):
         return official in self.league.schedulers.all()
@@ -146,6 +146,16 @@ class Application(models.Model):
 
     def __str__(self):
         return str(self.official)
+
+
+class ApplicationEntry(models.Model):
+    """An application preference entry."""
+    official = models.ForeignKey(Official, related_name='applicationentries')
+    event = models.ForeignKey(Game, related_name='applicationentries')
+
+    index = models.PositiveIntegerField()
+    preference = models.PositiveIntegerField(
+        choices=choices.OfficialPositions.choices)
 
 
 class Roster(models.Model):

@@ -1,6 +1,13 @@
 {% extends "_base.html" %}
+{% load staticfiles %}
+
+{% block "extra_head" %}
+<link rel="stylesheet" href="{% static 'mdl-selectfield/dist/mdl-selectfield.min.css' %}">
+{% endblock %}
 
 {% block "extra_foot" %}
+<script src="{% static 'mdl-selectfield/dist/mdl-selectfield.min.js' %}"></script>
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.1.0/fullcalendar.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.1.0/fullcalendar.min.js"></script>
@@ -44,7 +51,157 @@
 </div>
 </script>
 
+<script type="text/template" id="preference-select">
+<div class="mdl-selectfield mdl-js-selectfield mdl-selectfield--floating-label">
+    <select id="staffing" name="staffing[]" class="mdl-selectfield__select">
+        <option value=""></option>
+        <option value="1">Head ref</option>
+        <option value="2">Inside Pack Ref</option>
+        <option value="3">Jam Ref</option>
+        <option value="4">Outside Pack Ref</option>
+    </select>
+    <label for="staffing" class="mdl-selectfield__label">Staffing preference</label>
+    <span class="mdl-selectfield__error">This is an error</span>
+</div>
+</script>
+
+<script type="text/template" id="event-no-apply">
+You can't apply, you numpty.
+</script>
+
+<script type="text/template" id="event-apply">
+<h6 class="mdl-dialog__title"><%= event.title %></h6>
+<div class="mdl-dialog__content">
+    <ul class="mdl-list">
+        <li class="mdl-list__item mdl-list__item--two-line">
+            <span class="mdl-list__item-primary-content">
+                <span class="mdl-list__item-sub-title">Hosted by</span>
+                <span><%= event.league %></span>
+            </span>
+        </li>
+        <li class="mdl-list__item mdl-list__item--two-line">
+            <span class="mdl-list__item-primary-content">
+                <span><%= moment(event.start).format('LT') %> @ <%= event.location %></span>
+            </span>
+        </li>
+    </ul>
+    {% if request.user.is_logged_in %}
+    <p>
+        Please select the staffing preferences you may have.
+    </p>
+    <form id="preference-form" action="/_/events/<%= event.id %>">
+    </form>
+    {% else %}
+    <p>
+        <a id="login" href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">
+            <button id="fb-login">Log in to apply</button>
+        </a>
+    </p>
+    <div id="fb-disclaimer">
+        Facebook is used only for account management. We won't post anything.
+        You just don't need yet another username and password to remember, right?
+    </div>
+    {% endif %}
+</div>
+<div class="mdl-dialog__actions mdl-dialog__actions--full-width">
+    {% if request.user.is_logged_in %}
+    <button type="button" class="mdl-button" id="event-apply">Apply</button>
+    {% endif %}
+    <button type="button" class="mdl-button close" id="event-cancel">Cancel</button>
+</div>
+</script>
+
 <script>
+var EventApply = Backbone.View.extend({
+    el: "#dialog-target",
+    events: {
+        'change .mdl-selectfield__select': 'onPreferenceChange',
+        'click #event-apply': 'onApply',
+        'click #event-cancel': 'onCancel'
+    },
+    template: _.template($('#event-apply').html()),
+    initialize: function(options) {
+        this.event = options.event;
+        $.get('/_/events/'+options.event.id, null, _.bind(function(data) {
+            if (!data.can_apply && !data.is_anonymous) {
+                this.template = _.template($('#event-no-apply').html());
+            }
+            this.render();
+        }, this));
+    },
+    render: function() {
+        this.$el.html(this.template(this));
+        this._addPreferenceChoice();
+        this.$el[0].showModal();
+    },
+
+    event: null,
+    _addPreferenceChoice: function() {
+        var select = $('#preference-select').html();
+        this.$el.find('form').append(select);
+
+        var ele = this.$el.find('.mdl-js-selectfield').last()[0];
+        if (ele) {
+            componentHandler.upgradeElement(ele);
+        }
+    },
+    _close: function() {
+        var el = this.$el[0];
+        if (el.open) {
+            el.close();
+        }
+        this.$el.html('');
+    },
+    onPreferenceChange: function(event) {
+        var target = event.target,
+            parent = this.$el.find(target.parentNode);
+        if (event.target.value === "") {
+            if (this.$el.find('select').length > 1) {
+                parent.remove()
+            }
+        } else {
+            if (parent.hasClass('is-invalid')) {
+                parent.removeClass('is-invalid');
+            }
+
+            /* Make sure that, should the value change, we aren't
+             * adding due to a change in an already populated field.
+             */
+            if (target == this.$el.find('.mdl-js-selectfield__select').last()[0] &&
+                this.$el.find('.mdl-js-selectfield').length == 1) {
+                this._addPreferenceChoice();
+            }
+
+            /* TODO: make sure that the values are all unique */
+        }
+    },
+    onApply: function() {
+        var form = this.$el.find('#preference-form'),
+            selects = form.serializeArray(),
+            items = selects.map(function(ele) {
+                    return ele.value;
+                }).filter(function(ele) {
+                    return (Number(ele) > 0);
+                });
+
+        /* Make sure at least one choice was picked. */
+        if (items.length < 1) {
+            var error = this.$el.find('.mdl-selectfield__error');
+            error.text('Please select a staffing preference.')
+            error.parent().addClass('is-invalid');
+        }
+
+        $.post(form[0].action, {'preferences': items}, _.bind(function() {
+            /* TODO: Add toast message */
+            this._close();
+        }, this));
+    },
+    onCancel: function() {
+        this._close();
+    }
+});
+
+
 var App = Backbone.View.extend({
     el: "#js",
     template: _.template($('#app-template').html()),
@@ -90,7 +247,7 @@ var App = Backbone.View.extend({
         window.location = '/events/new';
     },
     onEventClick: function(event) {
-        window.location = '/events/' + event.id;
+        new EventApply({event: event});
     }
 });
 new App();

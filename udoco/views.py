@@ -2,12 +2,13 @@ from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core import mail
-from django.http import Http404
+from django.http import Http404, HttpResponseBadRequest
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.views.decorators import csrf
 from django.views.generic import View
 from rest_framework import viewsets
 
@@ -23,8 +24,57 @@ def index(request):
 def _events(request):
     events = models.Game.objects.filter(start__gt=timezone.now())
     return JsonResponse({'data': [{
-        'id': event.id, 'title': event.title, 'start': event.start.isoformat()}
+        'id': event.id, 'title': event.title, 'start': event.start.isoformat(),
+        'league': event.league.name, 'location': event.location}
         for event in events]})
+
+
+class _EventView(View):
+    """An event view."""
+
+    @method_decorator(csrf.csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(_EventView, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, event_id):
+        """Get information about the event."""
+        try:
+            event = models.Game.objects.get(id=event_id)
+        except models.Game.DoesNotExist:
+            raise Http404
+
+        response = {'data': {
+            'id': event.id,
+            'title': event.title,
+        }}
+        if request.user.is_anonymous:
+            response['can_apply'] = False
+            response['is_anonymous'] = True
+        else:
+            response['can_apply'] = event.official_can_apply(request.user)
+            response['is_anonymous'] = False
+
+        return JsonResponse(response)
+
+    @method_decorator(login_required)
+    def post(self, request, event_id):
+        """Apply to the event."""
+        try:
+            event = models.Game.objects.get(id=event_id)
+        except models.Game.DoesNotExist:
+            raise Http404
+
+        if not event.official_can_apply(request.user):
+            return HttpResponseBadRequest()
+
+        preferences = request.POST['preferences[]']
+
+        for pref in preferences:
+            models.ApplicationEntry.objects.create(
+                official=request.user, event=event,
+                index=preferences.index(pref),
+                preference=pref)
+        return JsonResponse({'data': {}})
 
 
 class CalendarView(View):

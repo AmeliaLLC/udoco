@@ -38,7 +38,11 @@
 
     {% block "extra_head" %}{% endblock %}
   </head>
-  <body>{% block "body" %}<div id="js"></div>{% endblock %}</body>
+  <body>
+  <dialog id="dialog-target" class="mdl-dialog"></dialog>
+  <div id="js"></div>
+  {% block "body" %}{% endblock %}
+  </body>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
