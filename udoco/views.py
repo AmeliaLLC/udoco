@@ -1,4 +1,3 @@
-from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core import mail
@@ -109,43 +108,6 @@ class CalendarView(View):
 
     def get(self, request):
         return render(request, self.template, {})
-
-
-class EventsView(View):
-    """A view for seeing all events."""
-    # TODO: this should become a calendar view.
-
-    template = 'udoco/events.html'
-
-    @method_decorator(login_required)
-    def get(self, request):
-        admin_events = models.Game.objects.filter(
-            league__in=request.user.scheduling.all(),
-            start__gt=timezone.now()).order_by('start')
-
-        # XXX: rockstar (20 Sep 2016) - Since making Roster a
-        # ForeignKey, this doesn't work.
-        applications = models.Game.objects.filter(
-            applications__in=models.Application.objects.filter(
-                official=request.user),
-            start__gt=timezone.now()).exclude(
-            rosters__in=models.Roster.objects.all()).order_by('start')
-
-        rosters = []
-        rosters = models.Game.objects.filter(
-            Q(rosters__hr=request.user) |
-            Q(rosters__ipr=request.user) |
-            Q(rosters__jr1=request.user) |
-            Q(rosters__jr2=request.user) |
-            Q(rosters__opr1=request.user) |
-            Q(rosters__opr2=request.user) |
-            Q(rosters__opr3=request.user)).filter(
-            start__gt=timezone.now()).order_by('start')
-        return render(request, self.template, {
-            'rosters': rosters,
-            'applications': applications,
-            'admin_events': admin_events,
-        })
 
 
 class AddEventView(View):

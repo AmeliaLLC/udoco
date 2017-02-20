@@ -40,7 +40,6 @@ urlpatterns = [
     url(r'^leagues$', views.LeagueView.as_view(), name='leagues'),
     url(r'^leagues/edit$', views.EditLeagueView.as_view(), name='edit_leagues'),
 
-    url(r'^events$', views.EventsView.as_view(), name='events'),
     url(r'^events/new$', views.AddEventView.as_view(), name='add_event'),
     url(r'^events/(?P<event_id>[0-9]+)$',
         views.EventView.as_view(), name='view_event'),
