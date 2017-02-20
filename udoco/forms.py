@@ -19,9 +19,6 @@ class ContinueSignUpForm(forms.Form):
         label='Emergency Contact Number', max_length=16,
         validators=[validators.PHONE_NUMBER_VALIDATOR])
 
-    official_type = forms.ChoiceField(
-        label='Preferred officiating type',
-        required=True, choices=choices.OfficialType.choices)
     league_affiliation = forms.CharField(
         label='League Affiliation', max_length=255,
         required=False)
