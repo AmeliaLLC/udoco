@@ -36,7 +36,6 @@ urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='udoco/index.html'),
         name='index'),
     url(r'^auth/', include('rest_framework_social_oauth2.urls')),
-    url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 
     url(r'^calendar', views.CalendarView.as_view(), name='calendar'),
     url(r'^leagues$', views.LeagueView.as_view(), name='leagues'),
