@@ -1,5 +1,6 @@
 from django import forms, template
 
+from udoco import models
 from udoco.forms import DateTimePicker, SimplifiedLeagueSelect
 
 MDLFORM_MAP = {
@@ -71,4 +72,10 @@ def mdl(field):
         'label': label,
         'div_class': div_class,
         'errors': error,
-        })
+    })
+
+
+@register.filter
+def entries_in(official, event):
+    return models.ApplicationEntry.objects.filter(
+        event=event, official=official).order_by('index')

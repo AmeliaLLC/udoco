@@ -482,6 +482,19 @@ class ProfileView(View):
 
 class LeagueView(View):
     """A view for league management."""
+    template = 'udoco/league_events.html'
+
+    def get(self, request):
+        events = models.Game.objects.filter(
+            league__in=request.user.scheduling.all(),
+            start__gt=timezone.now()).order_by('start')
+
+        context = {'events': events}
+        return render(request, self.template, context)
+
+
+class EditLeagueView(View):
+    """A view for league management."""
     template = 'udoco/league.html'
     form = forms.LeagueEditForm
 

@@ -21,7 +21,7 @@
       <nav class="mdl-navigation mdl-layout--large-screen-only">
       {% if user.is_authenticated %}
         {% if user.can_schedule %}
-        <a class="mdl-navigation__link" href="{% url 'events' %}">Manage league</a>
+        <a class="mdl-navigation__link" href="{% url 'leagues' %}">Manage league</a>
         {% endif %}
         <a class="mdl-navigation__link" href="{% url 'profile' %}">Settings</a>
         <a class="mdl-navigation__link" href="{% url 'auth:logout' %}?next=/">Log out</a>
@@ -55,10 +55,21 @@
 <div class="mdl-selectfield mdl-js-selectfield mdl-selectfield--floating-label">
     <select id="staffing" name="staffing[]" class="mdl-selectfield__select">
         <option value=""></option>
-        <option value="1">Head ref</option>
-        <option value="2">Inside Pack Ref</option>
-        <option value="3">Jam Ref</option>
-        <option value="4">Outside Pack Ref</option>
+        <option value="0">Head ref</option>
+        <option value="1">Inside Pack Ref</option>
+        <option value="2">Jam Ref</option>
+        <option value="3">Outside Pack Ref</option>
+
+        <option value="5">Head NSO</option>
+        <option value="6">Penalty Tracker</option>
+        <option value="7">Penalty Wrangler</option>
+        <option value="8">Inside Whiteboard</option>
+        <option value="9">Jam Timer</option>
+        <option value="10">Scorekeeper</option>
+        <option value="11">Scoreboard Operator</option>
+        <option value="12">Penalty Box Manager</option>
+        <option value="13">Penalty Box Timer</option>
+        <option value="14">Lineup Tracker</option>
     </select>
     <label for="staffing" class="mdl-selectfield__label">Staffing preference</label>
     <span class="mdl-selectfield__error">This is an error</span>
@@ -81,11 +92,11 @@ You can't apply, you numpty.
         </li>
         <li class="mdl-list__item mdl-list__item--two-line">
             <span class="mdl-list__item-primary-content">
-                <span><%= moment(event.start).format('LT') %> @ <%= event.location %></span>
+                <%= event.location %> @ <%= moment(event.start).format('LT') %>
             </span>
         </li>
     </ul>
-    {% if request.user.is_logged_in %}
+    {% if request.user.is_authenticated %}
     <p>
         Please select the staffing preferences you may have.
     </p>
@@ -104,7 +115,7 @@ You can't apply, you numpty.
     {% endif %}
 </div>
 <div class="mdl-dialog__actions mdl-dialog__actions--full-width">
-    {% if request.user.is_logged_in %}
+    {% if request.user.is_authenticated %}
     <button type="button" class="mdl-button" id="event-apply">Apply</button>
     {% endif %}
     <button type="button" class="mdl-button close" id="event-cancel">Cancel</button>
@@ -164,11 +175,11 @@ var EventApply = Backbone.View.extend({
                 parent.removeClass('is-invalid');
             }
 
-            /* Make sure that, should the value change, we aren't
+            /* TODO: Make sure that, should the value change, we aren't
              * adding due to a change in an already populated field.
              */
-            if (target == this.$el.find('.mdl-js-selectfield__select').last()[0] &&
-                this.$el.find('.mdl-js-selectfield').length == 1) {
+            if (target == this.$el.find('.mdl-selectfield__select').last()[0]) {
+                    //&& this.$el.find('.mdl-selectfield').length == 1) {
                 this._addPreferenceChoice();
             }
 

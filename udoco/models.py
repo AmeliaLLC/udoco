@@ -120,6 +120,11 @@ class Game(models.Model):
             applications__in=self.applications.all()).exclude(
             pk__in=[user.pk for user in self.staff])
 
+    @property
+    def applicants(self):
+        return Official.objects.filter(
+            applicationentries__in=self.applicationentries.all()).distinct()
+
 
 class Application(models.Model):
     """An application for a game."""
@@ -156,6 +161,10 @@ class ApplicationEntry(models.Model):
     index = models.PositiveIntegerField()
     preference = models.PositiveIntegerField(
         choices=choices.OfficialPositions.choices)
+
+    @property
+    def name(self):
+        return choices.OfficialPositions.choices[self.preference][1]
 
 
 class Roster(models.Model):

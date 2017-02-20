@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load udoco_forms %}
+{% block "extra_head" %}
+<link rel="stylesheet" href="{% static 'mdl-selectfield/dist/mdl-selectfield.min.css' %}">
+<script src="{% static 'mdl-selectfield/dist/mdl-selectfield.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'vendor/bootstrap-material-datetimepicker.css' %}">
+<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'moment/moment.js' %}"></script>
+<script src="{% static 'vendor/bootstrap-material-datetimepicker.js' %}"></script>
+{% endblock %}
+
+{% block "content" %}
+<div class="events">
+<h6>Events you need to schedule</h6>
+{% if events %}
+<ul>
+{% for event in events %}
+<li class="event">
+  <h6><a href="{% url 'schedule_event' event.id %}">{{ event.title }}</a></h6>
+  <span>{{ event.location }}, {{ event.start|date:"j M Y gA" }}</span>
+  <div class="host">hosted by {{ event.league.name }}</div>
+</li>
+{% endfor %}
+</ul>
+{% else %}
+<div>You have no outstanding events to schedule.</div>
+{% endif %}
+<div><a href="{% url 'edit_leagues' %}">
+    <button class="mdl-button mdl-js-button mdl-button--raised">Edit league info</button>
+</a></div>
+</div>
+{% endblock %}
+
