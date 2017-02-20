@@ -36,7 +36,7 @@
     <nav class="mdl-navigation">
       {% if user.is_authenticated %}
         {% if user.can_schedule %}
-        <a class="mdl-navigation__link" href="{% url 'events' %}">Manage league</a>
+        <a class="mdl-navigation__link" href="{% url 'leagues' %}">Manage league</a>
         {% endif %}
         <a class="mdl-navigation__link" href="{% url 'profile' %}">Settings</a>
         <a class="mdl-navigation__link" href="{% url 'auth:logout' %}?next=/">Log out</a>

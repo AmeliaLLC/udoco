@@ -16,10 +16,6 @@ from udoco import models
 from udoco import serializers
 
 
-def index(request):
-    return render(request, 'udoco/index.html')
-
-
 def _events(request):
     events = models.Game.objects.filter(start__gt=timezone.now())
     return JsonResponse({'data': [{

@@ -16,6 +16,7 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.views.generic import TemplateView
 from rest_framework import routers
 #from rest_framework.authtoken.views import obtain_auth_token
 
@@ -32,7 +33,8 @@ router.register('rosters', views.RosterViewSet)
 admin.autodiscover()
 
 urlpatterns = [
-    url(r'^$', views.index, name='index'),
+    url(r'^$', TemplateView.as_view(template_name='udoco/index.html'),
+        name='index'),
     url(r'^auth/', include('rest_framework_social_oauth2.urls')),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 
