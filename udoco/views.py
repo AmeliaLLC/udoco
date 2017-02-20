@@ -47,10 +47,14 @@ class _EventView(View):
             'id': event.id,
             'title': event.title,
         }}
-        if request.user.is_anonymous:
+        if request.user.is_anonymous():
+            response['has_applied'] = False
             response['can_apply'] = False
             response['is_anonymous'] = True
         else:
+            entries = models.ApplicationEntry.objects.filter(
+                event=event, official=request.user)
+            response['has_applied'] = (entries.count() > 0)
             response['can_apply'] = event.official_can_apply(request.user)
             response['is_anonymous'] = False
 
@@ -74,6 +78,27 @@ class _EventView(View):
                 official=request.user, event=event,
                 index=preferences.index(pref),
                 preference=pref)
+        return JsonResponse({'data': {}})
+
+
+class _EventWithdrawView(View):
+    """Event withdrawal mechanism."""
+
+    @method_decorator(csrf.csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(_EventWithdrawView, self).dispatch(
+            request, *args, **kwargs)
+
+    @method_decorator(login_required)
+    def post(self, request, event_id):
+        """Apply to the event."""
+        try:
+            event = models.Game.objects.get(id=event_id)
+        except models.Game.DoesNotExist:
+            raise Http404
+
+        models.ApplicationEntry.objects.filter(
+            official=request.user, event=event).delete()
         return JsonResponse({'data': {}})
 
 

@@ -61,6 +61,8 @@ urlpatterns = [
 
     url(r'^api/', include(router.urls)),
 
+    url(r'^_/events/(?P<event_id>[0-9]+)/withdraw',
+        views._EventWithdrawView.as_view(), name='api_withdraw'),
     url(r'^_/events/(?P<event_id>[0-9]+)',
         views._EventView.as_view(), name='api_apply'),
     url(r'^_/events', views._events, name='api_events'),

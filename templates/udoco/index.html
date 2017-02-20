@@ -77,7 +77,36 @@
 </script>
 
 <script type="text/template" id="event-no-apply">
-You can't apply, you numpty.
+<h6 class="mdl-dialog__title"><%= event.title %></h6>
+<div class="mdl-dialog__content">
+    <ul class="mdl-list">
+        <li class="mdl-list__item mdl-list__item--two-line">
+            <span class="mdl-list__item-primary-content">
+                <span class="mdl-list__item-sub-title">Hosted by</span>
+                <span><%= event.league %></span>
+            </span>
+        </li>
+        <li class="mdl-list__item mdl-list__item--two-line">
+            <span class="mdl-list__item-primary-content">
+                <%= event.location %> @ <%= moment(event.start).format('LT') %>
+            </span>
+        </li>
+    </ul>
+    <p>
+        <% if (meta.has_applied) { %>
+            You have already applied to this event. You may still withdraw your
+            application.
+        <% } else { %>
+            Applications for this event have been closed.
+        <% } %>
+    </p>
+</div>
+<div class="mdl-dialog__actions mdl-dialog__actions--full-width">
+    <% if (meta.has_applied) { %>
+    <button type="button" class="mdl-button" id="event-withdraw">Withdraw</button>
+    <% } %>
+    <button type="button" class="mdl-button close" id="event-cancel">Cancel</button>
+</div>
 </script>
 
 <script type="text/template" id="event-apply">
@@ -127,6 +156,7 @@ var EventApply = Backbone.View.extend({
     el: "#dialog-target",
     events: {
         'change .mdl-selectfield__select': 'onPreferenceChange',
+        'click #event-withdraw': 'onWithdraw',
         'click #event-apply': 'onApply',
         'click #event-cancel': 'onCancel'
     },
@@ -135,6 +165,7 @@ var EventApply = Backbone.View.extend({
         this.event = options.event;
         $.get('/_/events/'+options.event.id, null, _.bind(function(data) {
             if (!data.can_apply && !data.is_anonymous) {
+                this.meta.has_applied = data.has_applied;
                 this.template = _.template($('#event-no-apply').html());
             }
             this.render();
@@ -147,6 +178,7 @@ var EventApply = Backbone.View.extend({
     },
 
     event: null,
+    meta: {},
     _addPreferenceChoice: function() {
         var select = $('#preference-select').html();
         this.$el.find('form').append(select);
@@ -209,6 +241,12 @@ var EventApply = Backbone.View.extend({
     },
     onCancel: function() {
         this._close();
+    },
+    onWithdraw: function() {
+        $.post('/_/events/'+this.event.id+'/withdraw', _.bind(function() {
+            /* TODO: Add toast message */
+            this._close();
+        }, this));
     }
 });
 
