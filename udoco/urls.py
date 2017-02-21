@@ -37,7 +37,6 @@ urlpatterns = [
         name='index'),
     url(r'^auth/', include('rest_framework_social_oauth2.urls')),
 
-    url(r'^calendar', views.CalendarView.as_view(), name='calendar'),
     url(r'^leagues$', views.LeagueView.as_view(), name='leagues'),
     url(r'^leagues/edit$', views.EditLeagueView.as_view(), name='edit_leagues'),
 

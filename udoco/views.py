@@ -97,15 +97,6 @@ class _EventWithdrawView(View):
         return JsonResponse({'data': {}})
 
 
-class CalendarView(View):
-    """A calendar view."""
-
-    template = 'udoco/calendar.html'
-
-    def get(self, request):
-        return render(request, self.template, {})
-
-
 class AddEventView(View):
     """A view for adding a new event."""
     template = 'udoco/add_event.html'
