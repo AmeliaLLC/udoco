@@ -23,11 +23,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '1zr^soyvlm3y@d%-=qtbtvbns3d6t$xm$3)sx^ispeya!a2o87'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-TEMPLATE_STRING_IF_INVALID = DEBUG
+DEBUG = False
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['www.udoco.org', 'udoco.org']
 
 # Application definition
 
@@ -255,6 +253,32 @@ if 'DATABASE_URL' in os.environ:
     STATICFILES_STORAGE = 'udoco.storages.StaticStorage'
     DEFAULT_FILE_STORAGE = 'udoco.storages.MediaStorage'
     MEDIA_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, MEDIAFILES_LOCATION)
+
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'filters': {
+            'require_debug_false': {
+                '()': 'django.utils.log.RequireDebugFalse'
+            }
+        },
+        'handlers': {
+            'airbrake': {
+                'level': 'WARNING',
+                'class': 'airbrake.handlers.AirbrakeHandler',
+                'filters': ['require_debug_false'],
+                'api_key': '08759bfe62310fbf1c03df886c525000',
+                'env_name': 'production',
+            }
+        },
+        'loggers': {
+            'django.request': {
+                'handlers': ['airbrake'],
+                'level': 'WARNING',
+                'propagate': True,
+            },
+        }
+    }
 else:
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
     MEDIA_URL = '/media/'
