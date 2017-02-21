@@ -26,7 +26,7 @@ from udoco import views
 router = routers.DefaultRouter(trailing_slash=False)
 router.register('officials', views.OfficialViewSet)
 router.register('leagues', views.LeagueViewSet)
-router.register('games', views.GameViewSet)
+router.register('events', views.GameViewSet)
 router.register('rosters', views.RosterViewSet)
 
 admin.autodiscover()
@@ -63,7 +63,6 @@ urlpatterns = [
         views._EventWithdrawView.as_view(), name='api_withdraw'),
     url(r'^_/events/(?P<event_id>[0-9]+)',
         views._EventView.as_view(), name='api_apply'),
-    url(r'^_/events', views._events, name='api_events'),
 
     # Views outside the scope of this site, but required for functionality.
     url(r'^manage/', admin.site.urls),

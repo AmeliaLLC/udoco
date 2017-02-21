@@ -76,62 +76,38 @@
 </div>
 </script>
 
-<script type="text/template" id="event-no-apply">
-<h6 class="mdl-dialog__title"><%= event.title %></h6>
-<div class="mdl-dialog__content">
-    <ul class="mdl-list">
-        <li class="mdl-list__item mdl-list__item--two-line">
-            <span class="mdl-list__item-primary-content">
-                <span class="mdl-list__item-sub-title">Hosted by</span>
-                <span><%= event.league %></span>
-            </span>
-        </li>
-        <li class="mdl-list__item mdl-list__item--two-line">
-            <span class="mdl-list__item-primary-content">
-                <%= event.location %> @ <%= moment(event.start).format('LT') %>
-            </span>
-        </li>
-    </ul>
-    <p>
-        <% if (meta.has_applied) { %>
-            You have already applied to this event. You may still withdraw your
-            application.
-        <% } else { %>
-            Applications for this event have been closed.
-        <% } %>
-    </p>
-</div>
-<div class="mdl-dialog__actions mdl-dialog__actions--full-width">
-    <% if (meta.has_applied) { %>
-    <button type="button" class="mdl-button" id="event-withdraw">Withdraw</button>
-    <% } %>
-    <button type="button" class="mdl-button close" id="event-cancel">Cancel</button>
-</div>
-</script>
-
 <script type="text/template" id="event-apply">
-<h6 class="mdl-dialog__title"><%= event.title %></h6>
+<h6 class="mdl-dialog__title"><%= event.get('title') %></h6>
 <div class="mdl-dialog__content">
     <ul class="mdl-list">
         <li class="mdl-list__item mdl-list__item--two-line">
             <span class="mdl-list__item-primary-content">
                 <span class="mdl-list__item-sub-title">Hosted by</span>
-                <span><%= event.league %></span>
+                <span><%= event.get('league') %></span>
             </span>
         </li>
         <li class="mdl-list__item mdl-list__item--two-line">
             <span class="mdl-list__item-primary-content">
-                <%= event.location %> @ <%= moment(event.start).format('LT') %>
+                <%= event.get('location') %> @ <%= moment(event.get('start').replace('Z', '')).format('LT') %>
             </span>
         </li>
     </ul>
-    {% if request.user.is_authenticated %}
+    <% if (event.get('can_apply')) { %>
     <p>
         Please select the staffing preferences you may have.
     </p>
-    <form id="preference-form" action="/_/events/<%= event.id %>">
+    <form id="preference-form" action="/_/events/<%= event.get('id') %>">
     </form>
-    {% else %}
+    <% } %>
+    <p>
+    <% if (event.get('complete') || moment().diff(event.get('start')) > 0){ %>
+        Applications for this event have been closed.
+    <% } else if (event.get('has_applied')) { %>
+        You have already applied to this event. You may still withdraw your
+        application.
+    <% } %>
+    </p>
+    <% if (!event.get('is_authenticated')) { %>
     <p>
         <a id="login" href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">
             <button id="fb-login">Log in to apply</button>
@@ -141,18 +117,21 @@
         Facebook is used only for account management. We won't post anything.
         You just don't need yet another username and password to remember, right?
     </div>
-    {% endif %}
+    <% } %>
 </div>
 <div class="mdl-dialog__actions mdl-dialog__actions--full-width">
-    {% if request.user.is_authenticated %}
+    <% if (event.get('can_apply')) { %>
     <button type="button" class="mdl-button" id="event-apply">Apply</button>
-    {% endif %}
+    <% } %>
+    <% if (event.get('has_applied')) { %>
+    <button type="button" class="mdl-button" id="event-withdraw">Withdraw</button>
+    <% } %>
     <button type="button" class="mdl-button close" id="event-cancel">Cancel</button>
 </div>
 </script>
 
 <script>
-var EventApply = Backbone.View.extend({
+App.Views.EventApply = Backbone.View.extend({
     el: "#dialog-target",
     events: {
         'change .mdl-selectfield__select': 'onPreferenceChange',
@@ -162,12 +141,8 @@ var EventApply = Backbone.View.extend({
     },
     template: _.template($('#event-apply').html()),
     initialize: function(options) {
-        this.event = options.event;
-        $.get('/_/events/'+options.event.id, null, _.bind(function(data) {
-            if (!data.can_apply && !data.is_anonymous) {
-                this.meta.has_applied = data.has_applied;
-                this.template = _.template($('#event-no-apply').html());
-            }
+        this.event = new App.Models.Event({id: options.eventId});
+        this.event.fetch().done(_.bind(function(data) {
             this.render();
         }, this));
     },
@@ -178,7 +153,6 @@ var EventApply = Backbone.View.extend({
     },
 
     event: null,
-    meta: {},
     _addPreferenceChoice: function() {
         var select = $('#preference-select').html();
         this.$el.find('form').append(select);
@@ -194,6 +168,7 @@ var EventApply = Backbone.View.extend({
             el.close();
         }
         this.$el.html('');
+        router.navigate('/', {trigger: true});
     },
     onPreferenceChange: function(event) {
         var target = event.target,
@@ -223,8 +198,8 @@ var EventApply = Backbone.View.extend({
             selects = form.serializeArray(),
             items = selects.map(function(ele) {
                     return ele.value;
-                }).filter(function(ele) {
-                    return (Number(ele) > 0);
+                }).filter(function(val) {
+                    return (val != "");
                 });
 
         /* Make sure at least one choice was picked. */
@@ -250,13 +225,12 @@ var EventApply = Backbone.View.extend({
     }
 });
 
-
-var App = Backbone.View.extend({
+App.Views.Calendar = Backbone.View.extend({
     el: "#js",
     template: _.template($('#app-template').html()),
     initialize: function() {
-        $.getJSON('/_/events', null, _.bind(function(res) {
-            this.events = res.data;
+        this.events = new App.Collections.Events();
+        this.events.fetch().done(_.bind(function(data) {
             this.render();
         }, this));
     },
@@ -272,7 +246,7 @@ var App = Backbone.View.extend({
             },
           {% endif %}
             editable: false,
-            events: this.events,
+            events: this.events.toJSON(),
             displayEventTime: true,
             handleWindowResize: true,
             weekends: true,
@@ -296,9 +270,12 @@ var App = Backbone.View.extend({
         window.location = '/events/new';
     },
     onEventClick: function(event) {
-        new EventApply({event: event});
+        router.navigate('events/'+event.id, {trigger: true});
     }
 });
-new App();
+
+
+var router = new App.Router();
+Backbone.history.start();
 </script>
 {% endblock %}

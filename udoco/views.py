@@ -16,44 +16,12 @@ from udoco import models
 from udoco import serializers
 
 
-def _events(request):
-    events = models.Game.objects.filter(start__gt=timezone.now())
-    return JsonResponse({'data': [{
-        'id': event.id, 'title': event.title, 'start': event.start.isoformat(),
-        'league': event.league.name, 'location': event.location}
-        for event in events]})
-
-
 class _EventView(View):
     """An event view."""
 
     @method_decorator(csrf.csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super(_EventView, self).dispatch(request, *args, **kwargs)
-
-    def get(self, request, event_id):
-        """Get information about the event."""
-        try:
-            event = models.Game.objects.get(id=event_id)
-        except models.Game.DoesNotExist:
-            raise Http404
-
-        response = {'data': {
-            'id': event.id,
-            'title': event.title,
-        }}
-        if request.user.is_anonymous():
-            response['has_applied'] = False
-            response['can_apply'] = False
-            response['is_anonymous'] = True
-        else:
-            entries = models.ApplicationEntry.objects.filter(
-                event=event, official=request.user)
-            response['has_applied'] = (entries.count() > 0)
-            response['can_apply'] = event.official_can_apply(request.user)
-            response['is_anonymous'] = False
-
-        return JsonResponse(response)
 
     @method_decorator(login_required)
     def post(self, request, event_id):
@@ -158,75 +126,9 @@ class AddEventView(View):
 
 class EventView(View):
     """A view for applying to a game."""
-    template = 'udoco/event.html'
-    form = forms.GameApplicationForm
 
-    def get(self, request, event_id, form=None):
-        event = models.Game.objects.get(id=event_id)
-        context = {
-            'can_schedule': event.can_schedule(request.user),
-            'event': event,
-            'form': form,
-        }
-        if request.user.is_authenticated() \
-                and event.official_can_apply(request.user) \
-                and form is None:
-            context['form'] = self.form()
-        return render(request, self.template, context)
-
-    @method_decorator(login_required)
-    def post(self, request, event_id):
-        event = models.Game.objects.get(id=event_id)
-        if not event.official_can_apply(request.user):
-            messages.add_message(
-                request, messages.INFO, 'You cannot apply to this game.')
-            return redirect('view_event', event_id)
-        form = self.form(request.POST)
-        if form.is_valid():
-
-            from udoco.choices import (
-                SkatingPositions, OfficialPositions, NonskatingPositions)
-            fields = [
-                'so_first_choice', 'so_second_choice', 'so_third_choice',
-                'nso_first_choice', 'nso_second_choice', 'nso_third_choice',
-            ]
-            so_preference_map = {
-                SkatingPositions.HEAD_REF: OfficialPositions.HEAD_REF,
-                SkatingPositions.INSIDE_PACK_REF: OfficialPositions.INSIDE_PACK_REF,
-                SkatingPositions.JAM_REF: OfficialPositions.JAM_REF,
-                SkatingPositions.OUTSIDE_PACK_REF: OfficialPositions.OUTSIDE_PACK_REF,
-                SkatingPositions.ALT: OfficialPositions.ALT,
-            }
-            nso_preference_map = {
-                NonskatingPositions.JAM_TIMER: OfficialPositions.JAM_TIMER,
-                NonskatingPositions.SCORE_KEEPER: OfficialPositions.SCORE_KEEPER,
-                NonskatingPositions.PENALTY_BOX_MANAGER: OfficialPositions.PENALTY_BOX_MANAGER,
-                NonskatingPositions.PENALTY_BOX_TIMER: OfficialPositions.PENALTY_BOX_TIMER,
-                NonskatingPositions.PENALTY_TRACKER: OfficialPositions.PENALTY_TRACKER,
-                NonskatingPositions.PENALTY_WRANGLER: OfficialPositions.PENALTY_WRANGLER,
-                NonskatingPositions.INSIDE_WHITEBOARD: OfficialPositions.INSIDE_WHITEBOARD,
-                NonskatingPositions.LINEUP_TRACKER: OfficialPositions.LINEUP_TRACKER,
-                NonskatingPositions.SCOREBOARD_OPERATOR: OfficialPositions.SCOREBOARD_OPERATOR,
-            }
-            idx = 0
-            for field in fields:
-                val = int(form.cleaned_data.get(field))
-                if val != 100:
-                    if field.startswith('so'):
-                        preference = so_preference_map[val]
-                    else:
-                        preference = nso_preference_map[val]
-                    entry = models.ApplicationEntry.objects.create(
-                        official=request.user, event=event,
-                        preference=preference, index=idx)
-                    entry.save()
-                    idx += 1
-            messages.add_message(
-                request, messages.INFO, 'Your application has been received.')
-
-            return redirect('view_event', event_id)
-        else:
-            return self.get(request, event_id, form=form)
+    def get(self, request, event_id):
+        return redirect('/#events/{}'.format(event_id))
 
 
 class EventWithdrawalView(View):

@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 
 from udoco import models
@@ -32,20 +33,45 @@ class LeagueSerializer(serializers.ModelSerializer):
 
 
 class GameSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = models.Game
         fields = (
+            'id',
             'title',
             'start',
             'end',
             'location',
-            'association',
-            'game_type',
             'league',
-            'created',
-            'creator',
             'complete',
+
+            'has_applied',
+            'can_apply',
+            'is_authenticated',
         )
+
+    league = serializers.StringRelatedField()
+
+    has_applied = serializers.SerializerMethodField('_has_applied')
+    can_apply = serializers.SerializerMethodField('_can_apply')
+    is_authenticated = serializers.SerializerMethodField('_is_authenticated')
+
+    def _has_applied(self, instance):
+        user = self.context['request'].user
+        if not user.is_authenticated():
+            return False
+        return (models.ApplicationEntry.objects.filter(
+            event=instance, official=user).count() > 0)
+
+    def _can_apply(self, instance):
+        return (self.context['request'].user.is_authenticated()
+                and not self._has_applied(instance)
+                and not instance.complete
+                and instance.start > timezone.now())
+
+    # XXX: rockstar (20 Feb 2017) - Ugh ugh ugh.
+    def _is_authenticated(self, instance):
+        return self.context['request'].user.is_authenticated()
 
 
 class ApplicationSerializer(serializers.ModelSerializer):
