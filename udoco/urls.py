@@ -27,7 +27,6 @@ router = routers.DefaultRouter(trailing_slash=False)
 router.register('officials', views.OfficialViewSet)
 router.register('leagues', views.LeagueViewSet)
 router.register('games', views.GameViewSet)
-router.register('applications', views.ApplicationViewSet)
 router.register('rosters', views.RosterViewSet)
 
 admin.autodiscover()

@@ -183,17 +183,44 @@ class EventView(View):
             return redirect('view_event', event_id)
         form = self.form(request.POST)
         if form.is_valid():
-            application = models.Application()
-            application.official = request.user
-            application.game = event
-            application.so_first_choice = form.cleaned_data['so_first_choice']
-            application.so_second_choice = form.cleaned_data['so_second_choice']
-            application.so_third_choice = form.cleaned_data['so_third_choice']
-            application.nso_first_choice = form.cleaned_data['nso_first_choice']
-            application.nso_second_choice = form.cleaned_data[
-                'nso_second_choice']
-            application.nso_third_choice = form.cleaned_data['nso_third_choice']
-            application.save()
+
+            from udoco.choices import (
+                SkatingPositions, OfficialPositions, NonskatingPositions)
+            fields = [
+                'so_first_choice', 'so_second_choice', 'so_third_choice',
+                'nso_first_choice', 'nso_second_choice', 'nso_third_choice',
+            ]
+            so_preference_map = {
+                SkatingPositions.HEAD_REF: OfficialPositions.HEAD_REF,
+                SkatingPositions.INSIDE_PACK_REF: OfficialPositions.INSIDE_PACK_REF,
+                SkatingPositions.JAM_REF: OfficialPositions.JAM_REF,
+                SkatingPositions.OUTSIDE_PACK_REF: OfficialPositions.OUTSIDE_PACK_REF,
+                SkatingPositions.ALT: OfficialPositions.ALT,
+            }
+            nso_preference_map = {
+                NonskatingPositions.JAM_TIMER: OfficialPositions.JAM_TIMER,
+                NonskatingPositions.SCORE_KEEPER: OfficialPositions.SCORE_KEEPER,
+                NonskatingPositions.PENALTY_BOX_MANAGER: OfficialPositions.PENALTY_BOX_MANAGER,
+                NonskatingPositions.PENALTY_BOX_TIMER: OfficialPositions.PENALTY_BOX_TIMER,
+                NonskatingPositions.PENALTY_TRACKER: OfficialPositions.PENALTY_TRACKER,
+                NonskatingPositions.PENALTY_WRANGLER: OfficialPositions.PENALTY_WRANGLER,
+                NonskatingPositions.INSIDE_WHITEBOARD: OfficialPositions.INSIDE_WHITEBOARD,
+                NonskatingPositions.LINEUP_TRACKER: OfficialPositions.LINEUP_TRACKER,
+                NonskatingPositions.SCOREBOARD_OPERATOR: OfficialPositions.SCOREBOARD_OPERATOR,
+            }
+            idx = 0
+            for field in fields:
+                val = int(form.cleaned_data.get(field))
+                if val != 100:
+                    if field.startswith('so'):
+                        preference = so_preference_map[val]
+                    else:
+                        preference = nso_preference_map[val]
+                    entry = models.ApplicationEntry.objects.create(
+                        official=request.user, event=event,
+                        preference=preference, index=idx)
+                    entry.save()
+                    idx += 1
             messages.add_message(
                 request, messages.INFO, 'Your application has been received.')
 
@@ -209,14 +236,13 @@ class EventWithdrawalView(View):
     def post(self, request, event_id):
         event = models.Game.objects.get(id=event_id)
         try:
-            application = models.Application.objects.get(
-                official=request.user, game=event)
-            application.delete()
+            models.ApplicationEntry.objects.filter(
+                official=request.user, event=event).delete()
             messages.add_message(
                 request, messages.INFO,
                 'You have withdrawn from the event.')
             return redirect('events')
-        except models.Application.DoesNotExist:
+        except models.ApplicationEntry.DoesNotExist:
             raise Http404
 
 
@@ -259,9 +285,7 @@ class SchedulingView(View):
         if not event.can_schedule(request.user):
             raise Http404()
 
-        blank_form = forms.SchedulingForm(
-            models.Official.objects.filter(
-                applications__in=models.Application.objects.filter(game=event)))
+        blank_form = forms.SchedulingForm(event.applicants)
         if form is not None and form.cleaned_data['roster'] is None:
             blank_form = form
 
@@ -295,9 +319,7 @@ class SchedulingView(View):
                 'so': roster.so,
             }
             roster_forms.append(forms.SchedulingForm(
-                models.Official.objects.filter(
-                    applications__in=models.Application.objects.filter(
-                        game=event)),
+                event.applicants,
                 initial=initial))
 
         context = {
@@ -313,10 +335,7 @@ class SchedulingView(View):
         if not event.can_schedule(request.user):
             raise Http404()
 
-        form = forms.SchedulingForm(
-            models.Official.objects.filter(
-                applications__in=models.Application.objects.filter(game=event)),
-            request.POST)
+        form = forms.SchedulingForm(event.applicants, request.POST)
         if not form.is_valid():
             return self.get(request, event_id, form=form)
 
@@ -515,11 +534,6 @@ class LeagueViewSet(viewsets.ModelViewSet):
 class GameViewSet(viewsets.ModelViewSet):
     queryset = models.Game.objects.all()
     serializer_class = serializers.GameSerializer
-
-
-class ApplicationViewSet(viewsets.ModelViewSet):
-    queryset = models.Application.objects.all()
-    serializer_class = serializers.ApplicationSerializer
 
 
 class RosterViewSet(viewsets.ModelViewSet):

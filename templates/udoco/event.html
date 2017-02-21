@@ -107,7 +107,7 @@ button#fb-login {
 {% if event.roster %}
     <a href="{% url 'schedule_event' event.id %}">Edit roster</a>
 {% else %}
-    You are designated as staff for this league. You have {{ event.applications.count }}
+    You are designated as staff for this league. You have {{ event.applicants.count }}
     applications so far.
     <div>
         <a href="{% url 'schedule_event' event.id %}">Schedule officials to officiate this event.</a>
