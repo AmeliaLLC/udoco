@@ -4,6 +4,16 @@ from rest_framework import serializers
 from udoco import models
 
 
+class LeagueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.League
+        fields = (
+            'name',
+            'abbreviation',
+            'email_template',
+        )
+
+
 class OfficialSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Official
@@ -15,21 +25,11 @@ class OfficialSerializer(serializers.ModelSerializer):
             'emergency_contact_name',
             'emergency_contact_number',
             'avatar',
-            'official_type',
             'league_affiliation',
-        )
 
-
-class LeagueSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.League
-        fields = (
-            'name',
-            'abbreviation',
-            'created',
-            'email_template',
-            'schedulers'
+            'league'
         )
+    league = LeagueSerializer(read_only=True)
 
 
 class GameSerializer(serializers.ModelSerializer):
