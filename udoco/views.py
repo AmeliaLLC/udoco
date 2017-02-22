@@ -353,7 +353,6 @@ class ProfileView(View):
                 'phone_number': request.user.phone_number,
                 'emergency_contact_name': request.user.emergency_contact_name,
                 'emergency_contact_number': request.user.emergency_contact_number,  # NOQA
-                'official_type': request.user.official_type,
                 'league_affiliation': request.user.league_affiliation,
             })
         return render(request, self.template, {'form': form})
@@ -368,7 +367,6 @@ class ProfileView(View):
             request.user.phone_number = form.cleaned_data['phone_number']
             request.user.emergency_contact_name = form.cleaned_data['emergency_contact_name']  # NOQA
             request.user.emergency_contact_number = form.cleaned_data['emergency_contact_number']  # NOQA
-            request.user.official_type = form.cleaned_data['official_type']
             request.user.league_affiliation = form.cleaned_data['league_affiliation']  # NOQA
             request.user.save()
             messages.add_message(request, messages.INFO, 'Profile saved')
