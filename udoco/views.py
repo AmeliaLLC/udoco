@@ -33,10 +33,13 @@ class _EventView(View):
         except models.Game.DoesNotExist:
             raise Http404
 
+        if request.user in event.applicants:
+            return HttpResponseBadRequest()
+
         if not event.official_can_apply(request.user):
             return HttpResponseBadRequest()
 
-        preferences = request.POST['preferences[]']
+        preferences = request.POST.getlist('preferences[]')
 
         for pref in preferences:
             models.ApplicationEntry.objects.create(
@@ -61,6 +64,9 @@ class _EventWithdrawView(View):
             event = models.Game.objects.get(id=event_id)
         except models.Game.DoesNotExist:
             raise Http404
+
+        if request.user not in event.applicants:
+            return HttpResponseBadRequest()
 
         models.ApplicationEntry.objects.filter(
             official=request.user, event=event).delete()
