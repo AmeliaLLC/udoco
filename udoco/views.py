@@ -200,7 +200,7 @@ class SchedulingView(View):
             blank_form = form
 
         roster_forms = []
-        for roster in event.rosters.all():
+        for roster in event.rosters.all().order_by('id'):
             if form is not None and roster.id == form.cleaned_data['roster']:
                 roster_forms.append(form)
                 continue
