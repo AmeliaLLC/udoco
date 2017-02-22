@@ -44,7 +44,10 @@ class Official(AbstractUser):
     # for multiple leagues. I think that's okay, for now.
     @property
     def league(self):
-        return self.scheduling.all()[0]
+        try:
+            return self.scheduling.all()[0]
+        except IndexError:
+            return None
 
 
 class League(models.Model):
