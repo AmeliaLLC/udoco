@@ -56,6 +56,7 @@ App.Views.EventApply = Backbone.View.extend({
         if (el.open) {
             el.close();
         }
+        this.undelegateEvents();
         this.$el.html('');
         router.navigate('/', {trigger: true});
     },
