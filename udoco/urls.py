@@ -18,16 +18,12 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.views.generic import TemplateView
 from rest_framework import routers
-#from rest_framework.authtoken.views import obtain_auth_token
 
 from udoco import views
 
 
 router = routers.DefaultRouter(trailing_slash=False)
-router.register('officials', views.OfficialViewSet)
-router.register('leagues', views.LeagueViewSet)
 router.register('events', views.GameViewSet)
-router.register('rosters', views.RosterViewSet)
 
 admin.autodiscover()
 
@@ -35,6 +31,7 @@ urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='udoco/index.html'),
         name='index'),
     url(r'^auth/', include('rest_framework_social_oauth2.urls')),
+    url(r'^api/me', views.me),
 
     url(r'^leagues$', views.LeagueView.as_view(), name='leagues'),
     url(r'^leagues/edit$', views.EditLeagueView.as_view(), name='edit_leagues'),

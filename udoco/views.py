@@ -10,6 +10,8 @@ from django.utils.decorators import method_decorator
 from django.views.decorators import csrf
 from django.views.generic import View
 from rest_framework import viewsets
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 from udoco import forms
 from udoco import models
@@ -423,6 +425,14 @@ class EditLeagueView(View):
 
 
 # REST Framework
+@api_view(['GET'])
+def me(request):
+    if not request.user.is_authenticated():
+        return Response(None)
+    serializer = serializers.OfficialSerializer(request.user)
+    return Response(serializer.data)
+
+
 class OfficialViewSet(viewsets.ModelViewSet):
     queryset = models.Official.objects.all()
     serializer_class = serializers.OfficialSerializer
