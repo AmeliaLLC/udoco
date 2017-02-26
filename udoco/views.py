@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.core import mail
 from django.http import Http404, HttpResponseBadRequest
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -438,21 +439,83 @@ def me(request):
     return Response(serializer.data)
 
 
-class OfficialViewSet(viewsets.ModelViewSet):
-    queryset = models.Official.objects.all()
-    serializer_class = serializers.OfficialSerializer
-
-
-class LeagueViewSet(viewsets.ModelViewSet):
-    queryset = models.League.objects.all()
+class LeagueViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = models.League.objects.none()
     serializer_class = serializers.LeagueSerializer
 
+    def list(self, request):
+        if request.user.is_authenticated():
+            queryset = request.user.scheduling.all()
+        else:
+            queryset = models.League.objects.none()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
 
-class GameViewSet(viewsets.ModelViewSet):
+    def retrieve(self, request, pk=None):
+        if not request.user.is_authenticated():
+            raise Http404
+        league = get_object_or_404(
+            request.user.scheduling.all(), pk=pk)
+        serializer = self.serializer_class(league)
+        return Response(serializer.data)
+
+
+class OfficialViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = models.Official.objects.none()
+    serializer_class = serializers.OfficialSerializer
+
+    def retrieve(self, request, pk=None):
+        if not request.user.is_authenticated():
+            raise Http404
+        official = get_object_or_404(
+            models.Official.objects.all(), pk=pk)
+        serializer = self.serializer_class(official)
+        return Response(serializer.data)
+
+
+class EventViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.Game.objects.all()
     serializer_class = serializers.GameSerializer
 
 
-class RosterViewSet(viewsets.ModelViewSet):
-    queryset = models.Roster.objects.all()
+class RosterViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = models.Roster.objects.none()
     serializer_class = serializers.RosterSerializer
+
+    def list(self, request, event_pk=None):
+        if not request.user.is_authenticated():
+            raise Http404
+        event = models.Game.objects.get(pk=event_pk)
+        if request.user not in event.league.schedulers.all():
+            raise Http404
+        serializer = self.serializer_class(
+            event.rosters.all(), many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, event_pk=None, pk=None):
+        if not request.user.is_authenticated():
+            raise Http404
+        event = models.Game.objects.get(pk=event_pk)
+        if request.user not in event.league.schedulers.all():
+            raise Http404
+        roster = event.rosters.get(pk=pk)
+        serializer = self.serializer_class(roster)
+        return Response(serializer.data)
+
+
+class ApplicationViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = models.Official.objects.none()
+    serializer_class = serializers.ApplicationSerializer
+
+    def list(self, request, event_pk=None):
+        if not request.user.is_authenticated():
+            raise Http404
+        event = models.Game.objects.get(pk=event_pk)
+        if request.user not in event.league.schedulers.all():
+            raise Http404
+        officials = models.Official.objects.filter(
+            applicationentries__in=event.applicationentries.all())
+        context = {'event': event}
+        serializer = serializers.ApplicationSerializer(
+            officials, context=context, many=True)
+        return Response(serializer.data)

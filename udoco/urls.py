@@ -17,13 +17,22 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.views.generic import TemplateView
-from rest_framework import routers
+#from rest_framework import routers
+from rest_framework_nested import routers
 
 from udoco import views
 
 
-router = routers.DefaultRouter(trailing_slash=False)
-router.register('events', views.GameViewSet)
+router = routers.SimpleRouter(trailing_slash=False)
+router.register('leagues', views.LeagueViewSet)
+router.register('officials', views.OfficialViewSet)
+
+router.register('events', views.EventViewSet)
+
+events_router = routers.NestedSimpleRouter(router, r'events', lookup='event')
+events_router.register(r'rosters', views.RosterViewSet)
+events_router.register(r'applications', views.ApplicationViewSet)
+
 
 admin.autodiscover()
 
@@ -55,6 +64,7 @@ urlpatterns = [
     url(r'^profile/edit$', views.ProfileView.as_view(), name='profile'),
 
     url(r'^api/', include(router.urls)),
+    url(r'^api/', include(events_router.urls)),
 
     url(r'^_/events/(?P<event_id>[0-9]+)/withdraw',
         views._EventWithdrawView.as_view(), name='api_withdraw'),

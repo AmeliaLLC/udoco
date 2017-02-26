@@ -32,6 +32,24 @@ class OfficialSerializer(serializers.ModelSerializer):
     league = LeagueSerializer(read_only=True)
 
 
+class ApplicationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Official
+        fields = (
+            'display_name',
+            'avatar',
+            'league_affiliation',
+            'preferences',
+        )
+    preferences = serializers.SerializerMethodField('_preferences')
+
+    def _preferences(self, instance):
+        event = self.context['event']
+        entries = models.ApplicationEntry.objects.filter(
+            official=instance, event=event).order_by('index')
+        return [entry.name for entry in entries]
+
+
 class GameSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -74,26 +92,44 @@ class GameSerializer(serializers.ModelSerializer):
         return self.context['request'].user.is_authenticated()
 
 
-class ApplicationSerializer(serializers.ModelSerializer):
+class _RosteredSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.Application
+        model = models.Official
         fields = (
-            'official',
-            'game',
-            'so_first_choice',
-            'so_second_choice',
-            'so_third_choice',
-            'nso_first_choice',
-            'nso_second_choice',
-            'nso_third_choice',
+            'id',
+            'display_name',
+            'avatar',
+            'league_affiliation',
         )
 
 
 class RosterSerializer(serializers.ModelSerializer):
+    hr = _RosteredSerializer(read_only=True)
+    ipr = _RosteredSerializer(read_only=True)
+    jr1 = _RosteredSerializer(read_only=True)
+    jr2 = _RosteredSerializer(read_only=True)
+    opr1 = _RosteredSerializer(read_only=True)
+    opr2 = _RosteredSerializer(read_only=True)
+    opr3 = _RosteredSerializer(read_only=True)
+    alt = _RosteredSerializer(read_only=True)
+    jt = _RosteredSerializer(read_only=True)
+    sk1 = _RosteredSerializer(read_only=True)
+    sk2 = _RosteredSerializer(read_only=True)
+    pbm = _RosteredSerializer(read_only=True)
+    pbt1 = _RosteredSerializer(read_only=True)
+    pbt2 = _RosteredSerializer(read_only=True)
+    pt1 = _RosteredSerializer(read_only=True)
+    pt2 = _RosteredSerializer(read_only=True)
+    pw = _RosteredSerializer(read_only=True)
+    iwb = _RosteredSerializer(read_only=True)
+    lt1 = _RosteredSerializer(read_only=True)
+    lt2 = _RosteredSerializer(read_only=True)
+    so = _RosteredSerializer(read_only=True)
+
     class Meta:
         model = models.Roster
         fields = (
-            'game',
+            'id',
             'hr',
             'ipr',
             'jr1',
