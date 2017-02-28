@@ -128,6 +128,10 @@ class Game(models.Model):
         return Official.objects.filter(
             applicationentries__in=self.applicationentries.all()).distinct()
 
+    @property
+    def ordered_rosters(self):
+        return self.rosters.order_by('id')
+
 
 class Application(models.Model):
     """An application for a game."""
