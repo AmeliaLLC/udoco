@@ -236,13 +236,11 @@ DEFAULT_FROM_EMAIL = 'no-reply@udoco.org'
 
 if 'DATABASE_URL' in os.environ:
     # We're in the heroku environment
-    SIMPLE_CACHE_BUSTER = os.environ['GITVERSION']
-
     import dj_database_url
     DATABASES = {
         'default': dj_database_url.config(conn_max_age=500)
     }
-    STATICFILES_LOCATION = 'static/' + SIMPLE_CACHE_BUSTER
+    STATICFILES_LOCATION = 'static/' + os.environ['GITVERSION']
     MEDIAFILES_LOCATION = 'media'
     AWS_STORAGE_BUCKET_NAME = 'udoco'
     AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
