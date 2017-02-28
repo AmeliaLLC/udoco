@@ -236,7 +236,7 @@ DEFAULT_FROM_EMAIL = 'no-reply@udoco.org'
 
 if 'DATABASE_URL' in os.environ:
     # We're in the heroku environment
-    SIMPLE_CACHE_BUSTER = 'a'
+    SIMPLE_CACHE_BUSTER = os.environ['GITVERSION']
 
     import dj_database_url
     DATABASES = {

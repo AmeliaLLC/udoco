@@ -3,9 +3,10 @@ Deploying the site
 
 To deploy:
 
+    DATABASE_URL=sqlite:// GITREV=`git rev-parse --short HEAD` manage.py collectstatic --noinput
     git push heroku master
+    heroku config:set GITREV=`git rev-parse --short HEAD`
     heroku run python manage.py migrate
-    DATABASE_URL=sqlite:// manage.py collectstatic --noinput
 
 Create a superuser
 ==================
