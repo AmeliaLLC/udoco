@@ -4,17 +4,13 @@ Django==1.9.6
 python-social-auth==0.2.19
 smartchoices==1.1
 django-airbrake==1.2.0
-django-npm==1.0.0
 django-storages==1.4.1
 boto==2.40.0
 dj-database-url==0.4.1
-psycopg2==2.6.1
+psycopg2==2.6.1  # LDFLAGS="-L/usr/local/opt/openssl/lib"
 Pillow==3.3.1
 django-anymail==0.5
 djangorestframework==3.4.7
-djangorestframework-jsonapi==2.1.1
 django-cors-headers==1.2.1
 django-rest-framework-social-oauth2==1.0.4
 drf-nested-routers==0.11.1
-
-git+https://github.com/rockstar/django-fullcalendar.git#egg=django-fullcalendar
