@@ -3,47 +3,45 @@
 
 {% block "extra_head" %}
 <link rel="stylesheet" href="{% static 'mdl-selectfield/dist/mdl-selectfield.min.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.1.0/fullcalendar.min.css">
 {% endblock %}
 
 {% block "body" %}
-<script type="text/template" id="app-template">
-<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
-  <header class="mdl-layout__header">
-    <div class="mdl-layout__header-row">
-      <span class="mdl-layout-title">United Derby Officials</span>
-      <div class="mdl-layout-spacer"></div>
-      <nav class="mdl-navigation mdl-layout--large-screen-only">
-      <% if (App.user !== null) { %>
-        {% if user.can_schedule %}
-        <a class="mdl-navigation__link" href="{% url 'leagues' %}">Manage league</a>
-        {% endif %}
-        <a class="mdl-navigation__link" href="{% url 'profile' %}">Settings</a>
-        <a class="mdl-navigation__link" href="{% url 'auth:logout' %}?next=/">Log out</a>
-      <% } else { %>
-        <a class="mdl-navigation__link" href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">Log in</a>
+<script type="text/template" id="navigation-template">
+  <div class="mdl-layout__header-row">
+    <span class="mdl-layout-title"><%= stack[stack.length-1].title %></span>
+    <div class="mdl-layout-spacer"></div>
+    <nav class="mdl-navigation mdl-layout--large-screen-only">
+    <% if (App.state.user !== null) { %>
+      <% if (App.state.user.league !== undefined) { %>
+      <a class="mdl-navigation__link" href="/leagues">Manage league</a>
       <% } %>
-      </nav>
-    </div>
-  </header>
-  <div class="mdl-layout__drawer">
-    <span class="mdl-layout-title">United Derby Officials</span>
-    <nav class="mdl-navigation">
-      <% if (App.user != null) {
-      {% if user.is_authenticated %}
-        {% if user.can_schedule %}
-        <a class="mdl-navigation__link" href="{% url 'leagues' %}">Manage league</a>
-        {% endif %}
-        <a class="mdl-navigation__link" href="{% url 'profile' %}">Settings</a>
-        <a class="mdl-navigation__link" href="{% url 'auth:logout' %}?next=/">Log out</a>
-      {% else %}
-        <a class="mdl-navigation__link" href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">Log in</a>
-      {% endif %}
+      <a class="mdl-navigation__link" id="settings" href="">Settings</a>
+      <a class="mdl-navigation__link" href="/logout/?next=/">Log out</a>
+    <% } else { %>
+      <a class="mdl-navigation__link" href="/auth/login/facebook/?next=<%= window.location.pathname %>">Log in</a>
+    <% } %>
     </nav>
   </div>
+</script>
+<script type="text/template" id="drawer-template">
+  <nav class="mdl-navigation">
+    <% if (App.state.user !== null) { %>
+      <% if (App.state.user.league !== undefined) { %>
+      <a class="mdl-navigation__link" href="/leagues">Manage league</a>
+      <% } %>
+      <a class="mdl-navigation__link" id="settings_drawer" href="">Settings</a>
+      <a class="mdl-navigation__link" href="/logout/?next=/">Log out</a>
+    <% } else { %>
+      <a class="mdl-navigation__link" href="/auth/login/facebook/?next=<%= window.location.pathname %>">Log in</a>
+    <% } %>
+  </nav>
+</script>
+
+<script type="text/template" id="app-template">
   <main class="mdl-layout__content">
     <div id="calendar"></div>
   </main>
-</div>
 </script>
 
 <script type="text/template" id="preference-select">
@@ -69,6 +67,62 @@
     <label for="staffing" class="mdl-selectfield__label">Staffing preference</label>
     <span class="mdl-selectfield__error">This is an error</span>
 </div>
+</script>
+
+<script type="text/template" id="edit-profile-template">
+<form action="" method="POST">
+  <div class="mdl-cell mdl-cell--12-col">
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+      <label for="display_name" class="mdl-textfield__label">Derby name</label>
+      <input class="mdl-textfield__input" id="id_display_name" maxlength="100" name="display_name" type="text" value="<%= model.get('display_name') %>" />
+    </div>
+  </div>
+
+  <div class="mdl-cell mdl-cell--12-col">
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+      <label for="email" class="mdl-textfield__label">Preferred email address</label>
+      <input class="mdl-textfield__input" id="id_email" name="email" type="email" value="<%= model.get('email') %>" />
+    </div>
+  </div>
+
+  <div class="mdl-cell mdl-cell--12-col">
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+      <label for="game_history" class="mdl-textfield__label">Game history</label>
+      <input class="mdl-textfield__input" id="id_game_history" name="game_history" type="url" value="<%= model.get('game_history') %>" />
+    </div>
+  </div>
+
+  <div class="mdl-cell mdl-cell--12-col">
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+      <label for="phone_number" class="mdl-textfield__label">Phone number</label>
+      <input class="mdl-textfield__input" id="id_phone_number" maxlength="16" name="phone_number" type="text" value="<%= model.get('phone_number') %>" />
+    </div>
+  </div>
+
+  <div class="mdl-cell mdl-cell--12-col">
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+      <label for="emergency_contact_name" class="mdl-textfield__label">Emergency Contact Name</label>
+      <input class="mdl-textfield__input" id="id_emergency_contact_name" maxlength="256" name="emergency_contact_name" type="text" value="<%= model.get('emergency_contact_name') %>" />
+    </div>
+  </div>
+
+  <div class="mdl-cell mdl-cell--12-col">
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+      <label for="emergency_contact_number" class="mdl-textfield__label">Emergency Contact Number</label>
+      <input class="mdl-textfield__input" id="id_emergency_contact_number" maxlength="16" name="emergency_contact_number" type="text" value="<%= model.get('emergency_contact_number') %>" />
+    </div>
+  </div>
+
+  <div class="mdl-cell mdl-cell--12-col">
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+      <label for="league_affiliation" class="mdl-textfield__label">League Affiliation</label>
+      <input class="mdl-textfield__input" id="id_league_affiliation" maxlength="255" name="league_affiliation" type="text" value="<%= model.get('league_affiliation') %>" />
+    </div>
+  </div>
+
+  <input id="save" class="mdl-button mdl-button--raised" type="submit" value="Save" />
+  <a style="padding-left: 15px;" href="" id="cancel">Return to events</a>
+</form>
 </script>
 
 <script type="text/template" id="event-apply">
@@ -104,7 +158,7 @@
     </p>
     <% if (!event.get('is_authenticated')) { %>
     <p>
-        <a id="login" href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">
+        <a id="login" href="/auth/login/facebook?next=<%= window.location.pathname %>">
             <button id="fb-login">Log in to apply</button>
         </a>
     </p>
@@ -128,18 +182,7 @@
 
 {% block "extra_foot" %}
 <script src="{% static 'mdl-selectfield/dist/mdl-selectfield.min.js' %}"></script>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.1.0/fullcalendar.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.1.0/fullcalendar.min.js"></script>
-
-<script>
-$.get('/api/me').done(function(response) {
-    if (response !== '') {
-        App.user = new App.Models.Official(response);
-    }
-});
-var router = new App.Router();
-Backbone.history.start();
-</script>
+<script>App.init();</script>
 {% endblock %}

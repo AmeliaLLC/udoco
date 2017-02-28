@@ -1,11 +1,6 @@
 html, body {
   font-family: 'Roboto', 'Helvetica', sans-serif;
 }
-@media (min-width: 1025px){
-    .mdl-layout__drawer-button {
-        display: none;
-    }
-}
 .fc-left {
     padding-left: 10px;
     padding-top: 10px;

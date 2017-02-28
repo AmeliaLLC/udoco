@@ -8,12 +8,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-
+    {% if not debug %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/airbrake-js/0.6.0/client.min.js"></script>
     <script>var airbrake = new airbrakeJs.Client({
         projectId: 137988, projectKey: '08759bfe62310fbf1c03df886c525000'});
     </script>
-
+    {% endif %}
     {# Add to homescreen for Chrome on Android #}
     <meta name="mobile-web-app-capable" content="yes">
     <link rel="icon" sizes="192x192" href="{% static 'img/android.png' %}">
@@ -43,7 +43,17 @@
   </head>
   <body>
   <dialog id="dialog-target" class="mdl-dialog"></dialog>
-  <div id="js"></div>
+  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <header id="navigation" class="mdl-layout__header mdl-color--blue-grey-900"></header>
+    <div id="drawer" class="mdl-layout__drawer mdl-color--blue-grey-800"></div>
+    <div class="mdl-grid">
+      <div id="content" class="mdl-cell mdl-cell--12-col"></div>
+    </div>
+  </div>
+  <div id="toast" class="mdl-js-snackbar mdl-snackbar">
+    <div class="mdl-snackbar__text"></div>
+    <button class="mdl-snackbar__action" type="button"></button>
+  </div>
   {% block "body" %}{% endblock %}
   </body>
 

@@ -460,15 +460,33 @@ class LeagueViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.data)
 
 
-class OfficialViewSet(viewsets.ReadOnlyModelViewSet):
+class OfficialViewSet(viewsets.ModelViewSet):
     queryset = models.Official.objects.none()
     serializer_class = serializers.OfficialSerializer
+    permissions = []
 
     def retrieve(self, request, pk=None):
         if not request.user.is_authenticated():
             raise Http404
         official = get_object_or_404(
             models.Official.objects.all(), pk=pk)
+        serializer = self.serializer_class(official)
+        return Response(serializer.data)
+
+    def update(self, request, pk=None):
+        if request.user.id != int(pk):
+            raise Http404
+        official = models.Official.objects.get(pk=pk)
+        official.display_name = request.data['display_name']
+        official.email = request.data['email']
+        official.phone_number = request.data['phone_number']
+        official.emergency_contact_name = request.data[
+            'emergency_contact_name']
+        official.emergency_contact_number = request.data[
+            'emergency_contact_number']
+        official.game_history = request.data['game_history']
+        official.league_affiliation = request.data['league_affiliation']
+        official.save()
         serializer = self.serializer_class(official)
         return Response(serializer.data)
 

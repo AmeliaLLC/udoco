@@ -26,6 +26,7 @@ SECRET_KEY = '1zr^soyvlm3y@d%-=qtbtvbns3d6t$xm$3)sx^ispeya!a2o87'
 DEBUG = False
 
 ALLOWED_HOSTS = ['www.udoco.org', 'udoco.org']
+INTERNAL_IPS = ['127.0.0.1']
 
 # Application definition
 
@@ -122,9 +123,11 @@ REST_FRAMEWORK = {
         'rest_framework_social_oauth2.authentication.SocialAuthentication',
     ),
     'PAGE_SIZE': 100,
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny',
+    ),
     'DEFAULT_PARSER_CLASSES': (
-        'rest_framework.parsers.FormParser',
-        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.JSONParser',
     ),
 }
 

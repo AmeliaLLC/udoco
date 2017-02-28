@@ -10,7 +10,6 @@ class LeagueSerializer(serializers.ModelSerializer):
         fields = (
             'name',
             'abbreviation',
-            'email_template',
         )
 
 
@@ -18,6 +17,7 @@ class OfficialSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Official
         fields = (
+            'id',
             'display_name',
             'email',
             'phone_number',
