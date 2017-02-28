@@ -49,14 +49,12 @@ class LeagueAdmin(admin.ModelAdmin):
 # Below are some dummy admin models to hide some boilerplate models.
 from django.contrib.auth.models import Group
 from social.apps.django_app.default.models import Association, Nonce, UserSocialAuth  # NOQA
-from fullcalendar.models import CalendarEvent
 from rest_framework.authtoken.models import Token
 from oauth2_provider.models import AccessToken, Application, Grant, RefreshToken
 admin.site.unregister(Group)
 admin.site.unregister(Association)
 admin.site.unregister(Nonce)
 admin.site.unregister(UserSocialAuth)
-admin.site.unregister(CalendarEvent)
 admin.site.unregister(Token)
 admin.site.unregister(AccessToken)
 admin.site.unregister(Application)
