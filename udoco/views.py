@@ -252,7 +252,7 @@ class SchedulingView(View):
 
         if form.cleaned_data['roster']:
             roster = models.Roster.objects.get(
-                id=form.cleaned_data['roster']).order_by('id')
+                id=form.cleaned_data['roster'])
         else:
             roster = models.Roster()
             roster.game = event
