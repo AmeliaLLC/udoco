@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'rest_framework_social_oauth2',
 
     'social.apps.django_app.default',
-    'fullcalendar',
     'storages',
     'anymail',
 
@@ -101,6 +100,8 @@ TEMPLATES = [
 
                 'social.apps.django_app.context_processors.backends',
                 'social.apps.django_app.context_processors.login_redirect',
+
+                'udoco.context_processors.version',
             ],
         },
     },
@@ -240,7 +241,8 @@ if 'DATABASE_URL' in os.environ:
     DATABASES = {
         'default': dj_database_url.config(conn_max_age=500)
     }
-    STATICFILES_LOCATION = 'static/' + os.environ['GITVERSION']
+    GITREV = os.environ['GITVERSION'].strip()
+    STATICFILES_LOCATION = 'static/' + GITREV
     MEDIAFILES_LOCATION = 'media'
     AWS_STORAGE_BUCKET_NAME = 'udoco'
     AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
@@ -275,6 +277,9 @@ if 'DATABASE_URL' in os.environ:
         }
     }
 else:
+    import subprocess
+    GITREV = subprocess.check_output(
+        ['git', 'rev-parse', '--short', 'HEAD']).strip()
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
     MEDIA_URL = '/media/'
     CORS_ORIGIN_ALLOW_ALL = True
