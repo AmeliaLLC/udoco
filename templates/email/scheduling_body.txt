@@ -2,7 +2,7 @@ Officials,
 
   Thank you for your willingness to officiate at this event. Below are the rosters.
 
-{% for roster in event.ordered_rosters %}
+{% for roster in event.rosters.all %}
 {% if event.rosters.count > 1 %}Game {{ forloop.counter }}
 {% endif %}
 Skating Officials

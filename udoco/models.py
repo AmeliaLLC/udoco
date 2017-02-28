@@ -128,10 +128,6 @@ class Game(models.Model):
         return Official.objects.filter(
             applicationentries__in=self.applicationentries.all()).distinct()
 
-    @property
-    def ordered_rosters(self):
-        return self.rosters.order_by('id')
-
 
 class Application(models.Model):
     """An application for a game."""
@@ -176,6 +172,9 @@ class ApplicationEntry(models.Model):
 
 class Roster(models.Model):
     """A roster for an event."""
+
+    class Meta:
+        ordering = ['id']
 
     game = models.ForeignKey(
         Game, on_delete=models.CASCADE, related_name='rosters')
