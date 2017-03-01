@@ -42,6 +42,7 @@ urlpatterns = [
     url(r'^auth/', include('rest_framework_social_oauth2.urls')),
     url(r'^api/me', views.me),
 
+    url(r'^robots.txt', TemplateView.as_view(template_name='robots.txt')),
     url(r'^leagues$', views.LeagueView.as_view(), name='leagues'),
     url(r'^leagues/edit$', views.EditLeagueView.as_view(), name='edit_leagues'),
 
