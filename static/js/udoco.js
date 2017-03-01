@@ -187,6 +187,7 @@ App.Views.EventApply = Backbone.View.extend({
         App.state.router.navigate('/', {trigger: true});
     },
     onPreferenceChange: function(event) {
+        this.$el.find('.is-invalid').removeClass('is-invalid');
         var target = event.target,
             parent = this.$el.find(target.parentNode);
         if (event.target.value === "") {
@@ -194,22 +195,15 @@ App.Views.EventApply = Backbone.View.extend({
                 parent.remove()
             }
         } else {
-            if (parent.hasClass('is-invalid')) {
-                parent.removeClass('is-invalid');
-            }
-
             /* TODO: Make sure that, should the value change, we aren't
              * adding due to a change in an already populated field.
              */
             var selects = this.$el.find('.mdl-selectfield__select');
-            console.log(selects.length);
             if (selects.length > 13) { return; }
             if (target == this.$el.find('.mdl-selectfield__select').last()[0]) {
                     //&& this.$el.find('.mdl-selectfield').length == 1) {
                 this._addPreferenceChoice();
             }
-
-            /* TODO: make sure that the values are all unique */
         }
     },
     onApply: function() {
@@ -226,7 +220,22 @@ App.Views.EventApply = Backbone.View.extend({
             var error = this.$el.find('.mdl-selectfield__error');
             error.text('Please select a staffing preference.')
             error.parent().addClass('is-invalid');
+            return;
         }
+
+        /* Make sure there are no duplicates */
+        var $elements = this.$el.find('select');
+        $elements.each(function () {
+                var selectedValue = this.value;
+
+                var dupes = $elements.not(this)
+                    .filter(function() {
+                        return this.value == selectedValue;
+                    }).parent().addClass('is-invalid');
+            });
+        this.$el.find('.is-invalid').find('.mdl-selectfield__error').text(
+             'You have chosen this option twice');
+        if (this.$el.find('.is-invalid').length > 0) { return };
 
         $.post(form[0].action, {'preferences': items}, _.bind(function() {
             App.toast({'message': 'Your application has been received.'});
