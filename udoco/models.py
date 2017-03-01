@@ -201,3 +201,7 @@ class Roster(models.Model):
     lt1 = models.ForeignKey(Official, related_name="lt1_games", null=True)
     lt2 = models.ForeignKey(Official, related_name="lt2_games", null=True)
     so = models.ForeignKey(Official, related_name="so_games", null=True)
+
+    hnso = models.ForeignKey(Official, related_name="hnso_games", null=True)
+    nsoalt = models.ForeignKey(Official, related_name="nsoalt_games", null=True)
+    ptimer = models.ForeignKey(Official, related_name="ptimer_games", null=True)

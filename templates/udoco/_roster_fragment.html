@@ -11,6 +11,9 @@
 
     <input class="mdl-button mdl-button--raised" type="submit" name="action" value="Save roster" />
     {% if not event.complete %}
+    {% if form.roster.value %}
+    <input class="mdl-button mdl-button--raised" type="submit" name="action" value="Remove roster" />
+    {% endif %}
     <input class="mdl-button mdl-button--raised mdl-button--accent" type="submit" name="action" value="Commit" />
     {% endif %}
   </form>

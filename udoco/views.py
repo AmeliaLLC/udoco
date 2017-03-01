@@ -228,6 +228,9 @@ class SchedulingView(View):
                 'lt1': roster.lt1,
                 'lt2': roster.lt2,
                 'so': roster.so,
+                'hnso': roster.hnso,
+                'ptimer': roster.ptimer,
+                'nsoalt': roster.nsoalt,
             }
             roster_forms.append(forms.SchedulingForm(
                 event.applicants,
@@ -245,6 +248,14 @@ class SchedulingView(View):
         event = models.Game.objects.get(id=event_id)
         if not event.can_schedule(request.user):
             raise Http404()
+
+        if request.POST.get('action', '').startswith('Remove'):
+            try:
+                roster_id = int(request.POST.get('roster'))
+                models.Roster.objects.get(pk=roster_id).delete()
+                return redirect('schedule_event', event_id)
+            except (TypeError, models.Roster.DoesNotExist):
+                return HttpResponseBadRequest()
 
         form = forms.SchedulingForm(event.applicants, request.POST)
         if not form.is_valid():
@@ -277,6 +288,10 @@ class SchedulingView(View):
         roster.lt1 = form.cleaned_data['lt1']
         roster.lt2 = form.cleaned_data['lt2']
         roster.so = form.cleaned_data['so']
+
+        roster.hnso = form.cleaned_data['hnso']
+        roster.ptimer = form.cleaned_data['ptimer']
+        roster.nsoalt = form.cleaned_data['nsoalt']
         roster.save()
 
         if request.POST.get('action', '').startswith('Commit'):

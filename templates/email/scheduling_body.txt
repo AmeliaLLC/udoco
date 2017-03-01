@@ -2,16 +2,17 @@ Officials,
 
   Thank you for your willingness to officiate at this event. Below are the rosters.
 
-{% for roster in event.rosters.all %}
-{% if event.rosters.count > 1 %}Game {{ forloop.counter }}
+{% for roster in event.rosters.all %}{% if event.rosters.count > 1 %}
+Game {{ forloop.counter }}
+========
 {% endif %}
 Skating Officials
 -----------------
 
 {% if roster.hr %}Head Referee - {{ roster.hr.display_name }}
+{% endif %}{% if roster.ipr %}Inside Pack Referee - {{ roster.ipr.display_name }}
 {% endif %}{% if roster.jr1 %}Jam Referee - {{ roster.jr1.display_name }}
 {% endif %}{% if roster.jr2 %}Jam Referee - {{ roster.jr2.display_name }}
-{% endif %}{% if roster.ipr %}Inside Pack Referee - {{ roster.ipr.display_name }}
 {% endif %}{% if roster.opr1 %}Outside Pack Referee - {{ roster.opr1.display_name }}
 {% endif %}{% if roster.opr2 %}Outside Pack Referee - {{ roster.opr2.display_name }}
 {% endif %}{% if roster.opr3 %}Outside Pack Referee - {{ roster.opr3.display_name }}
@@ -21,19 +22,22 @@ Skating Officials
 Non-skating Officials
 ---------------------
 
-{% if roster.jt %}Jam Timer - {{ roster.jt.display_name }}
+{% if roster.hnso %}Head NSO - {{ roster.hnso.display_name }}
+{% endif %}{% if roster.pt1 %}Penalty Tracker{% if roster.lt1 == None %}/Lineup Tracker{% endif %} - {{ roster.pt1.display_name }}
+{% endif %}{% if roster.pt2 %}Penalty Tracker{% if roster.lt2 == None %}/Lineup Tracker{% endif %} - {{ roster.pt2.display_name }}
+{% endif %}{% if roster.pw %}Penalty Wrangler - {{ roster.pw.display_name }}
+{% endif %}{% if roster.iwb %}Inside Whiteboard - {{ roster.iwb.display_name }}
+{% endif %}{% if roster.jt %}Jam Timer - {{ roster.jt.display_name }}
 {% endif %}{% if roster.sk1 %}Scorekeeper - {{ roster.sk1.display_name }}
 {% endif %}{% if roster.sk2 %}Scorekeeper - {{ roster.sk2.display_name }}
+{% endif %}{% if roster.so %}Scoreboard Operator - {{ roster.so.display_name }}
 {% endif %}{% if roster.pbm %}Penalty Box Manager - {{ roster.pbm.display_name }}
 {% endif %}{% if roster.pbt1 %}Penalty Box Timer - {{ roster.pbt1.display_name }}
 {% endif %}{% if roster.pbt2 %}Penalty Box Timer - {{ roster.pbt2.display_name }}
-{% endif %}{% if roster.pt1 %}Penalty Tracker - {{ roster.pt1.display_name }}
-{% endif %}{% if roster.pt2 %}Penalty Tracker - {{ roster.pt2.display_name }}
-{% endif %}{% if roster.pw %}Penalty Wrangler - {{ roster.pw.display_name }}
-{% endif %}{% if roster.iwb %}Inside Whiteboard - {{ roster.iwb.display_name }}
 {% endif %}{% if roster.lt1 %}Lineup Tracker - {{ roster.lt1.display_name }}
 {% endif %}{% if roster.lt2 %}Lineup Tracker - {{ roster.lt2.display_name }}
-{% endif %}{% if roster.so %}Scoreboard Operator - {{ roster.so.display_name }}
+{% endif %}{% if roster.nsoalt %}Alternate NSO - {{ roster.nsoalt.display_name }}
+{% endif %}{% if roster.ptimer %}Period Timer - {{ roster.ptimer.display_name }}
 {% endif %}
 {% endfor %}
 

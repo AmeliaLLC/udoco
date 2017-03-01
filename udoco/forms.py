@@ -115,6 +115,8 @@ class SchedulingForm(forms.Form):
 
     roster = forms.IntegerField(widget=forms.HiddenInput, required=False)
 
+    # Skating officials
+
     hr = forms.ModelChoiceField(
         label='Head Ref', empty_label='', queryset=None,
         required=False)
@@ -140,23 +142,10 @@ class SchedulingForm(forms.Form):
         label='Alternate', empty_label='', queryset=None,
         required=False)
 
-    jt = forms.ModelChoiceField(
-        label='Jam Timer', empty_label='', queryset=None,
-        required=False)
-    sk1 = forms.ModelChoiceField(
-        label='Score Keeper', empty_label='', queryset=None,
-        required=False)
-    sk2 = forms.ModelChoiceField(
-        label='Score Keeper', empty_label='', queryset=None,
-        required=False)
-    pbm = forms.ModelChoiceField(
-        label='Penalty Box Manager', empty_label='', queryset=None,
-        required=False)
-    pbt1 = forms.ModelChoiceField(
-        label='Penalty Box Timer', empty_label='', queryset=None,
-        required=False)
-    pbt2 = forms.ModelChoiceField(
-        label='Penalty Box Timer', empty_label='', queryset=None,
+    # Non-skating officials
+
+    hnso = forms.ModelChoiceField(
+        label='Head NSO', empty_label='', queryset=None,
         required=False)
     pt1 = forms.ModelChoiceField(
         label='Penalty Tracker', empty_label='', queryset=None,
@@ -170,14 +159,38 @@ class SchedulingForm(forms.Form):
     iwb = forms.ModelChoiceField(
         label='Inside Whiteboard (optional)', empty_label='', queryset=None,
         required=False)
+    jt = forms.ModelChoiceField(
+        label='Jam Timer', empty_label='', queryset=None,
+        required=False)
+    sk1 = forms.ModelChoiceField(
+        label='Score Keeper', empty_label='', queryset=None,
+        required=False)
+    sk2 = forms.ModelChoiceField(
+        label='Score Keeper', empty_label='', queryset=None,
+        required=False)
+    so = forms.ModelChoiceField(
+        label='Scoreboard Operator', empty_label='', queryset=None,
+        required=False)
+    pbm = forms.ModelChoiceField(
+        label='Penalty Box Manager', empty_label='', queryset=None,
+        required=False)
+    pbt1 = forms.ModelChoiceField(
+        label='Penalty Box Timer', empty_label='', queryset=None,
+        required=False)
+    pbt2 = forms.ModelChoiceField(
+        label='Penalty Box Timer', empty_label='', queryset=None,
+        required=False)
     lt1 = forms.ModelChoiceField(
         label='Lineup Tracker', empty_label='', queryset=None,
         required=False)
     lt2 = forms.ModelChoiceField(
         label='Lineup Tracker', empty_label='', queryset=None,
         required=False)
-    so = forms.ModelChoiceField(
-        label='Scoreboard Operator', empty_label='', queryset=None,
+    nsoalt = forms.ModelChoiceField(
+        label='NSO Alt', empty_label='', queryset=None,
+        required=False)
+    ptimer = forms.ModelChoiceField(
+        label='Period Timer', empty_label='', queryset=None,
         required=False)
 
     def __init__(self, qs, *args, **kwargs):
