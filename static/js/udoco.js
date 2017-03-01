@@ -201,13 +201,15 @@ App.Views.EventApply = Backbone.View.extend({
             /* TODO: Make sure that, should the value change, we aren't
              * adding due to a change in an already populated field.
              */
+            var selects = this.$el.find('.mdl-selectfield__select');
+            console.log(selects.length);
+            if (selects.length > 13) { return; }
             if (target == this.$el.find('.mdl-selectfield__select').last()[0]) {
                     //&& this.$el.find('.mdl-selectfield').length == 1) {
                 this._addPreferenceChoice();
             }
 
             /* TODO: make sure that the values are all unique */
-            /* TODO: make sure that there's a limit on how many choices are made. */
         }
     },
     onApply: function() {
