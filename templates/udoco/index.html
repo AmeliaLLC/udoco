@@ -149,7 +149,7 @@
     </form>
     <% } %>
     <p>
-    <% if (event.get('complete') || moment().diff(event.get('start')) > 0){ %>
+    <% if (event.get('complete') || moment().diff(event.get('start')) > 0) { %>
         Applications for this event have been closed.
     <% } else if (event.get('has_applied')) { %>
         You have already applied to this event. You may still withdraw your
@@ -175,7 +175,13 @@
     <% if (event.get('has_applied')) { %>
     <button type="button" class="mdl-button" id="event-withdraw">Withdraw</button>
     <% } %>
-    <button type="button" class="mdl-button close" id="event-cancel">Cancel</button>
+    <% if (App.state.user.get('league').name == event.get('league') && moment().diff(event.get('start')) < 0) { %>
+    <button type="button" class="mdl-button" id="event-cancel">Cancel event</button>
+    <% if (!event.get('complete')){ %>
+    <button type="button" class="mdl-button" id="event-schedule">Schedule event</button>
+    <% } %>
+    <% } %>
+    <button type="button" class="mdl-button close" id="event-close">Close</button>
 </div>
 </script>
 {% endblock %}

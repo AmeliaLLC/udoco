@@ -1,5 +1,5 @@
 componentHandler.reset = function() {
-    var components = document.querySelectorAll('[data-upgraded]'); 
+    var components = document.querySelectorAll('[data-upgraded]');
     if (components.length > 0) {
         componentHandler.downgradeElements(components);
     }
@@ -152,11 +152,14 @@ App.Views.EventApply = Backbone.View.extend({
         'change .mdl-selectfield__select': 'onPreferenceChange',
         'click #event-withdraw': 'onWithdraw',
         'click #event-apply': 'onApply',
-        'click #event-cancel': 'onCancel'
+        'click #event-cancel': 'onCancel',
+        'click #event-schedule': 'onSchedule',
+        'click #event-close': 'onClose'
     },
     template: _.template($('#event-apply').html()),
     initialize: function(options) {
         this.event = new App.Models.Event({id: options.eventId});
+        this.event.on('destroy', _.bind(this._afterEventDestroy, this));
         this.event.fetch().done(_.bind(function(data) {
             this.render();
         }, this));
@@ -176,6 +179,10 @@ App.Views.EventApply = Backbone.View.extend({
         if (ele) {
             componentHandler.upgradeElement(ele);
         }
+    },
+    _afterEventDestroy: function() {
+        App.toast({'message': 'Your event has been deleted.'});
+        this._close();
     },
     _close: function() {
         var el = this.$el[0];
@@ -243,6 +250,12 @@ App.Views.EventApply = Backbone.View.extend({
         }, this));
     },
     onCancel: function() {
+        this.event.destroy()
+    },
+    onSchedule: function() {
+        window.location = '/events/'+this.event.get('id')+'/schedule';
+    },
+    onClose: function() {
         this._close();
     },
     onWithdraw: function() {

@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators import csrf
 from django.views.generic import View
+from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -155,35 +156,6 @@ class EventWithdrawalView(View):
             return redirect('events')
         except models.ApplicationEntry.DoesNotExist:
             raise Http404
-
-
-class EventDeleteView(View):
-    """A view for deleting events."""
-
-    @method_decorator(login_required)
-    def post(self, request, event_id):
-        event = models.Game.objects.get(id=event_id)
-
-        if event.complete:
-            recipients = [user.email for user in event.staff]
-        else:
-            recipients = [
-                application.official.email
-                for application in event.applications.all()]
-        with mail.get_connection() as connection:
-            mail.EmailMessage(
-                render_to_string(
-                    'email/cancelled_title.txt',
-                    {'event': event}),
-                render_to_string(
-                    'email/cancelled_body.txt',
-                    {'event': event}),
-                'United Derby Officials Colorado <no-reply@udoco.org>',
-                recipients, connection=connection).send()
-
-        event.delete()
-        messages.add_message(request, messages.INFO, 'Game has been deleted.')
-        return redirect('events')
 
 
 class SchedulingView(View):
@@ -509,6 +481,32 @@ class OfficialViewSet(viewsets.ModelViewSet):
 class EventViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.Game.objects.all()
     serializer_class = serializers.GameSerializer
+
+    def delete(self, request, pk=None):
+        if not request.user.is_authenticated():
+            raise Http404
+        event = self.queryset.get(pk=pk)
+        if request.user not in event.league.schedulers.all():
+            raise Http404
+
+        if event.complete:
+            recipients = [user.email for user in event.staff]
+        else:
+            recipients = [
+                official.email for official in event.applicants]
+        with mail.get_connection() as connection:
+            mail.EmailMessage(
+                render_to_string(
+                    'email/cancelled_title.txt',
+                    {'event': event}),
+                render_to_string(
+                    'email/cancelled_body.txt',
+                    {'event': event}),
+                'United Derby Officials Colorado <no-reply@udoco.org>',
+                recipients, connection=connection).send()
+
+        event.delete()
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 
 class RosterViewSet(viewsets.ReadOnlyModelViewSet):
