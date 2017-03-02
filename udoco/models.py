@@ -103,19 +103,10 @@ class Game(models.Model):
 
     @property
     def staff(self):
-        staff = set()
-
+        ids = set()
         for roster in self.rosters.all():
-            items = [
-                roster.hr, roster.ipr, roster.jr1, roster.jr2, roster.opr1,
-                roster.opr2, roster.opr3, roster.alt, roster.jt, roster.sk1,
-                roster.sk2, roster.pbm, roster.pbt1, roster.pbt2,
-                roster.pt1, roster.pt2, roster.pw, roster.iwb, roster.lt1,
-                roster.lt2]
-            for item in items:
-                staff.add(item)
-        staff.remove(None)
-        return staff
+            ids |= set([o.id for o in roster.officials])
+        return Official.objects.filter(id__in=ids)
 
     @property
     def nonrostered(self):
@@ -205,3 +196,18 @@ class Roster(models.Model):
     hnso = models.ForeignKey(Official, related_name="hnso_games", null=True)
     nsoalt = models.ForeignKey(Official, related_name="nsoalt_games", null=True)
     ptimer = models.ForeignKey(Official, related_name="ptimer_games", null=True)
+
+    @property
+    def officials(self):
+        ids = []
+        for attr in dir(self.__class__):
+            try:
+                field = getattr(self.__class__, attr).field
+                if (type(field) is models.ForeignKey
+                        and field.related_model is Official):
+                    val = getattr(self, attr)
+                    if val is not None:
+                        ids.append(val.id)
+            except AttributeError:
+                continue
+        return Official.objects.filter(id__in=ids)
