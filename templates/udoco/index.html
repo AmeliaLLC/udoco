@@ -158,7 +158,7 @@
     </p>
     <% if (!event.get('is_authenticated')) { %>
     <p>
-        <a id="login" href="/auth/login/facebook?next=<%= window.location.pathname %>">
+        <a id="login" href="/auth/login/facebook/?next=<%= window.location.pathname %>">
             <button id="fb-login">Log in to apply</button>
         </a>
     </p>
