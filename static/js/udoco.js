@@ -343,7 +343,7 @@ App.Router = Backbone.Router.extend({
         '': 'index',
         'events/:id': 'viewEvent',
         'profile': 'editProfile',
-        '_=_': 'afterLogin'
+        '_=_': 'index'
     },
 
     onRoute: function(route, params) {
@@ -359,10 +359,13 @@ App.Router = Backbone.Router.extend({
     },
     index: function() {
         App.state.navigation.pop();
-        new App.Views.Calendar();
+        if (this.calendar === undefined) {
+            this.calendar = new App.Views.Calendar();
+        }
     },
     editProfile: function() {
         App.state.navigation.push({title: 'Edit your profile'});
+        this.calendar = undefined;
         new App.Views.EditProfile();
     },
     viewEvent: function(id) {
