@@ -12,7 +12,7 @@
 {% for applicant in event.applicants %}
     <li class="mdl-list__item mdl-list__item--three-line">
     <span class="mdl-list__item-primary-content" style="height:unset">
-        <span>{{applicant.display_name }}<span>
+        <span>{{applicant}}</span>
         <span class="mdl-list__item-text-body" style="height:unset">
         {% for entry in applicant|entries_in:event %}
         {% comment %}
