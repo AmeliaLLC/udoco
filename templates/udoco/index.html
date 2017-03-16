@@ -172,7 +172,7 @@
     <% if (event.get('can_apply')) { %>
     <button type="button" class="mdl-button" id="event-apply">Apply</button>
     <% } %>
-    <% if (event.get('has_applied')) { %>
+    <% if (event.get('has_applied') && !event.get('complete') && moment().diff(event.get('start')) < 0) { %>
     <button type="button" class="mdl-button" id="event-withdraw">Withdraw</button>
     <% } %>
     <% if (App.state.user !== null && App.state.user.get('league') && App.state.user.get('league').name == event.get('league') && moment().diff(event.get('start')) < 0) { %>
