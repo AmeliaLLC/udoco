@@ -137,7 +137,7 @@
         </li>
         <li class="mdl-list__item mdl-list__item--two-line">
             <span class="mdl-list__item-primary-content">
-                <%= event.get('location') %> @ <%= moment(event.get('start').replace('Z', '')).format('LT') %>
+                <%= event.get('location') %> @ <%= moment(event.get('start').replace('Z', '')).format('LT') %> on <%= moment(event.get('start').replace('Z', '')).format('D MMM') %>
             </span>
         </li>
     </ul>
