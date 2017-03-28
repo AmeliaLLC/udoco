@@ -310,7 +310,8 @@ class CommitScheduleView(View):
                     'email/scheduling_body.txt',
                     {'event': event}),
                 'United Derby Officials Colorado <no-reply@udoco.org>',
-                [user.email for user in event.staff],
+                ['United Derby Officials Colorado <no-reply@udoco.org>'],
+                bcc=[user.email for user in event.staff],
                 connection=connection).send()
 
             #mail.EmailMessage(
