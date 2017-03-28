@@ -178,7 +178,10 @@
     <% if (App.state.user !== null && App.state.user.get('league') && App.state.user.get('league').name == event.get('league') && moment().diff(event.get('start')) < 0) { %>
     <button type="button" class="mdl-button" id="event-cancel">Cancel event</button>
     <% if (!event.get('complete')){ %>
+    <button type="button" class="mdl-button" id="event-contact">Contact applicants</button>
     <button type="button" class="mdl-button" id="event-schedule">Schedule event</button>
+    <% } else { %>
+    <button type="button" class="mdl-button" id="event-contact">Contact roster</button>
     <% } %>
     <% } %>
     <button type="button" class="mdl-button close" id="event-close">Close</button>

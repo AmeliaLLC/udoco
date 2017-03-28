@@ -158,6 +158,58 @@ class EventWithdrawalView(View):
             raise Http404
 
 
+class ContactEventView(View):
+    """A view for contacting members of a roster."""
+    template = 'udoco/contact_roster.html'
+    form = forms.ContactOfficialsForm
+
+    @method_decorator(login_required)
+    def get(self, request, event_id, form=None):
+        event = models.Game.objects.get(id=event_id)
+        if not event.can_schedule(request.user):
+            raise Http404()
+
+        if event.complete:
+            officials = event.staff
+        else:
+            officials = event.applicants.all()
+
+        context = {
+            'form': self.form(),
+            'officials': officials,
+        }
+        return render(request, self.template, context)
+
+    @method_decorator(login_required)
+    def post(self, request, event_id):
+        event = models.Game.objects.get(id=event_id)
+        if not event.can_schedule(request.user):
+            raise Http404()
+
+        if event.complete:
+            officials = event.staff
+        else:
+            officials = event.applicants.all()
+
+        form = self.form(request.POST)
+        if not form.is_valid():
+            return self.get(request, event_id, form=form)
+
+        with mail.get_connection() as connection:
+            mail.EmailMessage(
+                'A message from {}'.format(event.league.name),
+                form.cleaned_data['message'],
+                'United Derby Officials Colorado <no-reply@udoco.org>',
+                ['United Derby Officials Colorado <no-reply@udoco.org>'],
+                bcc=[o.email for o in officials], connection=connection).send()
+
+        messages.add_message(
+            request, messages.INFO,
+            'Your message has been sent.')
+
+        return redirect('leagues')
+
+
 class SchedulingView(View):
     """A view for scheduling officials for games."""
     template = 'udoco/schedule_event.html'
@@ -167,6 +219,9 @@ class SchedulingView(View):
         event = models.Game.objects.get(id=event_id)
         if not event.can_schedule(request.user):
             raise Http404()
+
+        if event.complete:
+            return redirect('view_event', event_id)
 
         blank_form = forms.SchedulingForm(event.applicants)
         if form is not None and form.cleaned_data['roster'] is None:
@@ -322,7 +377,8 @@ class CommitScheduleView(View):
             #        'email/nonrostered_body.txt',
             #        {'event': event}),
             #    'United Derby Officials Colorado <no-reply@udoco.org>',
-            #    [user.email for user in event.nonrostered],
+            #    ['United Derby Officials Colorado <no-reply@udoco.org>'],
+            #    bcc=[user.email for user in event.nonrostered],
             #    connection=connection).send()
         messages.add_message(
             request, messages.INFO,
@@ -504,7 +560,8 @@ class EventViewSet(viewsets.ReadOnlyModelViewSet):
                     'email/cancelled_body.txt',
                     {'event': event}),
                 'United Derby Officials Colorado <no-reply@udoco.org>',
-                recipients, connection=connection).send()
+                ['United Derby Officials Colorado <no-reply@udoco.org>'],
+                bcc=recipients, connection=connection).send()
 
         event.delete()
         return Response(None, status=status.HTTP_204_NO_CONTENT)

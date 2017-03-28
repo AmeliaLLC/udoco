@@ -150,6 +150,7 @@ App.Views.EventApply = Backbone.View.extend({
     el: "#dialog-target",
     events: {
         'change .mdl-selectfield__select': 'onPreferenceChange',
+        'click #event-contact': 'onContact',
         'click #event-withdraw': 'onWithdraw',
         'click #event-apply': 'onApply',
         'click #event-cancel': 'onCancel',
@@ -248,6 +249,9 @@ App.Views.EventApply = Backbone.View.extend({
             App.toast({'message': 'Your application has been received.'});
             this._close();
         }, this));
+    },
+    onContact: function() {
+        window.location = '/events/'+this.event.get('id')+'/contact';
     },
     onCancel: function() {
         this.event.destroy()

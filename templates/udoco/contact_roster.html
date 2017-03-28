@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load udoco_forms %}
+{% load staticfiles %}
+
+{% block "content" %}
+<div class="mdl-cell mdl-cell--12-col">
+
+<div>
+    {% if event.complete %}
+    This event has been completely scheduled and rostered. You will be contacting
+    all rostered officials. This includes the following officials.
+    {% else %}
+    This event has not yet been scheduled. You will be contacting all applicants.
+    This includes the following officials.
+    {% endif %}
+    <ul class="mdl-list">
+    {% for official in officials %}
+        <li class="mdl-list__item">
+            <span class="mdl-list__item-primary-content">{{ official }}</span>
+        </li>
+    {% endfor %}
+    </ul>
+</div>
+
+<form action="" method="POST">
+    {{ form.errors }}
+    {% for field in form %}
+    <div class="mdl-cell mdl-cell--12-col">
+        {{ field | mdl | safe }}
+    </div>
+    {% endfor %}
+
+    <input class="mdl-button mdl-button--raised" type="submit" value="Contact" />
+    {% csrf_token %}
+</form>
+</div>
+{% endblock %}

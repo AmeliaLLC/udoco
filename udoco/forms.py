@@ -206,3 +206,7 @@ class LeagueEditForm(forms.Form):
         queryset=models.League.objects.none(),
         widget=SimplifiedLeagueSelect)
     email_template = forms.CharField(widget=forms.Textarea)
+
+
+class ContactOfficialsForm(forms.Form):
+    message = forms.CharField(widget=forms.Textarea)

@@ -53,6 +53,8 @@ urlpatterns = [
         views.EventView.as_view(), name='view_event'),
     url(r'^events/(?P<event_id>[0-9]+)/edit$',
         views.AddEventView.as_view(), name='edit_event'),
+    url(r'^events/(?P<event_id>[0-9]+)/contact$',
+        views.ContactEventView.as_view(), name='contact_officials'),
     url(r'^events/(?P<event_id>[0-9]+)/withdraw$',
         views.EventWithdrawalView.as_view(),
         name='event_withdrawal'),
