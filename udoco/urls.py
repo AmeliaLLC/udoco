@@ -39,6 +39,8 @@ admin.autodiscover()
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='udoco/index.html'),
         name='index'),
+    url(r'^_$', TemplateView.as_view(template_name='application.html'),
+        name='index_'),
     url(r'^auth/', include('rest_framework_social_oauth2.urls')),
     url(r'^api/me', views.me),
 

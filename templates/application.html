@@ -1,0 +1,46 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>United Derby Officials Colorado</title>
+    <meta charset="utf-8" />
+    <meta name="description" content="You do Colorado">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    {# Add to homescreen for Chrome on Android #}
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="icon" sizes="192x192" href="{% static 'img/android.png' %}">
+
+    {# Add to homescreen for Safari on iOS #}
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="UDO">
+    <link rel="apple-touch-icon-precomposed" href="{% static 'img/ios.png' %}">
+
+    {# Tile icon for Win8 (144x144 + tile color) #}
+    <meta name="msapplication-TileImage" content="{% static 'img/ms.png' %}">
+    <meta name="msapplication-TileColor" content="#3372DF">
+
+    <link rel="shortcut icon" href="{% static 'img/favicon.png' %}">
+
+    <link rel="stylesheet" href="{% static 'app.css' %}">
+
+    {% if debug %}
+    {% else %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/airbrake-js/0.6.0/client.min.js"></script>
+    <script>var airbrake = new airbrakeJs.Client({projectId: 137988, projectKey: '08759bfe62310fbf1c03df886c525000'});</script>
+    <link href="{% static 'application.css' %}" rel="stylesheet">
+    <script src="{% static 'css/application.js' %}"></script>
+    {% endif %}
+  </head>
+  <body>
+  </body>
+
+  {% if debug %}
+  <script src="{% static 'app.js' %}"></script>
+  {% else %}
+  <script src="{% static 'app.min.js' %}"></script>
+  {% endif %}
+  <!-- Version: {{ VERSION }} //-->
+</html>
