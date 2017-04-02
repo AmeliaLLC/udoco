@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.core import mail
 from django.http import Http404, HttpResponseBadRequest
@@ -472,6 +473,49 @@ class EditLeagueView(View):
         messages.add_message(
             request, messages.INFO, 'League settings changed')
         return redirect('leagues')
+
+
+class ContactLeaguesView(View):
+    """Contact the league schedulers."""
+    template = 'udoco/contact.html'
+    form = forms.ContactOfficialsForm
+
+    @method_decorator(staff_member_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(ContactLeaguesView, self).dispatch(
+            request, *args, **kwargs)
+
+    @method_decorator(login_required)
+    def get(self, request):
+        officials = models.Official.objects.filter(scheduling__gte=1)
+
+        context = {
+            'form': self.form(),
+            'officials': officials,
+        }
+        return render(request, self.template, context)
+
+    @method_decorator(login_required)
+    def post(self, request):
+        officials = models.Official.objects.filter(scheduling__gte=1)
+
+        form = self.form(request.POST)
+        if not form.is_valid():
+            return self.get(request, form=form)
+
+        with mail.get_connection() as connection:
+            mail.EmailMessage(
+                'A message from the UDOCO admins',
+                form.cleaned_data['message'],
+                'United Derby Officials Colorado <no-reply@udoco.org>',
+                ['United Derby Officials Colorado <no-reply@udoco.org>'],
+                bcc=[o.email for o in officials], connection=connection).send()
+
+        messages.add_message(
+            request, messages.INFO,
+            'Your message has been sent.')
+
+        return redirect('contact_leagues')
 
 
 # REST Framework

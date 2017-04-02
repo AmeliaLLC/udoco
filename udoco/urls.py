@@ -73,6 +73,9 @@ urlpatterns = [
     url(r'^_/events/(?P<event_id>[0-9]+)',
         views._EventView.as_view(), name='api_apply'),
 
+    url(r'^manage/contact', views.ContactLeaguesView.as_view(),
+        name='contact_leagues'),
+
     # Views outside the scope of this site, but required for functionality.
     url(r'^manage/', admin.site.urls),
     url('', include('django.contrib.auth.urls', namespace='auth')),
