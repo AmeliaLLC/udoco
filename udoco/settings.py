@@ -199,6 +199,9 @@ SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
 }
 FACEBOOK_EXTENDED_PERMISSIONS = ['email', 'public_profile']
 
+SOCIAL_AUTH_GOOGLE_PLUS_KEY = '529435188650-n5cssd4hu5lmgi00actlsceacd5r3d8q.apps.googleusercontent.com'  # NOQA
+SOCIAL_AUTH_GOOGLE_PLUS_SECRET = 'xptrm7pp6MvAqjldeI8r8VpJ'
+
 SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.social_auth.social_details',
     'social.pipeline.social_auth.social_uid',
