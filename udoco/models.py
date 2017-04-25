@@ -119,6 +119,12 @@ class Game(models.Model):
         return Official.objects.filter(
             applicationentries__in=self.applicationentries.all()).distinct()
 
+    @property
+    def losers(self):
+        return Loser.objects.filter(
+            applicationentries__in=self.loserapplicationentries.all()
+        ).distinct()
+
 
 class Application(models.Model):
     """An application for a game."""
@@ -151,6 +157,37 @@ class ApplicationEntry(models.Model):
     """An application preference entry."""
     official = models.ForeignKey(Official, related_name='applicationentries')
     event = models.ForeignKey(Game, related_name='applicationentries')
+
+    index = models.PositiveIntegerField()
+    preference = models.PositiveIntegerField(
+        choices=choices.OfficialPositions.choices)
+
+    @property
+    def name(self):
+        return choices.OfficialPositions.choices[self.preference][1]
+
+
+class Loser(models.Model):
+    """A 'User' that doesn't want to sign in."""
+
+    # WARNING: email_address can't be unique here, because it gets created every
+    # time a loser applies for a new event.
+    derby_name = models.CharField(_('Derby name'), max_length=265, blank=False)
+    email_address = models.EmailField(
+        _('Email address'), blank=False)
+
+    def __str__(self):
+        return self.derby_name
+
+    @property
+    def email(self):
+        return self.email_address
+
+
+class LoserApplicationEntry(models.Model):
+    """An application for a Loser."""
+    official = models.ForeignKey(Loser, related_name='applicationentries')
+    event = models.ForeignKey(Game, related_name='loserapplicationentries')
 
     index = models.PositiveIntegerField()
     preference = models.PositiveIntegerField(
@@ -197,6 +234,34 @@ class Roster(models.Model):
     nsoalt = models.ForeignKey(Official, related_name="nsoalt_games", null=True)
     ptimer = models.ForeignKey(Official, related_name="ptimer_games", null=True)
 
+    # Losers
+
+    hr_x = models.ForeignKey(Loser, related_name='+', null=True)
+    ipr_x = models.ForeignKey(Loser, related_name='+', null=True)
+    jr1_x = models.ForeignKey(Loser, related_name='+', null=True)
+    jr2_x = models.ForeignKey(Loser, related_name='+', null=True)
+    opr1_x = models.ForeignKey(Loser, related_name='+', null=True)
+    opr2_x = models.ForeignKey(Loser, related_name='+', null=True)
+    opr3_x = models.ForeignKey(Loser, related_name='+', null=True)
+    alt_x = models.ForeignKey(Loser, related_name='+', null=True)
+
+    jt_x = models.ForeignKey(Loser, related_name='+', null=True)
+    sk1_x = models.ForeignKey(Loser, related_name='+', null=True)
+    sk2_x = models.ForeignKey(Loser, related_name='+', null=True)
+    pbm_x = models.ForeignKey(Loser, related_name='+', null=True)
+    pbt1_x = models.ForeignKey(Loser, related_name='+', null=True)
+    pbt2_x = models.ForeignKey(Loser, related_name='+', null=True)
+    pt1_x = models.ForeignKey(Loser, related_name='+', null=True)
+    pt2_x = models.ForeignKey(Loser, related_name='+', null=True)
+    pw_x = models.ForeignKey(Loser, related_name='+', null=True)
+    iwb_x = models.ForeignKey(Loser, related_name='+', null=True)
+    lt1_x = models.ForeignKey(Loser, related_name='+', null=True)
+    lt2_x = models.ForeignKey(Loser, related_name='+', null=True)
+    so_x = models.ForeignKey(Loser, related_name='+', null=True)
+    hnso_x = models.ForeignKey(Loser, related_name='+', null=True)
+    nsoalt_x = models.ForeignKey(Loser, related_name='+', null=True)
+    ptimer_x = models.ForeignKey(Loser, related_name='+', null=True)
+
     @property
     def officials(self):
         ids = []
@@ -211,3 +276,18 @@ class Roster(models.Model):
             except AttributeError:
                 continue
         return Official.objects.filter(id__in=ids)
+
+    @property
+    def losers(self):
+        ids = []
+        for attr in dir(self.__class__):
+            try:
+                field = getattr(self.__class__, attr).field
+                if (type(field) is models.ForeignKey
+                        and field.related_model is Loser):
+                    val = getattr(self, attr)
+                    if val is not None:
+                        ids.append(val.id)
+            except AttributeError:
+                continue
+        return Loser.objects.filter(id__in=ids)
