@@ -172,12 +172,15 @@ class ContactEventView(View):
 
         if event.complete:
             officials = event.staff
+            losers = event.staffed_losers
         else:
             officials = event.applicants.all()
+            losers = event.losers
 
         context = {
             'form': self.form(),
             'officials': officials,
+            'losers': losers,
         }
         return render(request, self.template, context)
 
@@ -186,11 +189,6 @@ class ContactEventView(View):
         event = models.Game.objects.get(id=event_id)
         if not event.can_schedule(request.user):
             raise Http404()
-
-        if event.complete:
-            officials = event.staff
-        else:
-            officials = event.applicants.all()
 
         form = self.form(request.POST)
         if not form.is_valid():
@@ -202,7 +200,7 @@ class ContactEventView(View):
                 form.cleaned_data['message'],
                 'United Derby Officials Colorado <no-reply@udoco.org>',
                 ['United Derby Officials Colorado <no-reply@udoco.org>'],
-                bcc=[o.email for o in officials], connection=connection).send()
+                bcc=event.emails, connection=connection).send()
 
         messages.add_message(
             request, messages.INFO,
@@ -417,9 +415,11 @@ class CommitScheduleView(View):
                     {'event': event}),
                 'United Derby Officials Colorado <no-reply@udoco.org>',
                 ['United Derby Officials Colorado <no-reply@udoco.org>'],
-                bcc=[user.email for user in event.staff],
+                bcc=event.emails,
                 connection=connection).send()
 
+            # XXX: rockstar (25 Apr 2017) - The non-rostered emails were going
+            # out incorrectly. Fix this.
             #mail.EmailMessage(
             #    render_to_string(
             #        'email/scheduling_title.txt',

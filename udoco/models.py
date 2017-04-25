@@ -109,6 +109,13 @@ class Game(models.Model):
         return Official.objects.filter(id__in=ids)
 
     @property
+    def staffed_losers(self):
+        ids = set()
+        for roster in self.rosters.all():
+            ids |= set([o.id for o in roster.losers])
+        return Loser.objects.filter(id__in=ids)
+
+    @property
     def nonrostered(self):
         return Official.objects.filter(
             applications__in=self.applications.all()).exclude(
@@ -124,6 +131,19 @@ class Game(models.Model):
         return Loser.objects.filter(
             applicationentries__in=self.loserapplicationentries.all()
         ).distinct()
+
+    @property
+    def emails(self):
+        if self.complete:
+            recipients = []
+            for roster in self.rosters.all():
+                recipients += roster.emails
+        else:
+            recipients = [
+                official.email for official in self.applicants]
+            recipients += [
+                loser.email for loser in self.losers]
+        return recipients
 
 
 class Application(models.Model):
@@ -261,6 +281,102 @@ class Roster(models.Model):
     ptimer_x = models.ForeignKey(Loser, related_name='+', null=True)
 
     @property
+    def real_hr(self):
+        return self.hr_x if self.hr_x else self.hr
+
+    @property
+    def real_ipr(self):
+        return self.ipr_x if self.ipr_x else self.ipr
+
+    @property
+    def real_jr1(self):
+        return self.jr1_x if self.jr1_x else self.jr1
+
+    @property
+    def real_jr2(self):
+        return self.jr2_x if self.jr2_x else self.jr2
+
+    @property
+    def real_opr1(self):
+        return self.opr1_x if self.opr1_x else self.opr1
+
+    @property
+    def real_opr2(self):
+        return self.opr2_x if self.opr2_x else self.opr2
+
+    @property
+    def real_opr3(self):
+        return self.opr3_x if self.opr3_x else self.opr3
+
+    @property
+    def real_alt(self):
+        return self.alt_x if self.alt_x else self.alt
+
+    @property
+    def real_jt(self):
+        return self.jt_x if self.jt_x else self.jt
+
+    @property
+    def real_sk1(self):
+        return self.sk1_x if self.sk1_x else self.sk1
+
+    @property
+    def real_sk2(self):
+        return self.sk2_x if self.sk2_x else self.sk2
+
+    @property
+    def real_pbm(self):
+        return self.pbm_x if self.pbm_x else self.pbm
+
+    @property
+    def real_pbt1(self):
+        return self.pbt1_x if self.pbt1_x else self.pbt1
+
+    @property
+    def real_pbt2(self):
+        return self.pbt2_x if self.pbt2_x else self.pbt2
+
+    @property
+    def real_pt1(self):
+        return self.pt1_x if self.pt1_x else self.pt1
+
+    @property
+    def real_pt2(self):
+        return self.pt2_x if self.pt2_x else self.pt2
+
+    @property
+    def real_pw(self):
+        return self.pw_x if self.pw_x else self.pw
+
+    @property
+    def real_iwb(self):
+        return self.iwb_x if self.iwb_x else self.iwb
+
+    @property
+    def real_lt1(self):
+        return self.lt1_x if self.lt1_x else self.lt1
+
+    @property
+    def real_lt2(self):
+        return self.lt2_x if self.lt2_x else self.lt2
+
+    @property
+    def real_so(self):
+        return self.so_x if self.so_x else self.so
+
+    @property
+    def real_hnso(self):
+        return self.hnso_x if self.hnso_x else self.hnso
+
+    @property
+    def real_nsoalt(self):
+        return self.nsoalt_x if self.nsoalt_x else self.nsoalt
+
+    @property
+    def real_ptimer(self):
+        return self.ptimer_x if self.ptimer_x else self.ptimer
+
+    @property
     def officials(self):
         ids = []
         for attr in dir(self.__class__):
@@ -289,3 +405,9 @@ class Roster(models.Model):
             except AttributeError:
                 continue
         return Loser.objects.filter(id__in=ids)
+
+    @property
+    def emails(self):
+        emails = [user.email for user in self.officials]
+        emails += [loser.email for loser in self.losers]
+        return emails
