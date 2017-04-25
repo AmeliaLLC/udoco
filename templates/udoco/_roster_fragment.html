@@ -3,9 +3,22 @@
      id="{% if form.roster.value == None %}new-roster{% else %}game-{{forloop.counter}}{% endif %}">
   <form action="" method="POST">
     {% for field in form %}
-    <div class="mdl-cell mdl-cell--12-col">
+    {% if '_' not in field.name %}
+    <div>
+    <div class="mdl-cell mdl-cell--12-col redo-container">
       {{ field | mdl | safe }}
+      {% if event.losers and field|loserify %}
+      <a href="#" class="redo"><i class="material-icons">redo</i></a>
+      {% endif %}
     </div>
+    {% if field|loserify and event.losers %}
+    <div class="mdl-cell mdl-cell--12-col undo-container" style="display:none;">
+      {{ field | loserify | mdl | safe }}
+      <a href="#" class="undo"><i class="material-icons">undo</i></a>
+    </div>
+    {% endif %}
+    </div>
+    {% endif %}
     {% endfor %}
     {% csrf_token %}
 

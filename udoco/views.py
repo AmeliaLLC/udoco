@@ -224,7 +224,7 @@ class SchedulingView(View):
         if event.complete:
             return redirect('view_event', event_id)
 
-        blank_form = forms.SchedulingForm(event.applicants)
+        blank_form = forms.SchedulingForm(event)
         if form is not None and form.cleaned_data['roster'] is None:
             blank_form = form
 
@@ -259,9 +259,34 @@ class SchedulingView(View):
                 'hnso': roster.hnso,
                 'ptimer': roster.ptimer,
                 'nsoalt': roster.nsoalt,
+
+                'hr_': roster.hr_x,
+                'ipr_': roster.ipr_x,
+                'jr1_': roster.jr1_x,
+                'jr2_': roster.jr2_x,
+                'opr1_': roster.opr1_x,
+                'opr2_': roster.opr2_x,
+                'opr3_': roster.opr3_x,
+                'alt_': roster.alt_x,
+                'jt_': roster.jt_x,
+                'sk1_': roster.sk1_x,
+                'sk2_': roster.sk2_x,
+                'pbm_': roster.pbm_x,
+                'pbt1_': roster.pbt1_x,
+                'pbt2_': roster.pbt2_x,
+                'pt1_': roster.pt1_x,
+                'pt2_': roster.pt2_x,
+                'pw_': roster.pw_x,
+                'iwb_': roster.iwb_x,
+                'lt1_': roster.lt1_x,
+                'lt2_': roster.lt2_x,
+                'so_': roster.so_x,
+                'hnso_': roster.hnso_x,
+                'ptimer_': roster.ptimer_x,
+                'nsoalt_': roster.nsoalt_x,
             }
             roster_forms.append(forms.SchedulingForm(
-                event.applicants,
+                event,
                 initial=initial))
 
         context = {
@@ -285,7 +310,7 @@ class SchedulingView(View):
             except (TypeError, models.Roster.DoesNotExist):
                 return HttpResponseBadRequest()
 
-        form = forms.SchedulingForm(event.applicants, request.POST)
+        form = forms.SchedulingForm(event, request.POST)
         if not form.is_valid():
             return self.get(request, event_id, form=form)
 
@@ -316,10 +341,35 @@ class SchedulingView(View):
         roster.lt1 = form.cleaned_data['lt1']
         roster.lt2 = form.cleaned_data['lt2']
         roster.so = form.cleaned_data['so']
-
         roster.hnso = form.cleaned_data['hnso']
         roster.ptimer = form.cleaned_data['ptimer']
         roster.nsoalt = form.cleaned_data['nsoalt']
+
+        roster.hr_x = form.cleaned_data['hr_']
+        roster.ipr_x = form.cleaned_data['ipr_']
+        roster.jr1_x = form.cleaned_data['jr1_']
+        roster.jr2_x = form.cleaned_data['jr2_']
+        roster.opr1_x = form.cleaned_data['opr1_']
+        roster.opr2_x = form.cleaned_data['opr2_']
+        roster.opr3_x = form.cleaned_data['opr3_']
+        roster.alt_x = form.cleaned_data['alt_']
+        roster.jt_x = form.cleaned_data['jt_']
+        roster.sk1_x = form.cleaned_data['sk1_']
+        roster.sk2_x = form.cleaned_data['sk2_']
+        roster.pbm_x = form.cleaned_data['pbm_']
+        roster.pbt1_x = form.cleaned_data['pbt1_']
+        roster.pbt2_x = form.cleaned_data['pbt2_']
+        roster.pt1_x = form.cleaned_data['pt1_']
+        roster.pt2_x = form.cleaned_data['pt2_']
+        roster.pw_x = form.cleaned_data['pw_']
+        roster.iwb_x = form.cleaned_data['iwb_']
+        roster.lt1_x = form.cleaned_data['lt1_']
+        roster.lt2_x = form.cleaned_data['lt2_']
+        roster.so_x = form.cleaned_data['so_']
+        roster.hnso_x = form.cleaned_data['hnso_']
+        roster.ptimer_x = form.cleaned_data['ptimer_']
+        roster.nsoalt_x = form.cleaned_data['nsoalt_']
+
         roster.save()
 
         if request.POST.get('action', '').startswith('Commit'):
@@ -647,8 +697,55 @@ class ApplicationViewSet(viewsets.ReadOnlyModelViewSet):
         if request.user not in event.league.schedulers.all():
             raise Http404
         officials = models.Official.objects.filter(
-            applicationentries__in=event.applicationentries.all())
+            applicationentries__in=event.applicationentries.all()
+        ).distinct()
         context = {'event': event}
         serializer = serializers.ApplicationSerializer(
             officials, context=context, many=True)
+        return Response(serializer.data)
+
+
+class LoserApplicationViewSet(viewsets.ViewSet):
+    queryset = models.Loser.objects.none()
+    serializer_class = serializers.LoserApplicationSerializer
+
+    def list(self, request, event_pk=None):
+        if not request.user.is_authenticated():
+            raise Http404
+        event = models.Game.objects.get(pk=event_pk)
+        if request.user not in event.league.schedulers.all():
+            raise Http404
+        losers = models.Loser.objects.filter(
+            applicationentries__in=event.loserapplicationentries.all()
+        ).distinct()
+        context = {'event': event}
+        serializer = serializers.LoserApplicationSerializer(
+            losers, context=context, many=True)
+        return Response(serializer.data)
+
+    def create(self, request, event_pk=None):
+        if request.user.is_authenticated():
+            raise Http404
+        event = models.Game.objects.get(pk=event_pk)
+        # XXX: rockstar (2 Apr 2017) - What if the event is in the past?
+        try:
+            loser = models.Loser.objects.create(
+                derby_name=request.data['derby_name'],
+                email_address=request.data['email'],
+            )
+            loser.save()
+            preferences = request.data['preferences']
+        except KeyError:
+            return HttpResponseBadRequest()
+
+        if len(preferences) < 1:
+            return HttpResponseBadRequest()
+        for preference in preferences:
+            models.LoserApplicationEntry.objects.create(
+                official=loser, event=event,
+                index=preferences.index(preference),
+                preference=preference).save()
+        context = {'event': event}
+        serializer = serializers.LoserApplicationSerializer(
+            loser, context=context)
         return Response(serializer.data)

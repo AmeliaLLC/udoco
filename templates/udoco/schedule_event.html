@@ -8,6 +8,7 @@
 
 {% block "content" %}
 <div class="mdl-cell mdl-cell--12-col">
+<h6>UDO applicants</h6>
 <ul class="mdl-list">
 {% for applicant in event.applicants %}
     <li class="mdl-list__item mdl-list__item--three-line">
@@ -31,9 +32,29 @@
 </ul>
 </div>
 
+{% if event.losers %}
+<div class="mdl-cell mdl-cell--12-col">
+<h6>Manual applicants</h6>
+<ul class="mdl-list">
+{% for applicant in event.losers %}
+    <li class="mdl-list__item mdl-list__item--three-line">
+    <span class="mdl-list__item-primary-content" style="height:unset">
+        <span>{{applicant}}</span>
+        <span class="mdl-list__item-text-body" style="height:unset">
+        {% for entry in applicant|entries_in:event %}
+        <span class="mdl-chip">
+            <span class="mdl-chip__text">{{ entry.name }}</span>
+        </span>
+        {% endfor %}
+        </span>
+    </span>
+    </li>
+{% endfor %}
+</ul>
+</div>
+{% endif %}
 
 <div class="mdl-cell mdl-cell--8-col">
-
 <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
 
     <div class="mdl-tabs__tab-bar">
@@ -67,4 +88,33 @@
 </div>
 
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+$('.redo').click(function(event) {
+    event.preventDefault();
+    var par = $(event.target.parentNode.parentNode.parentNode);
+    par.find('select option').prop('selected', false);
+    par.find('.undo-container').css({'display': 'block'});
+    par.find('.redo-container').css({'display': 'none'});
+});
+$('.undo').click(function(event) {
+    event.preventDefault();
+    var par = $(event.target.parentNode.parentNode.parentNode);
+    par.find('select option').prop('selected', false);
+    par.find('.undo-container').css({'display': 'none'});
+    par.find('.redo-container').css({'display': 'block'});
+});
+
+$('option:selected').filter(function(idx, ele) {
+  return ele.value !== "";
+}).each(function(idx, ele) {
+  var container = $(ele).parent().parent().parent(),
+      cls = container.attr('class');
+  if (cls.indexOf('undo') > 0) {
+    var par = container.parent();
+    par.find('.undo-container').css({'display': 'block'});
+    par.find('.redo-container').css({'display': 'none'});
+  }
+});
+</script>
 {% endblock %}

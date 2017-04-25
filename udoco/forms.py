@@ -120,26 +120,50 @@ class SchedulingForm(forms.Form):
     hr = forms.ModelChoiceField(
         label='Head Ref', empty_label='', queryset=None,
         required=False)
+    hr_ = forms.ModelChoiceField(
+        label='Head Ref (non-UDO)', empty_label='', queryset=None,
+        required=False)
     ipr = forms.ModelChoiceField(
         label='Inside Pack Ref', empty_label='', queryset=None,
+        required=False)
+    ipr_ = forms.ModelChoiceField(
+        label='Inside Pack Ref (non-UDO)', empty_label='', queryset=None,
         required=False)
     jr1 = forms.ModelChoiceField(
         label='Jam Ref', empty_label='', queryset=None,
         required=False)
+    jr1_ = forms.ModelChoiceField(
+        label='Jam Ref (non-UDO)', empty_label='', queryset=None,
+        required=False)
     jr2 = forms.ModelChoiceField(
         label='Jam Ref', empty_label='', queryset=None,
+        required=False)
+    jr2_ = forms.ModelChoiceField(
+        label='Jam Ref (non-UDO)', empty_label='', queryset=None,
         required=False)
     opr1 = forms.ModelChoiceField(
         label='Outside Pack Ref', empty_label='', queryset=None,
         required=False)
+    opr1_ = forms.ModelChoiceField(
+        label='Outside Pack Ref (non-UDO)', empty_label='', queryset=None,
+        required=False)
     opr2 = forms.ModelChoiceField(
         label='Outside Pack Ref', empty_label='', queryset=None,
+        required=False)
+    opr2_ = forms.ModelChoiceField(
+        label='Outside Pack Ref (non-UDO)', empty_label='', queryset=None,
         required=False)
     opr3 = forms.ModelChoiceField(
         label='Outside Pack Ref', empty_label='', queryset=None,
         required=False)
+    opr3_ = forms.ModelChoiceField(
+        label='Outside Pack Ref (non-UDO)', empty_label='', queryset=None,
+        required=False)
     alt = forms.ModelChoiceField(
         label='Alternate', empty_label='', queryset=None,
+        required=False)
+    alt_ = forms.ModelChoiceField(
+        label='Alternate (non-UDO)', empty_label='', queryset=None,
         required=False)
 
     # Non-skating officials
@@ -147,57 +171,108 @@ class SchedulingForm(forms.Form):
     hnso = forms.ModelChoiceField(
         label='Head NSO', empty_label='', queryset=None,
         required=False)
+    hnso_ = forms.ModelChoiceField(
+        label='Head NSO (non-UDO)', empty_label='', queryset=None,
+        required=False)
     pt1 = forms.ModelChoiceField(
         label='Penalty Tracker', empty_label='', queryset=None,
+        required=False)
+    pt1_ = forms.ModelChoiceField(
+        label='Penalty Tracker (non-UDO)', empty_label='', queryset=None,
         required=False)
     pt2 = forms.ModelChoiceField(
         label='Penalty Tracker', empty_label='', queryset=None,
         required=False)
+    pt2_ = forms.ModelChoiceField(
+        label='Penalty Tracker (non-UDO)', empty_label='', queryset=None,
+        required=False)
     pw = forms.ModelChoiceField(
         label='Penalty Wrangler (optional)', empty_label='', queryset=None,
+        required=False)
+    pw_ = forms.ModelChoiceField(
+        label='Penalty Wrangler (non-UDO)', empty_label='', queryset=None,
         required=False)
     iwb = forms.ModelChoiceField(
         label='Inside Whiteboard (optional)', empty_label='', queryset=None,
         required=False)
+    iwb_ = forms.ModelChoiceField(
+        label='Inside Whiteboard (non-UDO)', empty_label='', queryset=None,
+        required=False)
     jt = forms.ModelChoiceField(
         label='Jam Timer', empty_label='', queryset=None,
+        required=False)
+    jt_ = forms.ModelChoiceField(
+        label='Jam Timer (non-UDO)', empty_label='', queryset=None,
         required=False)
     sk1 = forms.ModelChoiceField(
         label='Score Keeper', empty_label='', queryset=None,
         required=False)
+    sk1_ = forms.ModelChoiceField(
+        label='Score Keeper (non-UDO)', empty_label='', queryset=None,
+        required=False)
     sk2 = forms.ModelChoiceField(
         label='Score Keeper', empty_label='', queryset=None,
+        required=False)
+    sk2_ = forms.ModelChoiceField(
+        label='Score Keeper (non-UDO)', empty_label='', queryset=None,
         required=False)
     so = forms.ModelChoiceField(
         label='Scoreboard Operator', empty_label='', queryset=None,
         required=False)
+    so_ = forms.ModelChoiceField(
+        label='Scoreboard Operator (non-UDO)', empty_label='', queryset=None,
+        required=False)
     pbm = forms.ModelChoiceField(
         label='Penalty Box Manager', empty_label='', queryset=None,
+        required=False)
+    pbm_ = forms.ModelChoiceField(
+        label='Penalty Box Manager (non-UDO)', empty_label='', queryset=None,
         required=False)
     pbt1 = forms.ModelChoiceField(
         label='Penalty Box Timer', empty_label='', queryset=None,
         required=False)
+    pbt1_ = forms.ModelChoiceField(
+        label='Penalty Box Timer (non-UDO)', empty_label='', queryset=None,
+        required=False)
     pbt2 = forms.ModelChoiceField(
         label='Penalty Box Timer', empty_label='', queryset=None,
+        required=False)
+    pbt2_ = forms.ModelChoiceField(
+        label='Penalty Box Timer (non-UDO)', empty_label='', queryset=None,
         required=False)
     lt1 = forms.ModelChoiceField(
         label='Lineup Tracker', empty_label='', queryset=None,
         required=False)
+    lt1_ = forms.ModelChoiceField(
+        label='Lineup Tracker (non-UDO)', empty_label='', queryset=None,
+        required=False)
     lt2 = forms.ModelChoiceField(
         label='Lineup Tracker', empty_label='', queryset=None,
+        required=False)
+    lt2_ = forms.ModelChoiceField(
+        label='Lineup Tracker (non-UDO)', empty_label='', queryset=None,
         required=False)
     nsoalt = forms.ModelChoiceField(
         label='NSO Alt', empty_label='', queryset=None,
         required=False)
+    nsoalt_ = forms.ModelChoiceField(
+        label='NSO Alt (non-UDO)', empty_label='', queryset=None,
+        required=False)
     ptimer = forms.ModelChoiceField(
         label='Period Timer', empty_label='', queryset=None,
         required=False)
+    ptimer_ = forms.ModelChoiceField(
+        label='Period Timer (non-UDO)', empty_label='', queryset=None,
+        required=False)
 
-    def __init__(self, qs, *args, **kwargs):
+    def __init__(self, event, *args, **kwargs):
         super(SchedulingForm, self).__init__(*args, **kwargs)
         for label, field in self.fields.items():
-            if isinstance(field, forms.ModelChoiceField):
-                field.queryset = qs
+            if (isinstance(field, forms.ModelChoiceField)):
+                if label.endswith('_'):
+                    field.queryset = event.losers
+                else:
+                    field.queryset = event.applicants
 
 
 class LeagueEditForm(forms.Form):

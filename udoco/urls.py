@@ -32,6 +32,7 @@ router.register('events', views.EventViewSet)
 events_router = routers.NestedSimpleRouter(router, r'events', lookup='event')
 events_router.register(r'rosters', views.RosterViewSet)
 events_router.register(r'applications', views.ApplicationViewSet)
+events_router.register(r'loserapplications', views.LoserApplicationViewSet)
 
 
 admin.autodiscover()

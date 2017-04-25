@@ -50,6 +50,22 @@ class ApplicationSerializer(serializers.ModelSerializer):
         return [entry.name for entry in entries]
 
 
+class LoserApplicationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Loser
+        fields = (
+            'derby_name',
+            'preferences',
+        )
+    preferences = serializers.SerializerMethodField('_preferences')
+
+    def _preferences(self, instance):
+        event = self.context['event']
+        entries = models.LoserApplicationEntry.objects.filter(
+            official=instance, event=event).order_by('index')
+        return [entry.name for entry in entries]
+
+
 class GameSerializer(serializers.ModelSerializer):
 
     class Meta:

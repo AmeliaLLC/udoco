@@ -25,16 +25,22 @@ register = template.Library()
 
 @register.filter
 def mdl(field):
-    widget_type = type(field.field.widget)
+    try:
+        widget = field.field.widget
+    except AttributeError:
+        # Only happens on loserify. I don't understand django form
+        # class api.
+        widget = field.widget
+    widget_type = type(widget)
     try:
         attrs = MDLFORM_MAP[widget_type]
         for key, val in attrs.items():
-            field.field.widget.attrs[key] = val
+            widget.attrs[key] = val
     except KeyError:
         pass
 
     try:
-        parent_class = field.field.widget.attrs['class'].split('__')[0]
+        parent_class = widget.attrs['class'].split('__')[0]
         js_class = parent_class.replace('mdl-', 'mdl-js-')
         floating_label_class = '{}--floating-label'.format(parent_class)
         div_class = ' '.join([parent_class, js_class, floating_label_class])
@@ -76,6 +82,19 @@ def mdl(field):
 
 
 @register.filter
+def loserify(field):
+    """Get the loser version of the same field."""
+    loser_field = '{}_'.format(field.name)
+    if loser_field not in field.form.fields:
+        return None
+    return field.form[loser_field]
+
+
+@register.filter
 def entries_in(official, event):
-    return models.ApplicationEntry.objects.filter(
-        event=event, official=official).order_by('index')
+    if type(official) is models.Official:
+        return models.ApplicationEntry.objects.filter(
+            event=event, official=official).order_by('index')
+    elif type(official) is models.Loser:
+        return models.LoserApplicationEntry.objects.filter(
+            event=event, official=official).order_by('index')
