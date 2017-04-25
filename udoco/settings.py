@@ -68,13 +68,6 @@ MIDDLEWARE_CLASSES = [
 AUTHENTICATION_BACKENDS = (
     'social.backends.facebook.FacebookAppOAuth2',
     'social.backends.facebook.FacebookOAuth2',
-
-    'rest_framework_social_oauth2.backends.DjangoOAuth2',
-
-    #'social.backends.google.GoogleOAuth2',
-    #'social.backends.twitter.TwitterOAuth',
-    #'django.contrib.auth.backends.RemoteUserBackend',
-    #'django.contrib.auth.backends.ModelBackend',
 )
 
 ROOT_URLCONF = 'udoco.urls'
