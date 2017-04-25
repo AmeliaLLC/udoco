@@ -77,9 +77,6 @@ App.Models.Roster = Backbone.Model.extend({
         return '/api/events/'+this.event+'/rosters';
     }
 });
-App.Models.Event = Backbone.Model.extend({
-    urlRoot: '/api/events'
-});
 App.Collections.Events = Backbone.Collection.extend({
     Model: App.Models.Event,
     url: '/api/events',
