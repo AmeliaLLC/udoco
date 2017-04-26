@@ -482,6 +482,7 @@ class LeagueView(View):
     """A view for league management."""
     template = 'udoco/league_events.html'
 
+    @method_decorator(login_required)
     def get(self, request):
         events = models.Game.objects.filter(
             league__in=request.user.scheduling.all(),
