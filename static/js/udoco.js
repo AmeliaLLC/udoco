@@ -152,7 +152,9 @@ App.Views.EventApply = Backbone.View.extend({
         'click #event-apply': 'onApply',
         'click #event-cancel': 'onCancel',
         'click #event-schedule': 'onSchedule',
-        'click #event-close': 'onClose'
+        'click #event-close': 'onClose',
+
+        'click #loserify': 'onLoserify'
     },
     template: _.template($('#event-apply').html()),
     initialize: function(options) {
@@ -212,40 +214,90 @@ App.Views.EventApply = Backbone.View.extend({
         }
     },
     onApply: function() {
-        var form = this.$el.find('#preference-form'),
-            selects = form.serializeArray(),
-            items = selects.map(function(ele) {
-                    return ele.value;
-                }).filter(function(val) {
-                    return (val != "");
+        var form = this.$el.find('#preference-form');
+        if (form.length > 0) {
+            var selects = form.serializeArray(),
+                items = selects.map(function(ele) {
+                        return ele.value;
+                    }).filter(function(val) {
+                        return (val != "");
+                    });
+
+            /* Make sure at least one choice was picked. */
+            if (items.length < 1) {
+                var error = this.$el.find('.mdl-selectfield__error');
+                error.text('Please select a staffing preference.')
+                error.parent().addClass('is-invalid');
+                return;
+            }
+
+            /* Make sure there are no duplicates */
+            var $elements = this.$el.find('select');
+            $elements.each(function () {
+                    var selectedValue = this.value;
+
+                    var dupes = $elements.not(this)
+                        .filter(function() {
+                            return this.value == selectedValue;
+                        }).parent().addClass('is-invalid');
                 });
+            this.$el.find('.is-invalid').find('.mdl-selectfield__error').text(
+                 'You have chosen this option twice');
+            if (this.$el.find('.is-invalid').length > 0) { return };
 
-        /* Make sure at least one choice was picked. */
-        if (items.length < 1) {
-            var error = this.$el.find('.mdl-selectfield__error');
-            error.text('Please select a staffing preference.')
-            error.parent().addClass('is-invalid');
-            return;
-        }
+            $.post(form[0].action, {'preferences': items}, _.bind(function() {
+                App.toast({'message': 'Your application has been received.'});
+                this._close();
+            }, this));
+        } else {
+            form = this.$el.find('#loser-preference-form');
+            var values = form.serializeArray(),
+                name = values.filter(function(i) {
+                    if (i.name == 'name') { return i }})[0].value,
+                email = values.filter(function(i) {
+                    if (i.name == 'email') { return i }})[0].value,
+                selects = values.filter(function(i) {
+                    if (i.name == 'staffing[]') { return i }}),
+                items = selects.map(function(ele) {
+                        return ele.value;
+                    }).filter(function(val) {
+                        return (val != "");
+                    });
 
-        /* Make sure there are no duplicates */
-        var $elements = this.$el.find('select');
-        $elements.each(function () {
-                var selectedValue = this.value;
+            if (items.length < 1) {
+                var error = this.$el.find('.mdl-selectfield__error');
+                error.text('Please select a staffing preference.')
+                error.parent().addClass('is-invalid');
+                return;
+            }
 
-                var dupes = $elements.not(this)
-                    .filter(function() {
-                        return this.value == selectedValue;
-                    }).parent().addClass('is-invalid');
+            /* Make sure there are no duplicates */
+            var $elements = this.$el.find('select');
+            $elements.each(function () {
+                    var selectedValue = this.value;
+
+                    var dupes = $elements.not(this)
+                        .filter(function() {
+                            return this.value == selectedValue;
+                        }).parent().addClass('is-invalid');
+                });
+            this.$el.find('.is-invalid').find('.mdl-selectfield__error').text(
+                 'You have chosen this option twice');
+            if (this.$el.find('.is-invalid').length > 0) { return };
+
+            $.ajax({
+                url: '/api/events/'+this.event.get('id')+'/loserapplications/',
+                data: JSON.stringify({
+                    'derby_name': name, 'email': email, 'preferences': items}),
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                //dataType: 'json',
+                success: _.bind(function() {
+                    App.toast({'message': 'Your application has been received.'});
+                    this._close();
+                }, this)
             });
-        this.$el.find('.is-invalid').find('.mdl-selectfield__error').text(
-             'You have chosen this option twice');
-        if (this.$el.find('.is-invalid').length > 0) { return };
-
-        $.post(form[0].action, {'preferences': items}, _.bind(function() {
-            App.toast({'message': 'Your application has been received.'});
-            this._close();
-        }, this));
+        }
     },
     onContact: function() {
         window.location = '/events/'+this.event.get('id')+'/contact';
@@ -264,6 +316,14 @@ App.Views.EventApply = Backbone.View.extend({
             App.toast({'message': 'Your application has been withdrawn.'});
             this._close();
         }, this));
+    },
+    onLoserify: function(e) {
+        e.preventDefault();
+        this.$el.find('#authenticate').css({'display': 'none'});
+        this.$el.find('#loser-apply').css({'display': 'block'});
+        this.$el.find('.mdl-dialog__actions').prepend(
+            '<button type="button" class="mdl-button" id="event-apply">Apply</button>');
+        componentHandler.reset();
     }
 });
 

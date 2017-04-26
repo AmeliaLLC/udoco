@@ -157,14 +157,34 @@
     <% } %>
     </p>
     <% if (!event.get('is_authenticated')) { %>
-    <p>
-        <a id="login" href="/auth/login/facebook/?next=<%= window.location.pathname %>">
-            <button id="fb-login">Log in to apply</button>
-        </a>
-    </p>
-    <div id="fb-disclaimer">
-        Facebook is used only for account management. We won't post anything.
-        You just don't need yet another username and password to remember, right?
+    <div id="authenticate">
+        <p>
+            <a id="login" href="/auth/login/facebook/?next=<%= window.location.pathname %>">
+                <button id="fb-login">Log in to apply</button>
+            </a>
+        </p>
+        <div id="fb-disclaimer">
+            Facebook is used only for account management. We won't post anything.
+            You just don't need yet another username and password to remember, right?
+            <a id="loserify" href="">I'd rather not use Facebook</a>
+        </div>
+    </div>
+    <div id="loser-apply" style="display: none">
+        <p>
+            Please select the staffing preferences you may have.
+        </p>
+        <form id="loser-preference-form">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" name="name" id="name">
+                <label class="mdl-textfield__label" for="sample2">Derby Name</label>
+                <span class="mdl-textfield__error">Name is required</span>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="email" name="email" id="email">
+                <label class="mdl-textfield__label" for="sample2">E-mail</label>
+                <span class="mdl-textfield__error">Email is required</span>
+            </div>
+        </form>
     </div>
     <% } %>
 </div>
