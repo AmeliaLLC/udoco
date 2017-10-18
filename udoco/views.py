@@ -573,7 +573,7 @@ class ContactLeaguesView(View):
 @api_view(['GET'])
 def me(request):
     if not request.user.is_authenticated():
-        return Response(None)
+        return Response(None, status=401)
     serializer = serializers.OfficialSerializer(request.user)
     return Response(serializer.data)
 
