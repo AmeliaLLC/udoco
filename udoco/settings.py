@@ -103,11 +103,12 @@ TEMPLATES = [
 WSGI_APPLICATION = 'udoco.wsgi.application'
 
 CORS_ORIGIN_ALLOW_ALL = False
-CORS_ORIGIN_WHITELIST = ['http://www.udoco.org', ]
-CORS_ALLOW_METHODS = (
-    'GET',
-    'POST',
-)
+CORS_ORIGIN_WHITELIST = [
+    'https://www.udoco.org',
+    'http://local.udoco.org',
+    'http://local.udoco.org:8000',
+]
+CORS_ALLOW_CREDENTIALS = True
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
