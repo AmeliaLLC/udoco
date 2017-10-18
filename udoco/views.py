@@ -570,10 +570,21 @@ class ContactLeaguesView(View):
 
 
 # REST Framework
-@api_view(['GET'])
+@api_view(['GET', 'PUT'])
 def me(request):
     if not request.user.is_authenticated():
         return Response(None, status=401)
+
+    if request.method == 'PUT':
+        data = request.data
+        request.user.display_name = data['display_name']
+        request.user.email = data['email']
+        request.user.emergency_contact_name = data['emergency_contact_name']
+        request.user.emergency_contact_number = data['emergency_contact_number']
+        request.user.game_history = data['game_history']
+        request.user.phone_number = data['phone_number']
+        request.user.league_affiliation = data['league_affiliation']
+        request.user.save()
     serializer = serializers.OfficialSerializer(request.user)
     return Response(serializer.data)
 

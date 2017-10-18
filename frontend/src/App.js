@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import Apply from './Apply.js';
 import { EventList } from './Events.js';
+import { EditProfile } from './Profile.js';
 import './App.css';
 
 class Navbar extends Component {
@@ -31,7 +32,7 @@ class Navbar extends Component {
                 <i className="left material-icons">today</i>My Schedule
               </a>
           </li>
-          {this.props.user.league != null &&
+          {this.props.user.league !== null &&
           <li>
               <a href="/manage">
                 <i className="left material-icons">supervisor_account</i>Manage League
@@ -61,7 +62,7 @@ class Navbar extends Component {
                 <i className="material-icons">today</i>My Schedule
               </a>
           </li>
-          {this.props.user.league != null &&
+          {this.props.user.league !== null &&
           <li>
               <a href="/manage">
                 <i className="material-icons">supervisor_account</i>Manage League
@@ -84,14 +85,6 @@ class Navbar extends Component {
   }
 }
 
-
-class EditProfile extends Component {
-  render() {
-    return (
-      <span>Profile</span>
-    );
-  }
-}
 
 class Schedule extends Component {
   render() {
@@ -119,12 +112,16 @@ class App extends Component {
 
   componentWillMount() {
     const self = this;
-    fetch('/api/me', {credentials: 'same-origin'}).then(response => {
-      if (response.status === 401) {
-        return;
-      }
-      self.setState({user: response.json()});
-    });
+    fetch('/api/me', {credentials: 'same-origin'})
+      .then(response => {
+        if (response.status === 401) {
+          return new Promise(null);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        self.setState({user: data});
+      });
   }
 
   render() {

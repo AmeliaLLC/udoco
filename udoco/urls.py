@@ -40,8 +40,6 @@ admin.autodiscover()
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='udoco/index.html'),
         name='index'),
-    url(r'^_$', TemplateView.as_view(template_name='application.html'),
-        name='index_'),
     url(r'^auth/', include('rest_framework_social_oauth2.urls')),
     url(r'^api/me', views.me),
 
@@ -79,6 +77,9 @@ urlpatterns = [
 
     url(r'^\.well-known/acme-challenge/PgY0GMGX6kKAp6PLrheIeeYBFUrJL7E4Xke5UJTLQMI',  # NOQA
         TemplateView.as_view(template_name='certbot.txt')),
+
+    url(r'^_.*$', TemplateView.as_view(template_name='application.html'),
+        name='index_'),
 
     # Views outside the scope of this site, but required for functionality.
     url(r'^manage/', admin.site.urls),
