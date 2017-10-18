@@ -77,7 +77,7 @@ urlpatterns = [
     url(r'^manage/contact', views.ContactLeaguesView.as_view(),
         name='contact_leagues'),
 
-    url(r'^\.well-known/acme-challenge/PgY0GMGX6kKAp6PLrheIeeYBFUrJL7E4Xke5UJTLQMI',
+    url(r'^\.well-known/acme-challenge/PgY0GMGX6kKAp6PLrheIeeYBFUrJL7E4Xke5UJTLQMI',  # NOQA
         TemplateView.as_view(template_name='certbot.txt')),
 
     # Views outside the scope of this site, but required for functionality.
