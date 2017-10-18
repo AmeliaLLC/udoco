@@ -1,0 +1,6 @@
+__pycache__
+db.sqlite3
+udoco/_settings.py
+static/app.js
+static/app.css
+media/
