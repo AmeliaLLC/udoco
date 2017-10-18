@@ -1,13 +1,12 @@
 /* global jQuery*/
-import { PropTypes } from 'prop-types';
 import React, { Component } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import Apply from './Apply.js';
+import { EventList } from './Events.js';
 import './App.css';
 
 class Navbar extends Component {
   componentDidMount() {
-    /* TODO: check to see if logged in */
     jQuery('.button-collapse').sideNav();
     jQuery('.collapsible').collapsible();
   }
@@ -20,6 +19,7 @@ class Navbar extends Component {
           <i className="material-icons">menu</i>
         </a>
 
+        {this.props.user !== null ? (
         <ul id="nav-non-mobile" className="left hide-on-med-and-down">
           <li>
               <a href="/profile">
@@ -31,13 +31,25 @@ class Navbar extends Component {
                 <i className="left material-icons">today</i>My Schedule
               </a>
           </li>
+          {this.props.user.league != null &&
           <li>
               <a href="/manage">
                 <i className="left material-icons">supervisor_account</i>Manage League
               </a>
           </li>
+          }
         </ul>
+        ) : (
+        <ul id="nav-non-mobile" className="left hide-on-med-and-down">
+          <li>
+              <a href="/auth/login/facebook">
+                <i className="left material-icons">lock_outline</i>Log in
+              </a>
+          </li>
+        </ul>
+        )}
 
+        {this.props.user !== null ? (
         <ul id="hambarglar" className="side-nav">
           <li>
               <a href="/profile">
@@ -49,77 +61,29 @@ class Navbar extends Component {
                 <i className="material-icons">today</i>My Schedule
               </a>
           </li>
+          {this.props.user.league != null &&
           <li>
               <a href="/manage">
                 <i className="material-icons">supervisor_account</i>Manage League
               </a>
           </li>
+          }
         </ul>
+        ) : (
+        <ul id="hambarglar" className="side-nav">
+          <li>
+              <a href="/auth/login/facebook">
+                <i className="material-icons">lock_outline</i>Log in
+              </a>
+          </li>
+        </ul>
+        )}
       </div>
     </nav>
     );
   }
 }
 
-
-class DateSeparator extends Component {
-  static propTypes = {
-    date: (props, propName, componentName) => {
-      const prop = props[propName];
-      if (typeof(prop) !== 'object' || prop.getDate === undefined) {
-          debugger;
-        return new Error(
-          'Invalid prop `' + propName + '` supplied to' +
-          ' `' + componentName + '`. Validation failed.'
-        );
-      }
-    }
-  }
-  render() {
-    return (
-      <li className="blue-grey lighten-4">{`${this.props.date}`}</li>
-    );
-  }
-}
-
-class Event extends Component {
-  static propTypes = {
-    title: PropTypes.string.isRequired,
-    address: PropTypes.string.isRequired,
-    eventId: PropTypes.number.isRequired,
-    callTime: PropTypes.string.isRequired,
-    league: PropTypes.string.isRequired
-  }
-  render() {
-    return (
-      <li className="collection-item">
-        <div className="collapsible-header">
-          {this.props.league} Presents - {this.props.title}
-        </div>
-        <div className="collapsible-body">
-          <div className="row">{this.props.address}</div>
-          <div className="row">Call time: {this.props.callTime}</div>
-          <div className="row">
-            <a href={`/apply/${this.props.eventId}`} className="center waves-effect waves-light btn">apply</a>
-          </div>
-        </div>
-      </li>
-    );
-  }
-}
-
-
-class EventList extends Component {
-  render() {
-    return (
-      <ul className="collapsible" data-collapsible="expandable">
-        <DateSeparator date={new Date()}/>
-        <Event league="RMRG" title="Shitshowdown" address="Everywhere USA"
-               eventId={83} callTime="5pm"/>
-      </ul>
-    );
-  }
-}
 
 class EditProfile extends Component {
   render() {
@@ -146,21 +110,38 @@ class ManageLeague extends Component {
 }
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      user: null,
+    };
+  }
+
+  componentWillMount() {
+    const self = this;
+    fetch('/api/me', {credentials: 'same-origin'}).then(response => {
+      if (response.status === 401) {
+        return;
+      }
+      self.setState({user: response.json()});
+    });
+  }
+
   render() {
     return (
       <div>
-       <Navbar />
+       <Navbar user={this.state.user}/>
 
        <Switch>
        <Route path="/apply/:eventId" component={Apply} />
-       <Route exact path='/profile' component={EditProfile} />
-       <Route exact path='/profile' component={EditProfile} />
-       <Route exact path='/schedule' component={Schedule} />
-       <Route exact path='/manage' component={ManageLeague} />
-       <Route exact path='/' component={EventList} />
+       <Route exact path='/_profile' component={EditProfile} />
+       <Route exact path='/_schedule' component={Schedule} />
+       <Route exact path='/_manage' component={ManageLeague} />
+       <Route exact path='/_' component={EventList} />
        </Switch>
        </div>
     );
   }
 }
 export default App;
+

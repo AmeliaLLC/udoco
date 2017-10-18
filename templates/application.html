@@ -7,6 +7,7 @@
     <meta name="description" content="You do Colorado">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    {# TODO: Add manifest.json #}
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     {# Add to homescreen for Chrome on Android #}
     <meta name="mobile-web-app-capable" content="yes">
@@ -24,23 +25,20 @@
 
     <link rel="shortcut icon" href="{% static 'img/favicon.png' %}">
 
+    <link rel="stylesheet" href="http://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/css/materialize.min.css">
     <link rel="stylesheet" href="{% static 'app.css' %}">
 
-    {% if debug %}
-    {% else %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/airbrake-js/0.6.0/client.min.js"></script>
-    <script>var airbrake = new airbrakeJs.Client({projectId: 137988, projectKey: '08759bfe62310fbf1c03df886c525000'});</script>
-    <link href="{% static 'application.css' %}" rel="stylesheet">
-    <script src="{% static 'css/application.js' %}"></script>
-    {% endif %}
   </head>
   <body>
+    <noscript>
+      You need to enable JavaScript to run this app.
+    </noscript>
+    <div id="root"></div>
   </body>
 
-  {% if debug %}
+  <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
   <script src="{% static 'app.js' %}"></script>
-  {% else %}
-  <script src="{% static 'app.min.js' %}"></script>
-  {% endif %}
   <!-- Version: {{ VERSION }} //-->
 </html>
