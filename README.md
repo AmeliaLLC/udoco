@@ -34,3 +34,13 @@ The entire stack is run via `manage.py run`. That runs a grunt process that runs
 
 # TODO: Add information about how bower works to handle browserifying dependency
 # assets.
+
+
+Update to social
+================
+
+When updating to social-auth from python-social-auth, I had to do the following:
+
+    $ echo "update django_migrations set app='social_django' where app='default';" | heroku pg:psql --app udoco
+    $ heroku run python manage.py migrate social_django 0001 --fake
+    $ heroku run python manage.py migrate social_django
