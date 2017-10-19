@@ -573,6 +573,8 @@ class ContactLeaguesView(View):
 @api_view(['GET', 'PUT'])
 def me(request):
     if not request.user.is_authenticated():
+        if request.GET.get('old', False):
+            return Response(None)
         return Response(None, status=401)
 
     if request.method == 'PUT':

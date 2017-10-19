@@ -36,7 +36,7 @@ var App = {
             return Backbone._sync(method, model, options);
         };
 
-        $.get('/api/me').done(function(response) {
+        $.get('/api/me?old=1').done(function(response) {
             if (response !== '') {
                 App.state.user = new App.Models.Official(response);
                 if (response.league) {
