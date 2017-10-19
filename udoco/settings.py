@@ -43,8 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
 
-    'social',
-    #'social_django',
+    'social_django',
 
     'storages',
     'anymail',
