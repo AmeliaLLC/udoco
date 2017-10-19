@@ -42,10 +42,9 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
-    'oauth2_provider',
-    'rest_framework_social_oauth2',
 
-    'social.apps.django_app.default',
+    'social_django',
+
     'storages',
     'anymail',
 
@@ -67,8 +66,8 @@ MIDDLEWARE_CLASSES = [
 
 
 AUTHENTICATION_BACKENDS = (
-    'social.backends.facebook.FacebookAppOAuth2',
-    'social.backends.facebook.FacebookOAuth2',
+    'social_core.backends.facebook.FacebookAppOAuth2',
+    'social_core.backends.facebook.FacebookOAuth2',
 )
 
 ROOT_URLCONF = 'udoco.urls'
@@ -92,8 +91,8 @@ TEMPLATES = [
                 'django.template.context_processors.static',
                 'django.template.context_processors.tz',
 
-                'social.apps.django_app.context_processors.backends',
-                'social.apps.django_app.context_processors.login_redirect',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
 
                 'udoco.context_processors.version',
             ],
@@ -112,11 +111,7 @@ CORS_ORIGIN_WHITELIST = [
 CORS_ALLOW_CREDENTIALS = True
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-
-        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
-        'rest_framework_social_oauth2.authentication.SocialAuthentication',
     ),
     'PAGE_SIZE': 100,
     'DEFAULT_PERMISSION_CLASSES': (
@@ -193,9 +188,6 @@ SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
     'fields': 'id,name,email',
 }
 FACEBOOK_EXTENDED_PERMISSIONS = ['email', 'public_profile']
-
-SOCIAL_AUTH_GOOGLE_PLUS_KEY = '529435188650-n5cssd4hu5lmgi00actlsceacd5r3d8q.apps.googleusercontent.com'  # NOQA
-SOCIAL_AUTH_GOOGLE_PLUS_SECRET = 'xptrm7pp6MvAqjldeI8r8VpJ'
 
 SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.social_auth.social_details',

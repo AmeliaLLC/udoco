@@ -17,7 +17,6 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.views.generic import TemplateView
-#from rest_framework import routers
 from rest_framework_nested import routers
 
 from udoco import views
@@ -40,7 +39,7 @@ admin.autodiscover()
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='udoco/index.html'),
         name='index'),
-    url(r'^auth/', include('rest_framework_social_oauth2.urls')),
+    url('^auth/', include('social_django.urls', namespace='social')),
     url(r'^api/me', views.me),
 
     url(r'^robots.txt', TemplateView.as_view(template_name='robots.txt')),
@@ -83,8 +82,8 @@ urlpatterns = [
 
     # Views outside the scope of this site, but required for functionality.
     url(r'^manage/', admin.site.urls),
+    # Only needed for logout
     url('', include('django.contrib.auth.urls', namespace='auth')),
-    url('', include('social.apps.django_app.urls', namespace='social')),
 ]
 
 
