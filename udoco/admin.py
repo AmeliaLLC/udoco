@@ -49,7 +49,7 @@ class LeagueAdmin(admin.ModelAdmin):
 # Below are some dummy admin models to hide some boilerplate models.
 from django.contrib.auth.models import Group
 admin.site.unregister(Group)
-from social_django.models import Association, Nonce, UserSocialAuth  # NOQA
-admin.site.unregister(Association)
-admin.site.unregister(Nonce)
-admin.site.unregister(UserSocialAuth)
+#from social_django.models import Association, Nonce, UserSocialAuth  # NOQA
+#admin.site.unregister(Association)
+#admin.site.unregister(Nonce)
+#admin.site.unregister(UserSocialAuth)
