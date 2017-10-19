@@ -1,6 +1,6 @@
 uwsgi==2.0.13
 
-Django==1.9.6
+Django==1.10.8
 python-social-auth==0.2.19
 smartchoices==1.1
 django-airbrake==1.2.0
