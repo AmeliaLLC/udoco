@@ -694,7 +694,7 @@ class ScheduleViewSet(viewsets.ReadOnlyModelViewSet):
         )
         # TODO: Should we add in applications?
         queryset = models.Game.objects.filter(id__in=[r.id for r in rosters])
-        serializer = self.serializer_class(queryset, many=True)
+        serializer = self.serializer_class(queryset, {'user': user}, many=True)
         return Response(serializer.data)
 
 
