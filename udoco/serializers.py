@@ -91,7 +91,10 @@ class GameSerializer(serializers.ModelSerializer):
     is_authenticated = serializers.SerializerMethodField('_is_authenticated')
 
     def _has_applied(self, instance):
-        user = self.context['request'].user
+        try:
+            user = self.context['request'].user
+        except KeyError:
+            raise Exception(self.context)
         if not user.is_authenticated():
             return False
         return (models.ApplicationEntry.objects.filter(
