@@ -25,6 +25,7 @@ from udoco import views
 router = routers.SimpleRouter(trailing_slash=False)
 router.register('leagues', views.LeagueViewSet)
 router.register('officials', views.OfficialViewSet)
+router.register('schedule', views.ScheduleViewSet)
 
 router.register('events', views.EventViewSet)
 
@@ -40,7 +41,6 @@ urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='udoco/index.html'),
         name='index'),
     url('^auth/', include('social_django.urls', namespace='social')),
-    url(r'^api/me', views.me),
 
     url(r'^robots.txt', TemplateView.as_view(template_name='robots.txt')),
     url(r'^leagues$', views.LeagueView.as_view(), name='leagues'),
@@ -63,8 +63,9 @@ urlpatterns = [
 
     url(r'^profile/edit$', views.ProfileView.as_view(), name='profile'),
 
-    url(r'^api/', include(router.urls)),
     url(r'^api/', include(events_router.urls)),
+    url(r'^api/', include(router.urls)),
+    url(r'^api/me', views.me),
 
     url(r'^_/events/(?P<event_id>[0-9]+)/withdraw',
         views._EventWithdrawView.as_view(), name='api_withdraw'),

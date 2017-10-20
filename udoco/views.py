@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.core import mail
+from django.db.models import Q
 from django.http import Http404, HttpResponseBadRequest
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
@@ -673,6 +674,28 @@ class EventViewSet(viewsets.ReadOnlyModelViewSet):
 
         event.delete()
         return Response(None, status=status.HTTP_204_NO_CONTENT)
+
+
+class ScheduleViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = models.Game.objects.all()
+    serializer_class = serializers.GameSerializer
+
+    def list(self, request):
+        if not request.user.is_authenticated():
+            raise Http404
+        user = request.user
+        rosters = models.Roster.objects.filter(
+            Q(hr=user) | Q(ipr=user) | Q(jr1=user) | Q(jr2=user) |
+            Q(opr1=user) | Q(opr2=user) | Q(opr3=user) | Q(alt=user) |
+            Q(jt=user) | Q(sk1=user) | Q(sk2=user) | Q(pbm=user) |
+            Q(pbt1=user) | Q(pbt2=user) | Q(pt1=user) | Q(pt2=user) |
+            Q(pw=user) | Q(iwb=user) | Q(lt1=user) | Q(lt2=user) |
+            Q(so=user) | Q(hnso=user) | Q(nsoalt=user) | Q(ptimer=user)
+        )
+        # TODO: Should we add in applications?
+        queryset = models.Game.objects.filter(id__in=[r.id for r in rosters])
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
 
 
 class RosterViewSet(viewsets.ReadOnlyModelViewSet):
