@@ -47,11 +47,8 @@ def migrate():
     local('heroku run python manage.py migrate')
 
 
-def deploy():
-    #staticupload()
-    #local('heroku config:set GITVERSION=`git rev-parse --short HEAD`')
-    #local('git push heroku master')
-    #migrate()
+def deploy_notify():
+    """Notify Airbrake about deployment."""
     gitrev = subprocess.check_output(
         ['git', 'rev-parse', '--short', 'HEAD']).strip().decode('utf-8')
     payload = {
@@ -66,3 +63,13 @@ def deploy():
         endpoint,
         headers={'Content-Type': 'application/json'},
         json=payload).raise_for_status()
+
+
+def deploy():
+    local('git push origin')
+
+    staticupload()
+    local('heroku config:set GITVERSION=`git rev-parse --short HEAD`')
+    local('git push heroku master')
+    migrate()
+    deploy_notify()
