@@ -10,6 +10,9 @@ from fabric.api import local
 os.environ['AWS_ACCESS_KEY_ID'] = settings.AWS_ACCESS_KEY_ID
 os.environ['AWS_SECRET_ACCESS_KEY'] = settings.AWS_SECRET_ACCESS_KEY
 
+PROJECT_ID = '137988'
+PROJECT_KEY = '08759bfe62310fbf1c03df886c525000'
+
 
 def generate_cert():
     """Generate a certificate."""
@@ -47,3 +50,12 @@ def deploy():
     local('heroku config:set GITVERSION=`git rev-parse --short HEAD`')
     local('git push heroku master')
     migrate()
+    local(
+        'curl -X POST -H "Content-Type: application/json"'
+        '-d \'{'
+        '"environment":"production",'
+        '"username":"john",'
+        '"repository":"https://github.com/AmeliaKnows/udoco",'
+        '"revision":"`git rev-parse --short HEAD`"}\''
+        '"https://airbrake.io/api/v4/projects/{}/deploys?key={}"'.format(
+            PROJECT_ID, PROJECT_KEY))
