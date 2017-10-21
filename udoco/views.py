@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
@@ -677,7 +679,7 @@ class EventViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class ScheduleViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Game.objects.all()
+    queryset = models.Game.objects.filter(start__gt=datetime.now())
     serializer_class = serializers.GameSerializer
 
     def list(self, request):
