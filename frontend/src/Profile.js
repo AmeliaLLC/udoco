@@ -1,15 +1,17 @@
 /* global jQuery */
-import { PropTypes } from 'prop-types';
+/* global Materialize */
 import React, { Component } from 'react';
+
+const BASE_URL = 'https://www.udoco.org';
 
 var getCookie = function(name) {
     var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
+    if (document.cookie && document.cookie !== '') {
         var cookies = document.cookie.split(';');
         for (var i = 0; i < cookies.length; i++) {
             var cookie = jQuery.trim(cookies[i]);
             // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break;
             }
@@ -29,24 +31,31 @@ class EditProfile extends Component {
 
   componentWillMount() {
     const self = this;
-    fetch('/api/me', {credentials: 'same-origin'})
+    fetch(`${BASE_URL}/api/me`, {credentials: 'include'})
       .then(response => {
         if (response.status === 401) {
-          return new Promise(null);
+          return new Promise((resolve, reject) => resolve(null));
         }
         return response.json();
       })
       .then((data) => {
         self.setState({user: data});
+      })
+      .catch(() => {
+        console.warn('Not logged in');
       });
+  }
+
+  componentDidUpdate() {
+    Materialize.updateTextFields();
   }
 
   onSave(e) {
     e.preventDefault();
 
     const csrftoken = getCookie('csrftoken');
-    fetch('/api/me', {
-      credentials: 'same-origin',
+    fetch(`${BASE_URL}/api/me`, {
+      credentials: 'include',
       method: 'PUT',
       headers: {
         'X-CSRFToken': csrftoken,
