@@ -695,7 +695,7 @@ class ScheduleViewSet(viewsets.ReadOnlyModelViewSet):
             Q(so=user) | Q(hnso=user) | Q(nsoalt=user) | Q(ptimer=user)
         )
         # TODO: Should we add in applications?
-        queryset = self.queryset.filter(id__in=[r.id for r in rosters])
+        queryset = self.queryset.filter(id__in=[r.game.id for r in rosters])
         serializer = self.serializer_class(
             data=queryset, context={'request': request}, many=True)
         serializer.is_valid()
