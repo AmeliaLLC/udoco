@@ -727,7 +727,7 @@ class RosterViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.data)
 
 
-class ApplicationViewSet(viewsets.ReadOnlyModelViewSet):
+class ApplicationViewSet(viewsets.ModelViewSet):
     queryset = models.Official.objects.none()
     serializer_class = serializers.ApplicationSerializer
 
@@ -744,6 +744,26 @@ class ApplicationViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = serializers.ApplicationSerializer(
             officials, context=context, many=True)
         return Response(serializer.data)
+
+    def create(self, request, event_pk=None):
+        if not request.user.is_authenticated():
+            raise Http404
+
+        event = models.Game.objects.get(pk=event_pk)
+        if not event.official_can_apply(request.user):
+            return Response(None, status=status.HTTP_409_CONFLICT)
+
+        preferences = [int(p) for p in request.data]
+        for p in preferences:
+            models.ApplicationEntry.objects.create(
+                official=request.user, event=event,
+                index=preferences.index(p),
+                preference=p)
+
+        context = {'event': event}
+        serializer = serializers.ApplicationSerializer(
+            request.user, context=context)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class LoserApplicationViewSet(viewsets.ViewSet):
