@@ -3,6 +3,18 @@ from django.core.files.base import ContentFile
 import requests
 
 
+def save_display_name(
+        strategy, user, response, details, is_new=False, *args,
+        **kwargs):
+    if kwargs['backend'].name != 'facebook':
+        raise Exception('unsupported authentication backend: {}'.format(
+            kwargs['backend'].name))
+
+    if user.display_name == '':
+        user.display_name = details['username']
+        user.save()
+
+
 def save_profile_picture(
         strategy, user, response, details, is_new=False, *args,
         **kwargs):
