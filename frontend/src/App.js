@@ -4,9 +4,8 @@ import Apply from './Apply.js';
 import { EventList } from './Events.js';
 import { EditProfile } from './Profile.js';
 import { Navbar } from './Navigation.js';
+import { BaseURL } from './config.js';
 import './App.css';
-
-const BASE_URL = 'https://www.udoco.org';
 
 
 class App extends Component {
@@ -19,7 +18,7 @@ class App extends Component {
 
   componentWillMount() {
     const self = this;
-    fetch(`${BASE_URL}/api/me`, {credentials: 'include'})
+    fetch(`${BaseURL}/api/me`, {credentials: 'include'})
       .then(response => {
         if (response.status === 401) {
           return new Promise((resolve, reject) => resolve(null));
@@ -37,13 +36,14 @@ class App extends Component {
        <Navbar user={this.state.user}/>
 
        <Switch>
-       <Route path="/_apply/:eventId" component={Apply} />
-       <Route exact path='/_profile' component={EditProfile} />
-       <Route exact path='/_league' render={(props) => <EventList {...props} league={true} />} />
-       <Route exact path='/_schedule' render={(props) => <EventList {...props} schedule={true} />} />
-       <Route exact path='/_' component={EventList} />
+         <Route path="/_apply/:eventId" component={Apply} />
+         <Route path="/_apply/:eventId/luser" component={Apply} />
+         <Route exact path='/_profile' component={EditProfile} />
+         <Route exact path='/_league' render={(props) => <EventList {...props} league={true} />} />
+         <Route exact path='/_schedule' render={(props) => <EventList {...props} schedule={true} />} />
+         <Route exact path='/_' component={EventList} />
        </Switch>
-       </div>
+     </div>
     );
   }
 }

@@ -1,5 +1,6 @@
 /* global jQuery*/
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 
 
 class Navbar extends Component {
@@ -11,7 +12,7 @@ class Navbar extends Component {
     return (
     <nav className="nav-extended blue-grey darken-4">
       <div className="nav-wrapper">
-        <a href="/_" className="brand-logo center">UDO CO</a>
+        <Link to="/_" className="brand-logo center">UDO CO</Link>
         <a href="#hambarglar" data-activates="hambarglar" className="button-collapse">
           <i className="material-icons">menu</i>
         </a>
@@ -19,20 +20,20 @@ class Navbar extends Component {
         {this.props.user !== null ? (
         <ul id="nav-non-mobile" className="left hide-on-med-and-down">
           <li>
-              <a href="/_profile">
+              <Link to="/_profile">
                 <i className="left material-icons">perm_identity</i>Profile
-              </a>
+              </Link>
           </li>
           <li>
-              <a href="/_schedule">
+              <Link to="/_schedule">
                 <i className="left material-icons">today</i>My Schedule
-              </a>
+              </Link>
           </li>
           {this.props.user.league !== null &&
           <li>
-              <a href="/_league">
+              <Link to="/_league">
                 <i className="left material-icons">supervisor_account</i>Manage League
-              </a>
+              </Link>
           </li>
           }
         </ul>
@@ -49,20 +50,20 @@ class Navbar extends Component {
         {this.props.user !== null ? (
         <ul id="hambarglar" className="side-nav">
           <li>
-              <a href="/profile">
+              <Link to="/_profile">
                 <i className="material-icons">perm_identity</i>Profile
-              </a>
+              </Link>
           </li>
           <li>
-              <a href="/schedule">
+              <Link to="/_schedule">
                 <i className="material-icons">today</i>My Schedule
-              </a>
+              </Link>
           </li>
           {this.props.user.league !== null &&
           <li>
-              <a href="/manage">
+              <Link to="/_league">
                 <i className="material-icons">supervisor_account</i>Manage League
-              </a>
+              </Link>
           </li>
           }
         </ul>

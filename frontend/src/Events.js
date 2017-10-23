@@ -1,7 +1,11 @@
 /* global jQuery */
+/* global Materialize */
 import { PropTypes } from 'prop-types';
 import React, { Component } from 'react';
 import moment from 'moment';
+import { Link } from 'react-router-dom';
+import { BaseURL } from './config.js';
+import { getCSRFToken } from './utils.js';
 
 
 class EventGroup extends Component {
@@ -29,7 +33,23 @@ class Event extends Component {
 
   onWithdraw(e) {
     e.preventDefault();
-    console.log('onWithdraw');
+
+    const url = `${BaseURL}/api/events/${this.props.event.id}/applications`;
+    fetch(url, {
+      credentials: 'include',
+      method: 'DELETE',
+      headers: {
+        'X-CSRFToken': getCSRFToken(),
+        'Content-type': 'application/json'
+      }
+    })
+    .then((response) => {
+      if (response.status === 204) {
+        Materialize.toast('You have withdrawn from this event.', 10000);
+      } else {
+        Materialize.toast('An error has occurred. Unable to withdraw.', 10000);
+      }
+    })
   }
 
   render() {
@@ -59,14 +79,14 @@ class Event extends Component {
           {(event.has_applied &&
           <div className="row">
             <div className="col s12">
-              <a href="#!" onClick={this.onWithdraw} className="center waves-effect waves-light btn">withdraw application</a>
+              <a href="" onClick={this.onWithdraw.bind(this)} className="center waves-effect waves-light btn">withdraw application</a>
             </div>
           </div>
           )}
           {(event.can_apply &&
           <div className="row">
             <div className="col s12">
-              <a href={`/_apply/${event.id}`} className="center waves-effect waves-light btn">apply</a>
+              <Link to={`/_apply/${event.id}`} className="center waves-effect waves-light btn">apply</Link>
             </div>
           </div>
           )}
@@ -76,7 +96,7 @@ class Event extends Component {
               <a href="/auth/login/facebook" className="center waves-effect waves-light btn" >log in to apply</a>
               <div className="row">
                 We use Facebook for logins so you don't have to remember another
-                username/password. <a href="/_apply/:eventId/luser">I'd rather not use Facebook</a>
+                username/password. <a href={`/_apply/${event.id}/luser`}>I'd rather not use Facebook</a>
               </div>
             </div>
           </div>
@@ -111,17 +131,21 @@ class EventList extends Component {
   componentWillMount() {
     const self = this;
     const FORMAT = 'D MMM YYYY';
-    let url = 'https://www.udoco.org/api/events';
+    let url = `${BaseURL}/api/events`;
     if (this.props.schedule) {
-      url = 'https://www.udoco.org/api/schedule';
+      url = `${BaseURL}/api/schedule`;
     } else if (this.props.league) {
-      console.log('league');
-      url = 'https://www.udoco.org/api/league_schedule';
+      url = `${BaseURL}/api/league_schedule`;
     }
     fetch(url, {credentials: 'include'})
       .then((response) => (response.json()))
       .then((data) => {
-        const results = data.results.filter((item) => {
+        // XXX: rockstar (22 Oct 2017) - I'm not sure what this is about.
+        // Sometimes it's data.results, sometimes just results.
+        if (data.results !== undefined) {
+          data = data.results;
+        }
+        const results = data.filter((item) => {
           return moment().diff(moment(item.start.replace('Z', ''))) < 0;
         });
         const new_events = [];
@@ -152,7 +176,7 @@ class EventList extends Component {
           grouped_events: new_events
         });
       })
-      .catch(() => console.warn('Failure fetching events'));
+      .catch((err) => console.warn('Failure fetching events: ', err));
   }
 
   componentDidUpdate() {

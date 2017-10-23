@@ -1,9 +1,9 @@
-/* global jQuery*/
+/* global jQuery */
+/* global Materialize */
 import { PropTypes } from 'prop-types';
 import React, { Component } from 'react';
-
-
-const BASE_URL = 'https://www.udoco.org';
+import { getCSRFToken } from './utils.js';
+import { BaseURL } from './config.js';
 
 const PreferenceOptions = [
   {value: '', label: 'Choose your option'},
@@ -39,7 +39,7 @@ class Preference extends Component {
   }
 
   onChange(e) {
-    console.log('Old: ', this.state.value, 'New: ', e.target.value);
+    //console.debug('Old: ', this.state.value, 'New: ', e.target.value);
     this.props.change(this.state.value, e.target.value);
     this.setState({value: e.target.value});
   }
@@ -64,16 +64,34 @@ class Apply extends Component {
     super(props);
     this.state = {
       event: null,
+      name: '',
+      email: '',
+      user: null,
       preferences: ['']
     }
   }
 
   componentWillMount() {
-    const url = `${BASE_URL}/api/events/${this.props.match.params.eventId}`;
+    const url = `${BaseURL}/api/events/${this.props.match.params.eventId}`;
     fetch(url, {credentials: 'include'})
       .then((response) => (response.json()))
       .then((data) => {
-        this.setState({event: data});
+        if (data.detail === undefined) {
+          this.setState({event: data});
+        }
+      })
+      .catch(() => {});
+
+    const self = this;
+    fetch(`${BaseURL}/api/me`, {credentials: 'include'})
+      .then(response => {
+        if (response.status === 401) {
+          return new Promise((resolve, reject) => resolve(null));
+        }
+        return response.json();
+      })
+      .then((data) => {
+        self.setState({user: data});
       });
   }
 
@@ -83,8 +101,37 @@ class Apply extends Component {
 
   onApply(e) {
     e.preventDefault();
-    const preferences = this.state.preferences.filter((item) => (item !== ''));
-    console.log(preferences);
+
+    let url = `${BaseURL}/api/events/${this.props.match.params.eventId}/applications/`;
+    let body = this.state.preferences.filter((item) => (item !== ''));
+    console.log(this.state.user);
+    if (this.state.user === null) {  // Loser application
+      url = `${BaseURL}/api/events/${this.props.match.params.eventId}/lapplications/`;
+      body = {
+        name: this.state.name,
+        email: this.state.email,
+        preferences: this.state.preferences.filter((item) => (item !== ''))
+      };
+    }
+    fetch(url, {
+      credentials: 'include',
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCSRFToken(),
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify(body)})
+      .then((response) => {
+        if (response.status === 409) {
+          Materialize.toast('You cannot apply to this event at this time.', 10000);
+        } else if (response.status === 201) {
+          Materialize.toast('Your application has been received.', 10000)
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        Materialize.toast('An unknown error has occurred.', 10000)
+      });
   }
 
   onChange(old_value, new_value) {
@@ -92,27 +139,37 @@ class Apply extends Component {
      * the empty object. This hack where we filter it out and then push it again
      * is how we do that. I'm so sorry. I didn't want to. Blame react, maybe?
      */
-    console.log(old_value, new_value);
+    /* There is a bug here when preferences are deselected. I think it's also
+     * a react issue, but IDGAF.
+     */
     let preferences = this.state.preferences.filter((item) => (item !== ''));
-    if (old_value === '') {
+    if (old_value === '') {  // New value
       preferences.push(new_value);
-    } else {
+    } else if (new_value !== '') {  // Swapped value
+      preferences[preferences.indexOf(old_value)] = new_value;
+    } else {  // Removed value
       preferences = preferences.filter((item) => (item !== old_value));
-      if (new_value !== '') {
-        preferences.push(new_value);
-      }
     }
     preferences.push('');
     this.setState({preferences: preferences});
   }
 
+  onNameChange(e) {
+    e.preventDefault();
+    this.setState({name: e.target.value});
+  }
+
+  onEmailChange(e) {
+    e.preventDefault();
+    this.setState({email: e.target.value});
+  }
+
   render() {
     return (
       <div className="row">
+        {(this.state.event !== null &&
         <form className="col s6">
-          {(this.state.event !== null &&
           <h5>{this.state.event.title}</h5>
-          )}
           <div className="row">
             <div className="input-field col">
               Please select your staffing preferences, starting with your top
@@ -120,6 +177,22 @@ class Apply extends Component {
               positions as preferences as you would like.
             </div>
           </div>
+          {(this.state.user === null &&
+            <div className="row">
+              <div className="input-field col s6">
+                <input placeholder="" id="name" type="text" className="validate" value={this.state.name} onChange={this.onNameChange.bind(this)} />
+                <label for="name">Derby name</label>
+              </div>
+            </div>
+          )}
+          {(this.state.user === null &&
+            <div className="row">
+              <div className="input-field col s6">
+                <input placeholder="" id="email" type="email" className="validate" value={this.state.email} onChange={this.onEmailChange.bind(this)} />
+                <label for="email">Email address</label>
+              </div>
+            </div>
+          )}
           {this.state.preferences.map((item, idx) => (
             <Preference change={this.onChange.bind(this)} value={item}/>
           ))}
@@ -129,6 +202,12 @@ class Apply extends Component {
             </div>
           </div>
         </form>
+        )}
+        {(this.state.event === null &&
+        <div className="col s6">
+          Event not found. Please <a href="/_">return to the events listing</a>
+        </div>
+        )}
       </div>
     );
   }

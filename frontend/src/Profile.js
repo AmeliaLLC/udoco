@@ -1,24 +1,7 @@
-/* global jQuery */
 /* global Materialize */
 import React, { Component } from 'react';
-
-const BASE_URL = 'https://www.udoco.org';
-
-var getCookie = function(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
+import {getCSRFToken} from './utils.js';
+import { BaseURL } from './config.js';
 
 
 class EditProfile extends Component {
@@ -31,7 +14,7 @@ class EditProfile extends Component {
 
   componentWillMount() {
     const self = this;
-    fetch(`${BASE_URL}/api/me`, {credentials: 'include'})
+    fetch(`${BaseURL}/api/me`, {credentials: 'include'})
       .then(response => {
         if (response.status === 401) {
           return new Promise((resolve, reject) => resolve(null));
@@ -53,12 +36,11 @@ class EditProfile extends Component {
   onSave(e) {
     e.preventDefault();
 
-    const csrftoken = getCookie('csrftoken');
-    fetch(`${BASE_URL}/api/me`, {
+    fetch(`${BaseURL}/api/me`, {
       credentials: 'include',
       method: 'PUT',
       headers: {
-        'X-CSRFToken': csrftoken,
+        'X-CSRFToken': getCSRFToken(),
         'Content-type': 'application/json'
       },
       body: JSON.stringify(this.state.user)})
