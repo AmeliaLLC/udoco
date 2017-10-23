@@ -22,12 +22,13 @@ class OfficialFactory(factory.django.DjangoModelFactory):
 class LeagueFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.League
+    name = factory.fuzzy.FuzzyText(prefix='league-')
 
 
 class GameFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Game
-    title = factory.Sequence(lambda n: 'League %s' % n)
+    title = factory.fuzzy.FuzzyText(prefix='Event ')
     start = factory.fuzzy.FuzzyDateTime(timezone.now())
     end = factory.fuzzy.FuzzyDateTime(timezone.now())
 
