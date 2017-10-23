@@ -4,6 +4,8 @@ import { PropTypes } from 'prop-types';
 import React, { Component } from 'react';
 import { getCSRFToken } from './utils.js';
 import { BaseURL } from './config.js';
+import { Redirect } from 'react-router';
+import { Navbar } from './Navigation.js';
 
 const PreferenceOptions = [
   {value: '', label: 'Choose your option'},
@@ -39,7 +41,6 @@ class Preference extends Component {
   }
 
   onChange(e) {
-    //console.debug('Old: ', this.state.value, 'New: ', e.target.value);
     this.props.change(this.state.value, e.target.value);
     this.setState({value: e.target.value});
   }
@@ -49,9 +50,12 @@ class Preference extends Component {
       <div className="row">
         <div className="input-field col s12 m12 l6 xl6">
           <select className="browser-default" name="preference[]" onChange={this.onChange.bind(this)} value={this.state.value}>
-            {PreferenceOptions.map((item) => (
+            {PreferenceOptions.map((item) => {
+              //XXX:do some logic here in order to prevent applicants from being able to apply to the same position more than once
+              return (
             <option value={item.value} selected={(this.state.value === item.value) ? '1' : '0'}>{item.label}</option>
-            ))}
+          )
+        })}
           </select>
         </div>
       </div>
@@ -67,12 +71,13 @@ class Apply extends Component {
       name: '',
       email: '',
       user: null,
-      preferences: ['']
+      preferences: [''],
+      redirect: false
     }
   }
 
   componentWillMount() {
-    const url = `${BaseURL}/api/events/${this.props.match.params.eventId}`;
+    const url = `${BaseURL}/api/games/${this.props.match.params.eventId}`;
     fetch(url, {credentials: 'include'})
       .then((response) => (response.json()))
       .then((data) => {
@@ -102,17 +107,37 @@ class Apply extends Component {
   onApply(e) {
     e.preventDefault();
 
-    let url = `${BaseURL}/api/events/${this.props.match.params.eventId}/applications/`;
-    let body = this.state.preferences.filter((item) => (item !== ''));
-    console.log(this.state.user);
+    let url = `${BaseURL}/api/games/${this.props.match.params.eventId}/applications/`;
+    let body;
+    let selections = this.state.preferences.filter((item) => (item !== ''));
+    let preferences = [];
+    selections.forEach((position)=>{
+      if(preferences.indexOf(position)===-1){
+        preferences.push(position);
+      }
+    });
+    if(!selections.length){
+      Materialize.toast('Please choose at least one position.', 1000);
+      return;
+    }
+
+
     if (this.state.user === null) {  // Loser application
-      url = `${BaseURL}/api/events/${this.props.match.params.eventId}/lapplications/`;
+      if(this.state.name===''||this.state.email===''||this.state.preferences.filter((item) => (item !== '')).length === 0){
+        Materialize.toast('You must fill out all fields to apply', 1000);
+        return;
+      }
+      url = `${BaseURL}/api/games/${this.props.match.params.eventId}/lapplications/`;
       body = {
         name: this.state.name,
         email: this.state.email,
-        preferences: this.state.preferences.filter((item) => (item !== ''))
+        preferences: preferences
       };
+    }else{
+      body = preferences;
     }
+
+
     fetch(url, {
       credentials: 'include',
       method: 'POST',
@@ -120,18 +145,20 @@ class Apply extends Component {
         'X-CSRFToken': getCSRFToken(),
         'Content-type': 'application/json'
       },
-      body: JSON.stringify(body)})
-      .then((response) => {
-        if (response.status === 409) {
-          Materialize.toast('You cannot apply to this event at this time.', 10000);
-        } else if (response.status === 201) {
-          Materialize.toast('Your application has been received.', 10000)
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        Materialize.toast('An unknown error has occurred.', 10000)
-      });
+      body: JSON.stringify(body)
+    })
+    .then((response) => {
+      if (response.status === 409) {
+        Materialize.toast('You cannot apply to this event at this time.', 10000);
+      } else if (response.status === 201) {
+        Materialize.toast('Your application has been received.', 10000)
+        this.setState({redirect: true});
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      Materialize.toast('An unknown error has occurred.', 10000)
+    });
   }
 
   onChange(old_value, new_value) {
@@ -166,48 +193,52 @@ class Apply extends Component {
 
   render() {
     return (
-      <div className="row">
-        {(this.state.event !== null &&
-        <form className="col s6">
-          <h5>{this.state.event.title}</h5>
-          <div className="row">
-            <div className="input-field col">
-              Please select your staffing preferences, starting with your top
-              choice, continuing on to your last choice. You may choose as many
-              positions as preferences as you would like.
-            </div>
-          </div>
-          {(this.state.user === null &&
+      <div>
+      <Navbar user={this.props.user}/>
+        <div className="row">
+        {this.state.redirect?<Redirect to={{pathname: '/'}}/>:null}
+          {(this.state.event !== null &&
+          <form className="col s12">
+            <h5 className="center">{this.state.event.title}</h5>
             <div className="row">
-              <div className="input-field col s6">
-                <input placeholder="" id="name" type="text" className="validate" value={this.state.name} onChange={this.onNameChange.bind(this)} />
-                <label for="name">Derby name</label>
+              <div className="input-field col">
+                Please select your staffing preferences, starting with your top
+                choice, continuing on to your last choice. You may choose as many
+                positions as preferences as you would like.
               </div>
             </div>
-          )}
-          {(this.state.user === null &&
+            {(this.state.user === null &&
+              <div className="row">
+                <div className="input-field col s12">
+                  <input placeholder="" id="name" type="text" className="validate" value={this.state.name} onChange={this.onNameChange.bind(this)} />
+                  <label for="name">Derby name</label>
+                </div>
+              </div>
+            )}
+            {(this.state.user === null &&
+              <div className="row">
+                <div className="input-field col s6">
+                  <input placeholder="" id="email" type="email" className="validate" value={this.state.email} onChange={this.onEmailChange.bind(this)} />
+                  <label for="email">Email address</label>
+                </div>
+              </div>
+            )}
+            {this.state.preferences.map((item, idx) => (
+              <Preference change={this.onChange.bind(this)} value={item}/>
+            ))}
             <div className="row">
-              <div className="input-field col s6">
-                <input placeholder="" id="email" type="email" className="validate" value={this.state.email} onChange={this.onEmailChange.bind(this)} />
-                <label for="email">Email address</label>
+              <div className="input-field col s12">
+                <a onClick={this.onApply.bind(this)} className="center waves-effect waves-light btn blue-grey darken-4 col s12">apply</a>
               </div>
             </div>
+          </form>
           )}
-          {this.state.preferences.map((item, idx) => (
-            <Preference change={this.onChange.bind(this)} value={item}/>
-          ))}
-          <div className="row">
-            <div className="input-field col">
-              <a onClick={this.onApply.bind(this)} className="center waves-effect waves-light btn">apply</a>
-            </div>
+          {(this.state.event === null &&
+          <div className="col s6">
+            Event not found. Please <a href="/">return to the events listing</a>
           </div>
-        </form>
-        )}
-        {(this.state.event === null &&
-        <div className="col s6">
-          Event not found. Please <a href="/_">return to the events listing</a>
+          )}
         </div>
-        )}
       </div>
     );
   }

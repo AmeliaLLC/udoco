@@ -3,12 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "material-ui": "^0.20.0",
     "moment": "^2.19.1",
     "npm-watch": "^0.3.0",
+    "rc-time-picker": "^3.0.0",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
     "react-router-dom": "^4.2.2",
-    "react-scripts": "1.0.14"
+    "react-scripts": "1.0.14",
+    "redux-logger": "^3.0.6",
+    "redux-thunk": "^2.2.0"
   },
   "watch": {
     "integrate": "src/*.{js,css}"
