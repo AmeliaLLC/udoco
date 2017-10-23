@@ -14,6 +14,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators import csrf
 from django.views.generic import View
+import pytz
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
@@ -647,7 +648,7 @@ class OfficialViewSet(viewsets.ModelViewSet):
 
 
 class EventViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Game.objects.all()
+    queryset = models.Game.objects.filter(start__gt=datetime.now())
     serializer_class = serializers.GameSerializer
 
     def delete(self, request, pk=None):
@@ -765,6 +766,18 @@ class ApplicationViewSet(viewsets.ModelViewSet):
             request.user, context=context)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    def delete(self, request, event_pk=None):
+        if not request.user.is_authenticated():
+            raise Http404
+
+        event = models.Game.objects.get(pk=event_pk)
+        if request.user not in event.applicants:
+            return Response(None, status=status.HTTP_400_BAD_REQUEST)
+
+        models.ApplicationEntry.objects.filter(
+            official=request.user, event=event).delete()
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
+
 
 class LoserApplicationViewSet(viewsets.ViewSet):
     queryset = models.Loser.objects.none()
@@ -788,10 +801,11 @@ class LoserApplicationViewSet(viewsets.ViewSet):
         if request.user.is_authenticated():
             raise Http404
         event = models.Game.objects.get(pk=event_pk)
-        # XXX: rockstar (2 Apr 2017) - What if the event is in the past?
+        if event.start < datetime.utcnow().replace(tzinfo=pytz.UTC):
+            return Response(None, status=status.HTTP_400_BAD_REQUEST)
         try:
             loser = models.Loser.objects.create(
-                derby_name=request.data['derby_name'],
+                derby_name=request.data['name'],
                 email_address=request.data['email'],
             )
             loser.save()
@@ -809,4 +823,4 @@ class LoserApplicationViewSet(viewsets.ViewSet):
         context = {'event': event}
         serializer = serializers.LoserApplicationSerializer(
             loser, context=context)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
