@@ -16,7 +16,7 @@ from udoco import views
 class OfficialFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Official
-    username = factory.Sequence(lambda n: 'user%s' % n)
+    username = factory.fuzzy.FuzzyText(prefix='user-')
 
 
 class LeagueFactory(factory.django.DjangoModelFactory):
@@ -47,8 +47,9 @@ class TestEventView(unittest.TestCase):
     def tearDown(self):
         self.render_patcher.stop()
 
-    def make_request(self, user=None, method='GET', ajax=False, data=None, headers=None,
-                     secure=False, with_session=False):
+    def make_request(self, user=None, method='GET', ajax=False,
+                     data=None, headers=None, secure=False,
+                     with_session=False):
         """Returns an HTTP request for use in view tests."""
         if not user:
             user = AnonymousUser()
@@ -57,18 +58,19 @@ class TestEventView(unittest.TestCase):
         if type(data) == str:
             querystring = data
         else:
-            querystring = '&'.join(['{0}={1}'.format(k, v) for k, v in data.items()])
+            querystring = '&'.join([
+                '{0}={1}'.format(k, v) for k, v in data.items()])
 
         request = HttpRequest()
         request.user = user
         request.META = {
             'SERVER_NAME': 'notarealserver',
             'SERVER_PORT': 80
-            }
+        }
 
         # NOTE: rockstar (27 Apr 2014) - This is (obviously) a fake session
-        # implementation. If you need something more than this implementation, you
-        # should be using the Django Test Client in an integration test.
+        # implementation. If you need something more than this implementation,
+        # you should be using the Django Test Client in an integration test.
         mock_session = mock.Mock()
         mock_session.__contains__ = mock.Mock(return_value=True)
         mock_session.__getitem__ = mock.Mock(return_value=None)
