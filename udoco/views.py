@@ -679,6 +679,21 @@ class EventViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 
+class LeagueScheduleViewSet(EventViewSet):
+    """League-specific listing."""
+
+    def list(self, request):
+        user = request.user
+        if not user.is_authenticated() or user.scheduling.count() == 0:
+            raise Http404
+
+        queryset = self.queryset.filter(league__in=user.scheduling.all())
+        serializer = self.serializer_class(
+            data=queryset, context={'request': request}, many=True)
+        serializer.is_valid()
+        return Response(serializer.data)
+
+
 class ScheduleViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.Game.objects.filter(start__gt=datetime.now())
     serializer_class = serializers.GameSerializer

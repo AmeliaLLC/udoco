@@ -11,6 +11,7 @@ router = routers.SimpleRouter(trailing_slash=False)
 router.register('leagues', views.LeagueViewSet)
 router.register('officials', views.OfficialViewSet)
 router.register('schedule', views.ScheduleViewSet)
+router.register('league_schedule', views.LeagueScheduleViewSet)
 
 router.register('events', views.EventViewSet)
 
@@ -25,9 +26,9 @@ admin.autodiscover()
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='udoco/index.html'),
         name='index'),
+    url(r'^robots.txt', TemplateView.as_view(template_name='robots.txt')),
     url('^auth/', include('social_django.urls', namespace='social')),
 
-    url(r'^robots.txt', TemplateView.as_view(template_name='robots.txt')),
     url(r'^leagues$', views.LeagueView.as_view(), name='leagues'),
     url(r'^leagues/edit$', views.EditLeagueView.as_view(), name='edit_leagues'),
 
