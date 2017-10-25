@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from dateutil import parser as date_parser
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
@@ -20,9 +21,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from udoco import forms
-from udoco import models
-from udoco import serializers
+from udoco import choices, forms, models, serializers
 
 
 class _EventView(View):
@@ -647,9 +646,31 @@ class OfficialViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class EventViewSet(viewsets.ReadOnlyModelViewSet):
+class EventViewSet(viewsets.ModelViewSet):
     queryset = models.Game.objects.filter(start__gt=datetime.now())
     serializer_class = serializers.GameSerializer
+
+    def create(self, request):
+        user = request.user
+        if not user.is_authenticated() or user.league is None:
+            raise Http404
+
+        game = models.Game()
+        game.title = request.data['title']
+        game.location = request.data['location']
+        game.league = user.league
+        game.creator = user
+
+        game.start = game.end = date_parser.parse(request.data['dateTime'])
+
+        # This is temporary
+        game.association = choices.AssociationChoices.OTHER
+        game.game_type = choices.GameTypeChoices.OTHER
+        game.save()
+
+        serializer = self.serializer_class(
+            game, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, pk=None):
         if not request.user.is_authenticated():
@@ -684,7 +705,7 @@ class LeagueScheduleViewSet(EventViewSet):
 
     def list(self, request):
         user = request.user
-        if not user.is_authenticated() or user.scheduling.count() == 0:
+        if not user.is_authenticated() or user.league is None:
             raise Http404
 
         queryset = self.queryset.filter(league__in=user.scheduling.all())
