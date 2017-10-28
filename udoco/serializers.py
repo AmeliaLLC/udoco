@@ -82,6 +82,7 @@ class GameSerializer(serializers.ModelSerializer):
             'has_applied',
             'can_apply',
             'is_authenticated',
+            'can_schedule',
         )
 
     league = serializers.StringRelatedField()
@@ -89,6 +90,7 @@ class GameSerializer(serializers.ModelSerializer):
     has_applied = serializers.SerializerMethodField('_has_applied')
     can_apply = serializers.SerializerMethodField('_can_apply')
     is_authenticated = serializers.SerializerMethodField('_is_authenticated')
+    can_schedule = serializers.SerializerMethodField('_can_schedule')
 
     def _has_applied(self, instance):
         user = self.context['request'].user
@@ -102,6 +104,12 @@ class GameSerializer(serializers.ModelSerializer):
                 and not self._has_applied(instance)
                 and not instance.complete
                 and instance.start > timezone.now())
+
+    def _can_schedule(self, instance):
+        user = self.context['request'].user
+        return (user.is_authenticated()
+                and user.league is not None
+                and user.league.id == instance.league.id)
 
     # XXX: rockstar (20 Feb 2017) - Ugh ugh ugh.
     def _is_authenticated(self, instance):
