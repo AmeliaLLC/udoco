@@ -8,6 +8,7 @@ from django.utils import timezone
 import factory
 import factory.fuzzy
 import mock
+from rest_framework.test import APIRequestFactory, force_authenticate
 
 from udoco import models
 from udoco import views
@@ -39,6 +40,66 @@ class GameFactory(factory.django.DjangoModelFactory):
     league = factory.SubFactory(LeagueFactory)
 
 
+class TestMe(unittest.TestCase):
+    """Tests for udoco.views.me."""
+
+    def test_me_unauthorized(self):
+        """When not logged in, there is no me."""
+        factory = APIRequestFactory()
+        request = factory.get('/api/me')
+
+        response = views.me(request)
+
+        self.assertEqual(401, response.status_code)
+
+    def test_me(self):
+        """Information about the user is retrieved."""
+        user = OfficialFactory()
+        factory = APIRequestFactory()
+        request = factory.get('/api/me')
+        force_authenticate(request, user=user)
+        expected = {
+            'id': user.id,
+            'display_name': user.display_name,
+            'email': user.email,
+            'emergency_contact_name': user.emergency_contact_name,
+            'emergency_contact_number': user.emergency_contact_number,
+            'game_history': user.game_history,
+            'avatar': user.avatar,
+            'league': user.league,
+            'league_affiliation': user.league_affiliation,
+            'phone_number': user.phone_number
+        }
+
+        response = views.me(request)
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(expected, response.data)
+
+    def test_me_put(self):
+        """Information about the user is updated."""
+        user = OfficialFactory()
+        factory = APIRequestFactory()
+        data = {
+            'display_name': 'Mike Mayhem',
+            'email': 'abc@example.com',
+            'emergency_contact_name': 'Bob Mayhem',
+            'emergency_contact_number': '18001234567',
+            'game_history': 'https://example.com/history',
+            'league_affiliation': 'Super league',
+            'phone_number': '19001234567',
+        }
+        request = factory.put('/api/me', data, format='json')
+        force_authenticate(request, user=user)
+
+        response = views.me(request)
+
+        self.assertEqual(200, response.status_code)
+        for k in data.keys():
+            self.assertEqual(data[k], response.data[k])
+
+
+@unittest.skip('nope')
 class TestEventView(unittest.TestCase):
 
     def setUp(self):
