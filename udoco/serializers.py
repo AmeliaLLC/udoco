@@ -36,6 +36,7 @@ class ApplicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Official
         fields = (
+            'id',
             'display_name',
             'avatar',
             'league_affiliation',
@@ -54,6 +55,7 @@ class LoserApplicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Loser
         fields = (
+            'id',
             'derby_name',
             'preferences',
         )
