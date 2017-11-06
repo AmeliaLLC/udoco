@@ -8,8 +8,6 @@ from udoco import views
 
 
 router = routers.SimpleRouter(trailing_slash=False)
-router.register('leagues', views.LeagueViewSet)
-router.register('officials', views.OfficialViewSet)
 router.register('schedule', views.ScheduleViewSet)
 router.register('league_schedule', views.LeagueScheduleViewSet)
 

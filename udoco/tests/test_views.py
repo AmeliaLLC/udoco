@@ -1,22 +1,25 @@
-from importlib import import_module
+from datetime import timedelta
+import logging
 import unittest
 
-from django.conf import settings
-from django.contrib.auth.models import AnonymousUser
-from django.http import HttpRequest, QueryDict
+from django.test import TestCase
 from django.utils import timezone
 import factory
 import factory.fuzzy
-import mock
-from rest_framework.test import APIRequestFactory, force_authenticate
+from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
 
 from udoco import models
 from udoco import views
+
+logger = logging.getLogger('factory')
+logger.addHandler(logging.StreamHandler())
+logger.setLevel(logging.WARNING)
 
 
 class OfficialFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Official
+    display_name = factory.fuzzy.FuzzyText(prefix='Official ')
     username = factory.fuzzy.FuzzyText(prefix='user-')
 
 
@@ -30,14 +33,60 @@ class GameFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Game
     title = factory.fuzzy.FuzzyText(prefix='Event ')
-    start = factory.fuzzy.FuzzyDateTime(timezone.now())
-    end = factory.fuzzy.FuzzyDateTime(timezone.now())
+    start = factory.fuzzy.FuzzyDateTime(
+        start_dt=timezone.now() + timedelta(days=1),
+        end_dt=timezone.now() + timedelta(days=10))
+    end = factory.fuzzy.FuzzyDateTime(
+        start_dt=timezone.now() + timedelta(days=11),
+        end_dt=timezone.now() + timedelta(days=12))
 
     association = factory.fuzzy.FuzzyInteger(0, 2)
     game_type = factory.fuzzy.FuzzyInteger(0, 1)
 
     creator = factory.SubFactory(OfficialFactory)
     league = factory.SubFactory(LeagueFactory)
+
+
+class RosterFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Roster
+    hr = factory.SubFactory(OfficialFactory)
+    ipr = factory.SubFactory(OfficialFactory)
+    jr1 = factory.SubFactory(OfficialFactory)
+    jr2 = factory.SubFactory(OfficialFactory)
+    opr1 = factory.SubFactory(OfficialFactory)
+    opr2 = factory.SubFactory(OfficialFactory)
+    opr3 = factory.SubFactory(OfficialFactory)
+    alt = factory.SubFactory(OfficialFactory)
+
+    game = factory.SubFactory(GameFactory)
+
+
+class ApplicationEntryFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.ApplicationEntry
+    official = factory.SubFactory(OfficialFactory)
+    event = factory.SubFactory(GameFactory)
+    index = factory.fuzzy.FuzzyInteger(1)
+    preference = factory.fuzzy.FuzzyChoice(
+        tuple([x for x in range(0, 16)]))
+
+
+class LoserFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Loser
+    derby_name = factory.fuzzy.FuzzyText()
+    email_address = factory.fuzzy.FuzzyText(prefix='loser@')
+
+
+class LoserApplicationEntryFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.LoserApplicationEntry
+    official = factory.SubFactory(LoserFactory)
+    event = factory.SubFactory(GameFactory)
+    index = factory.fuzzy.FuzzyInteger(1)
+    preference = factory.fuzzy.FuzzyChoice(
+        tuple([x for x in range(0, 16)]))
 
 
 class TestMe(unittest.TestCase):
@@ -99,121 +148,278 @@ class TestMe(unittest.TestCase):
             self.assertEqual(data[k], response.data[k])
 
 
-@unittest.skip('nope')
-class TestEventView(unittest.TestCase):
+class TestEventViewSet(TestCase):
+    """Tests for udoco.views.EventViewSet."""
 
     def setUp(self):
-        self.render_patcher = mock.patch('udoco.views.render')
-        self.render = self.render_patcher.start()
+        super(TestEventViewSet, self).setUp()
+        for i in range(0, 10):
+            GameFactory()
 
-    def tearDown(self):
-        self.render_patcher.stop()
+    def test_list(self):
+        client = APIClient()
 
-    def make_request(self, user=None, method='GET', ajax=False,
-                     data=None, headers=None, secure=False,
-                     with_session=False):
-        """Returns an HTTP request for use in view tests."""
-        if not user:
-            user = AnonymousUser()
-        if not data:
-            data = {}
-        if type(data) == str:
-            querystring = data
-        else:
-            querystring = '&'.join([
-                '{0}={1}'.format(k, v) for k, v in data.items()])
+        response = client.get('/api/events')
 
-        request = HttpRequest()
-        request.user = user
-        request.META = {
-            'SERVER_NAME': 'notarealserver',
-            'SERVER_PORT': 80
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(10, len(response.data['results']))
+
+    def test_create(self):
+        league = LeagueFactory()
+        user = OfficialFactory()
+        user.scheduling.add(league)
+        client = APIClient()
+        client.force_authenticate(user)
+        data = {
+            'title': 'Quadruple header',
+            'location': 'Anywhere, USA',
+            'dateTime': 'Tue Oct 24 2020 00:00:00 GMT-0600 (MDT)'
         }
 
-        # NOTE: rockstar (27 Apr 2014) - This is (obviously) a fake session
-        # implementation. If you need something more than this implementation,
-        # you should be using the Django Test Client in an integration test.
-        mock_session = mock.Mock()
-        mock_session.__contains__ = mock.Mock(return_value=True)
-        mock_session.__getitem__ = mock.Mock(return_value=None)
-        mock_session.get = mock.Mock(return_value=None)
-        mock_session.__setitem__ = mock.Mock(return_value=None)
-        request.session = mock_session
+        response = client.post('/api/events', data, format='json')
 
-        if secure:
-            # Monkeypatching is bad mmmkay?
-            def is_secure(*args, **kwargs):
-                return True
-            request.is_secure = is_secure
+        self.assertEqual(201, response.status_code)
 
-        if method is 'GET':
-            request.method = 'GET'
-            request.GET = request.REQUEST = QueryDict(querystring)
-        if method is 'POST':
-            request.method = 'POST'
-            request.POST = request.REQUEST = QueryDict(querystring)
+    def test_create_no_schedule(self):
+        """Users who can't schedule can't create events."""
+        user = OfficialFactory()
+        client = APIClient()
+        client.force_authenticate(user)
+        data = {
+            'title': 'Quadruple header',
+            'location': 'Anywhere, USA',
+            'dateTime': 'Tue Oct 24 2020 00:00:00 GMT-0600 (MDT)'
+        }
 
-        if headers:
-            request.META.update(headers)
+        response = client.post('/api/events', data, format='json')
 
-        if ajax:
-            request.META['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'
+        self.assertEqual(403, response.status_code)
 
-        if with_session:
-            engine = import_module(settings.SESSION_ENGINE)
-            request.session = engine.SessionStore()
+    @unittest.mock.patch('udoco.views.mail')
+    def test_delete(self, mail):
+        league = LeagueFactory()
+        user = OfficialFactory()
+        user.scheduling.add(league)
+        client = APIClient()
+        client.force_authenticate(user)
 
-        return request
+        game = GameFactory(league=league)
 
-    def test_get_no_event(self):
-        """If the event doesn't exist, an exception is raised."""
-        request = self.make_request()
+        response = client.delete('/api/events/{}'.format(game.id))
 
-        view = views.EventView()
+        self.assertEqual(204, response.status_code)
 
-        self.assertRaises(models.Game.DoesNotExist, view.get, request, 1000000)
+    @unittest.mock.patch('udoco.views.mail')
+    def test_delete_disallowed(self, mail):
+        """If the user's league doesn't own the event, it can't be deleted."""
+        league = LeagueFactory()
+        user = OfficialFactory()
+        user.scheduling.add(league)
+        client = APIClient()
+        client.force_authenticate(user)
 
-    def test_get(self):
-        request = self.make_request()
-        event = GameFactory()
+        game = GameFactory()
 
-        view = views.EventView()
-        view.get(request, event.id)
+        response = client.delete('/api/events/{}'.format(game.id))
 
-        self.render.assert_called_once_with(
-            request, 'udoco/event.html',
-            {'event': event, 'can_schedule': False, 'form': None})
+        self.assertEqual(403, response.status_code)
 
-    def test_get_can_schedule(self):
-        form = mock.Mock()
-        request = self.make_request()
-        official = OfficialFactory()
-        request.user = official
-        event = GameFactory()
-        event.league.schedulers.add(official)
-        event.league.save()
 
-        view = views.EventView()
-        view.form = mock.Mock()
-        view.form.return_value = form
-        view.get(request, event.id)
+class TestLeagueScheduleViewSet(TestCase):
+    """Tests for udoco.views.EventViewSet."""
 
-        self.render.assert_called_once_with(
-            request, 'udoco/event.html',
-            {'event': event, 'can_schedule': True, 'form': form})
+    def test_list(self):
+        for i in range(0, 10):
+            GameFactory()
 
-    def test_get_cannot_schedule(self):
-        form = mock.Mock()
-        request = self.make_request()
-        official = OfficialFactory()
-        request.user = official
-        event = GameFactory()
+        league = LeagueFactory()
+        user = OfficialFactory()
+        user.scheduling.add(league)
+        for i in range(0, 5):
+            GameFactory(league=league)
 
-        view = views.EventView()
-        view.form = mock.Mock()
-        view.form.return_value = form
-        view.get(request, event.id)
+        client = APIClient()
+        client.force_authenticate(user)
 
-        self.render.assert_called_once_with(
-            request, 'udoco/event.html',
-            {'event': event, 'can_schedule': False, 'form': form})
+        response = client.get('/api/league_schedule')
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(5, len(response.json()))
+
+
+class TestScheduleViewSet(TestCase):
+    """Tests for udoco.views.ScheduleViewSet."""
+
+    def test_list(self):
+        roster = RosterFactory()
+        user = roster.hr
+
+        client = APIClient()
+        client.force_authenticate(user)
+
+        response = client.get('/api/schedule')
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.json()))
+
+    def test_list_anonymous(self):
+        RosterFactory()
+
+        client = APIClient()
+
+        response = client.get('/api/schedule')
+
+        self.assertEqual(404, response.status_code)
+
+
+class TestRosterViewSet(TestCase):
+    """Tests for udoco.views.RosterViewSet."""
+
+    def test_list(self):
+        loser = LoserFactory()
+        roster = RosterFactory(ipr_x=loser, ipr=None)
+        user = roster.hr
+        user.scheduling.add(roster.game.league)
+
+        client = APIClient()
+        client.force_authenticate(user)
+
+        response = client.get(
+            '/api/events/{}/rosters/'.format(roster.game.id))
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.json()))
+        data = response.json()[0]
+        self.assertEqual(user.id, data['hr']['id'])
+        self.assertEqual(loser.id, abs(data['ipr']['id']))
+
+    def test_retrieve(self):
+        roster = RosterFactory()
+        user = roster.hr
+        user.scheduling.add(roster.game.league)
+
+        client = APIClient()
+        client.force_authenticate(user)
+
+        response = client.get(
+            '/api/events/{}/rosters/{}/'.format(
+                roster.game.id, roster.id))
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(user.id, response.json()['hr']['id'])
+
+    def test_create(self):
+        game = GameFactory()
+        user = OfficialFactory()
+        loser = LoserFactory()
+        user.scheduling.add(game.league)
+
+        client = APIClient()
+        client.force_authenticate(user)
+        data = {'hr': user.id, 'ipr': 0 - loser.id}
+
+        response = client.post(
+            '/api/events/{}/rosters/'.format(game.id),
+            data, format='json')
+
+        self.assertEqual(201, response.status_code)
+        self.assertEqual(user.id, response.json()['hr']['id'])
+        self.assertEqual(0 - loser.id, response.json()['ipr']['id'])
+
+    def test_destroy(self):
+        roster = RosterFactory()
+        user = roster.hr
+        user.scheduling.add(roster.game.league)
+
+        client = APIClient()
+        client.force_authenticate(user)
+
+        response = client.delete(
+            '/api/events/{}/rosters/{}/'.format(
+                roster.game.id, roster.id))
+
+        self.assertEqual(204, response.status_code)
+
+
+class TestApplicationViewSet(TestCase):
+    """Tests for udoco.views.ApplicationViewSet."""
+
+    def test_list(self):
+        entry = ApplicationEntryFactory()
+        admin = entry.official
+        admin.scheduling.add(entry.event.league)
+
+        client = APIClient()
+        client.force_authenticate(admin)
+
+        response = client.get(
+            '/api/events/{}/applications/'.format(entry.event.id))
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.json()))
+
+    def test_create(self):
+        user = OfficialFactory()
+        game = GameFactory()
+
+        client = APIClient()
+        client.force_authenticate(user)
+        data = ['1']
+
+        response = client.post(
+            '/api/events/{}/applications/'.format(game.id),
+            data, format='json')
+
+        self.assertEqual(201, response.status_code)
+        game = models.Game.objects.get(pk=game.id)
+        self.assertEqual(1, game.applicants.count())
+
+    def test_delete(self):
+        entry = ApplicationEntryFactory()
+        user = entry.official
+
+        client = APIClient()
+        client.force_authenticate(user)
+
+        response = client.delete(
+            '/api/events/{}/applications/{}/'.format(
+                entry.event.id, entry.id))
+
+        self.assertEqual(204, response.status_code)
+        game = models.Game.objects.get(pk=entry.event.id)
+        self.assertEqual(0, game.applicants.count())
+
+
+class TestLoserApplicationViewSet(TestCase):
+
+    def test_list(self):
+        entry = LoserApplicationEntryFactory()
+        admin = OfficialFactory()
+        admin.scheduling.add(entry.event.league)
+
+        client = APIClient()
+        client.force_authenticate(admin)
+
+        response = client.get(
+            '/api/events/{}/lapplications/'.format(entry.event.id))
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.json()))
+
+    def test_create(self):
+        game = GameFactory()
+
+        client = APIClient()
+        data = {
+            'name': 'Mike Mayhem',
+            'email': 'abc@example.com',
+            'preferences': ['1']
+        }
+
+        response = client.post(
+            '/api/events/{}/lapplications/'.format(game.id),
+            data, format='json')
+
+        self.assertEqual(201, response.status_code)
+        game = models.Game.objects.get(pk=game.id)
+        self.assertEqual(1, game.losers.count())

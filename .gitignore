@@ -1,4 +1,6 @@
+.coverage
 __pycache__
+cover/
 db.sqlite3
 udoco/_settings.py
 static/app.js

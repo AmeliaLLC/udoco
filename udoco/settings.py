@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
 
+    'django_nose',
+
     'social_django',
 
     'storages',
@@ -225,6 +227,16 @@ ANYMAIL = {
 }
 EMAIL_BACKEND = 'anymail.backends.mailgun.MailgunBackend'
 DEFAULT_FROM_EMAIL = 'no-reply@udoco.org'
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+NOSE_ARGS = [
+    '--with-coverage',
+    '--cover-package=udoco',
+    '--cover-erase',
+    '--cover-html',
+    '-s',
+]
 
 if 'DATABASE_URL' in os.environ:
     # We're in the heroku environment

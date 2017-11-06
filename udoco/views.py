@@ -8,7 +8,6 @@ from django.core import mail
 from django.db.models import Q
 from django.http import Http404, HttpResponseBadRequest
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -19,6 +18,7 @@ import pytz
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
+from rest_framework import permissions
 from rest_framework.response import Response
 
 from udoco import choices, forms, models, serializers
@@ -576,7 +576,7 @@ class ContactLeaguesView(View):
 @api_view(['GET', 'PUT'])
 def me(request):
     if not request.user.is_authenticated():
-        if request.GET.get('old', False):
+        if request.GET.get('old', False):  # pragma: no cover
             return Response(None)
         return Response(None, status=401)
 
@@ -594,72 +594,35 @@ def me(request):
     return Response(serializer.data)
 
 
-class LeagueViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = models.League.objects.none()
-    serializer_class = serializers.LeagueSerializer
+class IsScheduler(permissions.BasePermission):
 
-    def list(self, request):
-        if request.user.is_authenticated():
-            queryset = request.user.scheduling.all()
-        else:
-            queryset = models.League.objects.none()
-        serializer = self.serializer_class(queryset, many=True)
-        return Response(serializer.data)
-
-    def retrieve(self, request, pk=None):
-        if not request.user.is_authenticated():
-            raise Http404
-        league = get_object_or_404(
-            request.user.scheduling.all(), pk=pk)
-        serializer = self.serializer_class(league)
-        return Response(serializer.data)
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return (request.user.is_authenticated()
+                and request.user.league is not None)
 
 
-class OfficialViewSet(viewsets.ModelViewSet):
-    queryset = models.Official.objects.none()
-    serializer_class = serializers.OfficialSerializer
-    permissions = []
+class CanSchedule(permissions.BasePermission):
 
-    def retrieve(self, request, pk=None):
-        if not request.user.is_authenticated():
-            raise Http404
-        official = get_object_or_404(
-            models.Official.objects.all(), pk=pk)
-        serializer = self.serializer_class(official)
-        return Response(serializer.data)
-
-    def update(self, request, pk=None):
-        if request.user.id != int(pk):
-            raise Http404
-        official = models.Official.objects.get(pk=pk)
-        official.display_name = request.data['display_name']
-        official.email = request.data['email']
-        official.phone_number = request.data['phone_number']
-        official.emergency_contact_name = request.data[
-            'emergency_contact_name']
-        official.emergency_contact_number = request.data[
-            'emergency_contact_number']
-        official.game_history = request.data['game_history']
-        official.league_affiliation = request.data['league_affiliation']
-        official.save()
-        serializer = self.serializer_class(official)
-        return Response(serializer.data)
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return (request.user.is_authenticated()
+                and request.user in obj.league.schedulers.all())
 
 
 class EventViewSet(viewsets.ModelViewSet):
     queryset = models.Game.objects.filter(start__gt=datetime.now())
     serializer_class = serializers.GameSerializer
+    permission_classes = [IsScheduler, CanSchedule]
 
     def create(self, request):
-        user = request.user
-        if not user.is_authenticated() or user.league is None:
-            raise Http404
-
         game = models.Game()
         game.title = request.data['title']
         game.location = request.data['location']
-        game.league = user.league
-        game.creator = user
+        game.league = request.user.league
+        game.creator = request.user
 
         game.start = game.end = date_parser.parse(request.data['dateTime'])
 
@@ -672,13 +635,9 @@ class EventViewSet(viewsets.ModelViewSet):
             game, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def delete(self, request, pk=None):
-        if not request.user.is_authenticated():
-            raise Http404
+    def destroy(self, request, pk):
         event = self.queryset.get(pk=pk)
-        if request.user not in event.league.schedulers.all():
-            raise Http404
-
+        self.check_object_permissions(self.request, event)
         if event.complete:
             recipients = [user.email for user in event.staff]
         else:
@@ -702,13 +661,10 @@ class EventViewSet(viewsets.ModelViewSet):
 
 class LeagueScheduleViewSet(EventViewSet):
     """League-specific listing."""
+    permission_classes = [IsScheduler]
 
     def list(self, request):
-        user = request.user
-        if not user.is_authenticated() or user.league is None:
-            raise Http404
-
-        queryset = self.queryset.filter(league__in=user.scheduling.all())
+        queryset = self.queryset.filter(league=request.user.league)
         serializer = self.serializer_class(
             data=queryset, context={'request': request}, many=True)
         serializer.is_valid()
@@ -739,7 +695,7 @@ class ScheduleViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.data)
 
 
-class RosterViewSet(viewsets.ReadOnlyModelViewSet):
+class RosterViewSet(viewsets.ModelViewSet):
     queryset = models.Roster.objects.none()
     serializer_class = serializers.RosterSerializer
 
@@ -762,6 +718,34 @@ class RosterViewSet(viewsets.ReadOnlyModelViewSet):
         roster = event.rosters.get(pk=pk)
         serializer = self.serializer_class(roster)
         return Response(serializer.data)
+
+    def create(self, request, event_pk):
+        if not request.user.is_authenticated():
+            raise Http404
+        event = models.Game.objects.get(pk=event_pk)
+        if request.user not in event.league.schedulers.all():
+            raise Http404
+
+        roster = models.Roster(game=event)
+        for key, val in request.data.items():
+            if val > 0:
+                official = models.Official.objects.get(pk=val)
+                setattr(roster, key, official)
+            else:
+                official = models.Loser.objects.get(pk=abs(val))
+                setattr(roster, '{}_x'.format(key), official)
+        roster.save()
+        serializer = self.serializer_class(roster)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def destroy(self, request, event_pk, pk):
+        if not request.user.is_authenticated():
+            raise Http404
+        event = models.Game.objects.get(pk=event_pk)
+        if request.user not in event.league.schedulers.all():
+            raise Http404
+        event.rosters.get(pk=pk).delete()
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 
 class ApplicationViewSet(viewsets.ModelViewSet):
@@ -802,7 +786,7 @@ class ApplicationViewSet(viewsets.ModelViewSet):
             request.user, context=context)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def delete(self, request, event_pk=None):
+    def destroy(self, request, pk=None, event_pk=None):
         if not request.user.is_authenticated():
             raise Http404
 

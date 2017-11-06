@@ -1,3 +1,5 @@
+import functools
+
 from django.utils import timezone
 from rest_framework import serializers
 
@@ -118,39 +120,73 @@ class GameSerializer(serializers.ModelSerializer):
         return self.context['request'].user.is_authenticated()
 
 
-class _RosteredSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Official
-        fields = (
-            'id',
-            'display_name',
-            'avatar',
-            'league_affiliation',
-        )
+class _RosteredSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    display_name = serializers.CharField(read_only=True)
 
 
 class RosterSerializer(serializers.ModelSerializer):
-    hr = _RosteredSerializer(read_only=True)
-    ipr = _RosteredSerializer(read_only=True)
-    jr1 = _RosteredSerializer(read_only=True)
-    jr2 = _RosteredSerializer(read_only=True)
-    opr1 = _RosteredSerializer(read_only=True)
-    opr2 = _RosteredSerializer(read_only=True)
-    opr3 = _RosteredSerializer(read_only=True)
-    alt = _RosteredSerializer(read_only=True)
-    jt = _RosteredSerializer(read_only=True)
-    sk1 = _RosteredSerializer(read_only=True)
-    sk2 = _RosteredSerializer(read_only=True)
-    pbm = _RosteredSerializer(read_only=True)
-    pbt1 = _RosteredSerializer(read_only=True)
-    pbt2 = _RosteredSerializer(read_only=True)
-    pt1 = _RosteredSerializer(read_only=True)
-    pt2 = _RosteredSerializer(read_only=True)
-    pw = _RosteredSerializer(read_only=True)
-    iwb = _RosteredSerializer(read_only=True)
-    lt1 = _RosteredSerializer(read_only=True)
-    lt2 = _RosteredSerializer(read_only=True)
-    so = _RosteredSerializer(read_only=True)
+    hr = serializers.SerializerMethodField('_hr')
+    ipr = serializers.SerializerMethodField('_ipr')
+    jr1 = serializers.SerializerMethodField('_jr1')
+    jr2 = serializers.SerializerMethodField('_jr2')
+    opr1 = serializers.SerializerMethodField('_opr1')
+    opr2 = serializers.SerializerMethodField('_opr2')
+    opr3 = serializers.SerializerMethodField('_opr3')
+    alt = serializers.SerializerMethodField('_alt')
+    jt = serializers.SerializerMethodField('_jt')
+    sk1 = serializers.SerializerMethodField('_sk1')
+    sk2 = serializers.SerializerMethodField('_sk2')
+    pbm = serializers.SerializerMethodField('_pbm')
+    pbt1 = serializers.SerializerMethodField('_pbt1')
+    pbt2 = serializers.SerializerMethodField('_pbt2')
+    pt1 = serializers.SerializerMethodField('_pt1')
+    pt2 = serializers.SerializerMethodField('_pt2')
+    pw = serializers.SerializerMethodField('_pw')
+    iwb = serializers.SerializerMethodField('_iwb')
+    lt1 = serializers.SerializerMethodField('_lt1')
+    lt2 = serializers.SerializerMethodField('_lt2')
+    so = serializers.SerializerMethodField('_so')
+    hnso = serializers.SerializerMethodField('_hnso')
+    nsoalt = serializers.SerializerMethodField('_nsoalt')
+    ptimer = serializers.SerializerMethodField('_ptimer')
+
+    def _get_serialized(key, instance):
+        if getattr(instance, key) is not None:
+            role = getattr(instance, key)
+            return {'id': role.id, 'display_name': role.display_name}
+        elif getattr(instance, '{}_x'.format(key)) is not None:
+            role = getattr(instance, '{}_x'.format(key))
+            return {
+                'id': 0 - role.id, 'display_name': role.derby_name}
+        else:
+            return None
+
+    _hr = functools.partial(_get_serialized, 'hr')
+    _ipr = functools.partial(_get_serialized, 'ipr')
+    _jr1 = functools.partial(_get_serialized, 'jr2')
+    _jr2 = functools.partial(_get_serialized, 'jr2')
+    _opr1 = functools.partial(_get_serialized, 'opr1')
+    _opr2 = functools.partial(_get_serialized, 'opr2')
+    _opr3 = functools.partial(_get_serialized, 'opr3')
+    _alt = functools.partial(_get_serialized, 'alt')
+
+    _jt = functools.partial(_get_serialized, 'jt')
+    _sk1 = functools.partial(_get_serialized, 'sk1')
+    _sk2 = functools.partial(_get_serialized, 'sk2')
+    _pbm = functools.partial(_get_serialized, 'pbm')
+    _pbt1 = functools.partial(_get_serialized, 'pbt1')
+    _pbt2 = functools.partial(_get_serialized, 'pbt2')
+    _pt1 = functools.partial(_get_serialized, 'pt1')
+    _pt2 = functools.partial(_get_serialized, 'pt2')
+    _pw = functools.partial(_get_serialized, 'pw')
+    _iwb = functools.partial(_get_serialized, 'iwb')
+    _lt1 = functools.partial(_get_serialized, 'lt1')
+    _lt2 = functools.partial(_get_serialized, 'lt2')
+    _so = functools.partial(_get_serialized, 'so')
+    _hnso = functools.partial(_get_serialized, 'hnso')
+    _nsoalt = functools.partial(_get_serialized, 'nsoalt')
+    _ptimer = functools.partial(_get_serialized, 'ptimer')
 
     class Meta:
         model = models.Roster
@@ -177,4 +213,7 @@ class RosterSerializer(serializers.ModelSerializer):
             'lt1',
             'lt2',
             'so',
+            'hnso',
+            'nsoalt',
+            'ptimer',
         )
