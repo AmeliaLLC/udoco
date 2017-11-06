@@ -120,11 +120,6 @@ class GameSerializer(serializers.ModelSerializer):
         return self.context['request'].user.is_authenticated()
 
 
-class _RosteredSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    display_name = serializers.CharField(read_only=True)
-
-
 class RosterSerializer(serializers.ModelSerializer):
     hr = serializers.SerializerMethodField('_hr')
     ipr = serializers.SerializerMethodField('_ipr')

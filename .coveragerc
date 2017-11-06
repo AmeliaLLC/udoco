@@ -1,2 +1,2 @@
 [run]
-omit = *migrations*
+omit = *migrations*,udoco/admin.py,udoco/choices.py,udoco/*settings.py,udoco/models.py

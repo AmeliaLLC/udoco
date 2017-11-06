@@ -1,8 +1,15 @@
 from django.contrib.auth.models import AbstractUser
+from django.core import validators
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from udoco import choices, validators
+from udoco import choices
+
+PHONE_NUMBER_VALIDATOR = validators.RegexValidator(
+    regex=r'^\+?1?\d{9,15}$',
+    message=(
+        "Phone number must be entered in the format: "
+        "'+999999999'. Up to 15 digits allowed."))
 
 
 class Official(AbstractUser):
@@ -13,14 +20,14 @@ class Official(AbstractUser):
     # to be blank and non-unique. That is insane.
     display_name = models.CharField(_('name'), max_length=256)
     phone_number = models.CharField(
-        validators=[validators.PHONE_NUMBER_VALIDATOR], blank=True,
+        validators=[PHONE_NUMBER_VALIDATOR], blank=True,
         max_length=16)
 
     game_history = models.URLField(blank=True)
 
     emergency_contact_name = models.CharField(_('name'), max_length=256)
     emergency_contact_number = models.CharField(
-        validators=[validators.PHONE_NUMBER_VALIDATOR], blank=True,
+        validators=[PHONE_NUMBER_VALIDATOR], blank=True,
         max_length=16)
 
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
