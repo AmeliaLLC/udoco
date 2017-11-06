@@ -220,10 +220,13 @@ class RosterViewSet(viewsets.ModelViewSet):
 
         roster = models.Roster(game=event)
         for key, val in request.data.items():
-            if val > 0:
+            if val is None or val == '':
+                setattr(roster, key, None)
+                setattr(roster, '{}_x'.format(key), None)
+            elif int(val) > 0:
                 official = models.Official.objects.get(pk=val)
                 setattr(roster, key, official)
-            else:
+            elif int(val) < 0:
                 official = models.Loser.objects.get(pk=abs(val))
                 setattr(roster, '{}_x'.format(key), official)
         roster.save()
