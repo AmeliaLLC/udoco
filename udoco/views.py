@@ -127,6 +127,19 @@ class EventViewSet(viewsets.ModelViewSet):
             game, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    def update(self, request, pk):
+        game = self.queryset.get(pk=pk)
+        self.check_object_permissions(self.request, game)
+
+        if 'complete' in request.data.keys():
+            game.complete = request.data['complete']
+            # TODO: send out emails.
+
+        game.save()
+        serializer = self.serializer_class(
+            game, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     def destroy(self, request, pk):
         event = self.queryset.get(pk=pk)
         self.check_object_permissions(self.request, event)

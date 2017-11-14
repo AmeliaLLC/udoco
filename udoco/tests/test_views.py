@@ -195,6 +195,21 @@ class TestEventViewSet(TestCase):
 
         self.assertEqual(403, response.status_code)
 
+    def test_update(self):
+        game = GameFactory()
+        user = OfficialFactory()
+        user.scheduling.add(game.league)
+        client = APIClient()
+        client.force_authenticate(user)
+
+        response = client.put(
+            '/api/events/{}'.format(game.id),
+            {'complete': True}, format='json')
+
+        self.assertEqual(200, response.status_code)
+        game = models.Game.objects.get(id=game.id)
+        self.assertTrue(game.complete)
+
     @unittest.mock.patch('udoco.views.mail')
     def test_delete(self, mail):
         league = LeagueFactory()
