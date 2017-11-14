@@ -187,6 +187,24 @@ class ScheduleViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.data)
 
 
+def _update_roster_from_data(roster, data):
+    """Update a roster based on json data.
+
+    This updates the roster *in place*, but does not call save on the
+    resulting changes.
+    """
+    for key, val in data.items():
+        if val is None or val == '':
+            setattr(roster, key, None)
+            setattr(roster, '{}_x'.format(key), None)
+        elif int(val) > 0:
+            official = models.Official.objects.get(pk=val)
+            setattr(roster, key, official)
+        elif int(val) < 0:
+            official = models.Loser.objects.get(pk=abs(val))
+            setattr(roster, '{}_x'.format(key), official)
+
+
 class RosterViewSet(viewsets.ModelViewSet):
     queryset = models.Roster.objects.none()
     serializer_class = serializers.RosterSerializer
@@ -219,19 +237,22 @@ class RosterViewSet(viewsets.ModelViewSet):
             raise Http404
 
         roster = models.Roster(game=event)
-        for key, val in request.data.items():
-            if val is None or val == '':
-                setattr(roster, key, None)
-                setattr(roster, '{}_x'.format(key), None)
-            elif int(val) > 0:
-                official = models.Official.objects.get(pk=val)
-                setattr(roster, key, official)
-            elif int(val) < 0:
-                official = models.Loser.objects.get(pk=abs(val))
-                setattr(roster, '{}_x'.format(key), official)
+        _update_roster_from_data(roster, request.data)
         roster.save()
         serializer = self.serializer_class(roster)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def update(self, request, event_pk, pk):
+        if not request.user.is_authenticated():
+            raise Http404
+        roster = models.Roster.objects.get(pk=pk, game_id=event_pk)
+        if request.user not in roster.game.league.schedulers.all():
+            raise Http404
+
+        _update_roster_from_data(roster, request.data)
+        roster.save()
+        serializer = self.serializer_class(roster)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def destroy(self, request, event_pk, pk):
         if not request.user.is_authenticated():

@@ -326,6 +326,26 @@ class TestRosterViewSet(TestCase):
         self.assertEqual(user.id, response.json()['hr']['id'])
         self.assertEqual(0 - loser.id, response.json()['ipr']['id'])
 
+    def test_update(self):
+        roster = RosterFactory()
+        user = OfficialFactory()
+        user.scheduling.add(roster.game.league)
+
+        client = APIClient()
+        client.force_authenticate(user)
+        data = {'hr': user.id, 'ipr': None}
+
+        response = client.put(
+            '/api/events/{}/rosters/{}/'.format(
+                roster.game.id, roster.id),
+            data, format='json')
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(
+            {'id': user.id, 'display_name': user.display_name},
+            response.json()['hr'])
+        self.assertEqual(None, response.json()['ipr'])
+
     def test_destroy(self):
         roster = RosterFactory()
         user = roster.hr
