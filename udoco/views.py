@@ -212,9 +212,11 @@ def _update_roster_from_data(roster, data):
         elif int(val) > 0:
             official = models.Official.objects.get(pk=val)
             setattr(roster, key, official)
+            setattr(roster, '{}_x'.format(key), None)
         elif int(val) < 0:
             official = models.Loser.objects.get(pk=abs(val))
             setattr(roster, '{}_x'.format(key), official)
+            setattr(roster, key, None)
 
 
 class RosterViewSet(viewsets.ModelViewSet):
