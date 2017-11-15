@@ -158,7 +158,7 @@ class RosterSerializer(serializers.ModelSerializer):
 
     _hr = functools.partial(_get_serialized, 'hr')
     _ipr = functools.partial(_get_serialized, 'ipr')
-    _jr1 = functools.partial(_get_serialized, 'jr2')
+    _jr1 = functools.partial(_get_serialized, 'jr1')
     _jr2 = functools.partial(_get_serialized, 'jr2')
     _opr1 = functools.partial(_get_serialized, 'opr1')
     _opr2 = functools.partial(_get_serialized, 'opr2')
