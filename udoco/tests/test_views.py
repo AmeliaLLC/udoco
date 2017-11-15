@@ -8,6 +8,7 @@ import factory
 import factory.fuzzy
 from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
 
+from udoco import forms
 from udoco import models
 from udoco import views
 
@@ -87,6 +88,48 @@ class LoserApplicationEntryFactory(factory.django.DjangoModelFactory):
     index = factory.fuzzy.FuzzyInteger(1)
     preference = factory.fuzzy.FuzzyChoice(
         tuple([x for x in range(0, 16)]))
+
+
+class TestContactLeaguesView(unittest.TestCase):
+    """Tests for udoco.views.ContactLeaguesView."""
+
+    @unittest.mock.patch('udoco.views.render')
+    def test_get(self, render):
+        scheduler = OfficialFactory()
+        league = LeagueFactory()
+        scheduler.scheduling.add(league)
+        user = OfficialFactory(is_staff=True)
+        request = unittest.mock.Mock(user=user, method='GET')
+        view = views.ContactLeaguesView.as_view()
+
+        view(request)
+
+        call = render.call_args[0]
+        self.assertEqual(call[0], request)
+        self.assertEqual(call[1], 'udoco/contact.html')
+        self.assertIsInstance(
+            call[2]['form'], forms.ContactOfficialsForm)
+        self.assertIn(scheduler, call[2]['officials'])
+
+    @unittest.mock.patch('udoco.views.messages')
+    @unittest.mock.patch('udoco.views.mail')
+    @unittest.mock.patch('udoco.views.redirect')
+    def test_post(self, redirect, mail, messages):
+        scheduler = OfficialFactory(email='abc@example.com')
+        league = LeagueFactory()
+        scheduler.scheduling.add(league)
+        scheduler.save()
+        user = OfficialFactory(is_staff=True)
+        request = unittest.mock.Mock(user=user, method='POST')
+        view = views.ContactLeaguesView.as_view()
+
+        view(request)
+
+        messages.add_message(
+            request, messages.INFO, 'Your message has been sent')
+        redirect.assert_called_once_with('contact_leagues')
+        call = mail.EmailMessage.call_args[1]
+        self.assertIn('abc@example.com', call['bcc'])
 
 
 class TestMe(unittest.TestCase):

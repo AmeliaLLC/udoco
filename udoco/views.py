@@ -21,7 +21,7 @@ from rest_framework.response import Response
 from udoco import choices, forms, models, serializers
 
 
-class ContactLeaguesView(View):  # pragma: no cover
+class ContactLeaguesView(View):
     """Contact the league schedulers."""
     template = 'udoco/contact.html'
     form = forms.ContactOfficialsForm
@@ -46,8 +46,7 @@ class ContactLeaguesView(View):  # pragma: no cover
         officials = models.Official.objects.filter(scheduling__gte=1)
 
         form = self.form(request.POST)
-        if not form.is_valid():
-            return self.get(request, form=form)
+        form.full_clean()
 
         with mail.get_connection() as connection:
             mail.EmailMessage(
