@@ -51,14 +51,6 @@ class GameFactory(factory.django.DjangoModelFactory):
 class RosterFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Roster
-    hr = factory.SubFactory(OfficialFactory)
-    ipr = factory.SubFactory(OfficialFactory)
-    jr1 = factory.SubFactory(OfficialFactory)
-    jr2 = factory.SubFactory(OfficialFactory)
-    opr1 = factory.SubFactory(OfficialFactory)
-    opr2 = factory.SubFactory(OfficialFactory)
-    opr3 = factory.SubFactory(OfficialFactory)
-    alt = factory.SubFactory(OfficialFactory)
 
     game = factory.SubFactory(GameFactory)
 
@@ -309,8 +301,8 @@ class TestScheduleViewSet(TestCase):
     """Tests for udoco.views.ScheduleViewSet."""
 
     def test_list(self):
-        roster = RosterFactory()
-        user = roster.hr
+        user = OfficialFactory()
+        RosterFactory(hr=user)
 
         client = APIClient()
         client.force_authenticate(user)
@@ -335,8 +327,8 @@ class TestRosterViewSet(TestCase):
 
     def test_list(self):
         loser = LoserFactory()
-        roster = RosterFactory(ipr_x=loser, ipr=None)
-        user = roster.hr
+        user = OfficialFactory()
+        roster = RosterFactory(hr=user, ipr_x=loser)
         user.scheduling.add(roster.game.league)
 
         client = APIClient()
@@ -348,12 +340,12 @@ class TestRosterViewSet(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.json()))
         data = response.json()[0]
-        self.assertEqual(user.id, data['hr']['id'])
-        self.assertEqual(loser.id, abs(data['ipr']['id']))
+        self.assertEqual(user.id, data['hr'])
+        self.assertEqual(loser.id, abs(data['ipr']))
 
     def test_retrieve(self):
-        roster = RosterFactory()
-        user = roster.hr
+        user = OfficialFactory()
+        roster = RosterFactory(hr=user)
         user.scheduling.add(roster.game.league)
 
         client = APIClient()
@@ -364,7 +356,7 @@ class TestRosterViewSet(TestCase):
                 roster.game.id, roster.id))
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(user.id, response.json()['hr']['id'])
+        self.assertEqual(user.id, response.json()['hr'])
 
     def test_create(self):
         game = GameFactory()
@@ -381,8 +373,8 @@ class TestRosterViewSet(TestCase):
             data, format='json')
 
         self.assertEqual(201, response.status_code)
-        self.assertEqual(user.id, response.json()['hr']['id'])
-        self.assertEqual(0 - loser.id, response.json()['ipr']['id'])
+        self.assertEqual(user.id, response.json()['hr'])
+        self.assertEqual(0 - loser.id, response.json()['ipr'])
 
     def test_update(self):
         roster = RosterFactory()
@@ -399,14 +391,12 @@ class TestRosterViewSet(TestCase):
             data, format='json')
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(
-            {'id': user.id, 'display_name': user.display_name},
-            response.json()['hr'])
+        self.assertEqual(user.id, response.json()['hr'])
         self.assertEqual(None, response.json()['ipr'])
 
     def test_destroy(self):
-        roster = RosterFactory()
-        user = roster.hr
+        user = OfficialFactory()
+        roster = RosterFactory(hr=user)
         user.scheduling.add(roster.game.league)
 
         client = APIClient()

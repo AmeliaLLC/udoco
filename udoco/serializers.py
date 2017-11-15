@@ -149,11 +149,10 @@ class RosterSerializer(serializers.ModelSerializer):
     def _get_serialized(key, instance):
         if getattr(instance, key) is not None:
             role = getattr(instance, key)
-            return {'id': role.id, 'display_name': role.display_name}
+            return role.id
         elif getattr(instance, '{}_x'.format(key)) is not None:
             role = getattr(instance, '{}_x'.format(key))
-            return {
-                'id': 0 - role.id, 'display_name': role.derby_name}
+            return 0 - role.id
         else:
             return None
 
