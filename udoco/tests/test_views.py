@@ -248,16 +248,36 @@ class TestEventViewSet(TestCase):
     @unittest.mock.patch('udoco.views.mail')
     def test_delete(self, mail):
         league = LeagueFactory()
-        user = OfficialFactory()
+        user = OfficialFactory(email='abc@example.com')
         user.scheduling.add(league)
         client = APIClient()
         client.force_authenticate(user)
 
         game = GameFactory(league=league)
+        ApplicationEntryFactory(official=user, event=game)
 
         response = client.delete('/api/events/{}'.format(game.id))
 
         self.assertEqual(204, response.status_code)
+        call = mail.EmailMessage.call_args[1]
+        self.assertIn('abc@example.com', call['bcc'])
+
+    @unittest.mock.patch('udoco.views.mail')
+    def test_delete_completed_event(self, mail):
+        league = LeagueFactory()
+        user = OfficialFactory(email='abc@example.com')
+        user.scheduling.add(league)
+        client = APIClient()
+        client.force_authenticate(user)
+
+        game = GameFactory(league=league, complete=True)
+        RosterFactory(hr=user, game=game)
+
+        response = client.delete('/api/events/{}'.format(game.id))
+
+        self.assertEqual(204, response.status_code)
+        call = mail.EmailMessage.call_args[1]
+        self.assertIn('abc@example.com', call['bcc'])
 
     @unittest.mock.patch('udoco.views.mail')
     def test_delete_disallowed(self, mail):
@@ -276,7 +296,7 @@ class TestEventViewSet(TestCase):
 
 
 class TestLeagueScheduleViewSet(TestCase):
-    """Tests for udoco.views.EventViewSet."""
+    """Tests for udoco.views.LeagueScheduleViewSet."""
 
     def test_list(self):
         for i in range(0, 10):
@@ -319,7 +339,7 @@ class TestScheduleViewSet(TestCase):
 
         response = client.get('/api/schedule')
 
-        self.assertEqual(404, response.status_code)
+        self.assertEqual(403, response.status_code)
 
 
 class TestRosterViewSet(TestCase):
@@ -342,6 +362,28 @@ class TestRosterViewSet(TestCase):
         data = response.json()[0]
         self.assertEqual(user.id, data['hr'])
         self.assertEqual(loser.id, abs(data['ipr']))
+
+    def test_list_anon(self):
+        roster = RosterFactory()
+        client = APIClient()
+
+        response = client.get(
+            '/api/events/{}/rosters/'.format(roster.game.id))
+
+        self.assertEqual(403, response.status_code)
+
+    def test_list_cant_schedule(self):
+        loser = LoserFactory()
+        user = OfficialFactory()
+        roster = RosterFactory(hr=user, ipr_x=loser)
+
+        client = APIClient()
+        client.force_authenticate(user)
+
+        response = client.get(
+            '/api/events/{}/rosters/'.format(roster.game.id))
+
+        self.assertEqual(403, response.status_code)
 
     def test_retrieve(self):
         user = OfficialFactory()
@@ -426,6 +468,27 @@ class TestApplicationViewSet(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.json()))
 
+    def test_list_not_logged_in(self):
+        entry = ApplicationEntryFactory()
+
+        client = APIClient()
+
+        response = client.get(
+            '/api/events/{}/applications/'.format(entry.event.id))
+
+        self.assertEqual(404, response.status_code)
+
+    def test_list_not_scheduler(self):
+        entry = ApplicationEntryFactory()
+
+        client = APIClient()
+        client.force_authenticate(entry.official)
+
+        response = client.get(
+            '/api/events/{}/applications/'.format(entry.event.id))
+
+        self.assertEqual(404, response.status_code)
+
     def test_create(self):
         user = OfficialFactory()
         game = GameFactory()
@@ -442,6 +505,31 @@ class TestApplicationViewSet(TestCase):
         game = models.Game.objects.get(pk=game.id)
         self.assertEqual(1, game.applicants.count())
 
+    def test_create_not_logged_in(self):
+        game = GameFactory()
+
+        client = APIClient()
+        data = ['1']
+
+        response = client.post(
+            '/api/events/{}/applications/'.format(game.id),
+            data, format='json')
+
+        self.assertEqual(404, response.status_code)
+
+    def test_create_cant_apply(self):
+        entry = ApplicationEntryFactory()
+
+        client = APIClient()
+        client.force_authenticate(entry.official)
+        data = ['1']
+
+        response = client.post(
+            '/api/events/{}/applications/'.format(entry.event.id),
+            data, format='json')
+
+        self.assertEqual(409, response.status_code)
+
     def test_delete(self):
         entry = ApplicationEntryFactory()
         user = entry.official
@@ -456,6 +544,30 @@ class TestApplicationViewSet(TestCase):
         self.assertEqual(204, response.status_code)
         game = models.Game.objects.get(pk=entry.event.id)
         self.assertEqual(0, game.applicants.count())
+
+    def test_delete_not_logged_in(self):
+        entry = ApplicationEntryFactory()
+
+        client = APIClient()
+
+        response = client.delete(
+            '/api/events/{}/applications/{}/'.format(
+                entry.event.id, entry.id))
+
+        self.assertEqual(404, response.status_code)
+
+    def test_delete_not_applied(self):
+        entry = ApplicationEntryFactory()
+        user = OfficialFactory()
+
+        client = APIClient()
+        client.force_authenticate(user)
+
+        response = client.delete(
+            '/api/events/{}/applications/{}/'.format(
+                entry.event.id, entry.id))
+
+        self.assertEqual(400, response.status_code)
 
 
 class TestLoserApplicationViewSet(TestCase):
@@ -474,6 +586,28 @@ class TestLoserApplicationViewSet(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.json()))
 
+    def test_list_not_logged_in(self):
+        entry = LoserApplicationEntryFactory()
+
+        client = APIClient()
+
+        response = client.get(
+            '/api/events/{}/lapplications/'.format(entry.event.id))
+
+        self.assertEqual(404, response.status_code)
+
+    def test_list_not_admin(self):
+        entry = LoserApplicationEntryFactory()
+        user = OfficialFactory()
+
+        client = APIClient()
+        client.force_authenticate(user)
+
+        response = client.get(
+            '/api/events/{}/lapplications/'.format(entry.event.id))
+
+        self.assertEqual(404, response.status_code)
+
     def test_create(self):
         game = GameFactory()
 
@@ -491,3 +625,69 @@ class TestLoserApplicationViewSet(TestCase):
         self.assertEqual(201, response.status_code)
         game = models.Game.objects.get(pk=game.id)
         self.assertEqual(1, game.losers.count())
+
+    def test_create_bad_data(self):
+        game = GameFactory()
+
+        client = APIClient()
+        data = {
+            'name': 'Mike Mayhem',
+            'preferences': ['1']
+        }
+
+        response = client.post(
+            '/api/events/{}/lapplications/'.format(game.id),
+            data, format='json')
+
+        self.assertEqual(400, response.status_code)
+
+    def test_create_no_preferences(self):
+        game = GameFactory()
+
+        client = APIClient()
+        data = {
+            'name': 'Mike Mayhem',
+            'email': 'abc@example.com',
+            'preferences': []
+        }
+
+        response = client.post(
+            '/api/events/{}/lapplications/'.format(game.id),
+            data, format='json')
+
+        self.assertEqual(400, response.status_code)
+
+    def test_create_logged_in(self):
+        game = GameFactory()
+
+        client = APIClient()
+        client.force_authenticate(OfficialFactory())
+        data = {
+            'name': 'Mike Mayhem',
+            'email': 'abc@example.com',
+            'preferences': ['1']
+        }
+
+        response = client.post(
+            '/api/events/{}/lapplications/'.format(game.id),
+            data, format='json')
+
+        self.assertEqual(404, response.status_code)
+
+    def test_create_date_in_the_past(self):
+        game = GameFactory(
+            start=timezone.now() - timedelta(days=1),
+            end=timezone.now() - timedelta(days=10))
+
+        client = APIClient()
+        data = {
+            'name': 'Mike Mayhem',
+            'email': 'abc@example.com',
+            'preferences': ['1']
+        }
+
+        response = client.post(
+            '/api/events/{}/lapplications/'.format(game.id),
+            data, format='json')
+
+        self.assertEqual(400, response.status_code)

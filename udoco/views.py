@@ -94,11 +94,9 @@ class IsScheduler(permissions.BasePermission):
                 and request.user.league is not None)
 
 
-class CanSchedule(permissions.BasePermission):
+class CanScheduleEvent(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True
         return (request.user.is_authenticated()
                 and request.user in obj.league.schedulers.all())
 
@@ -106,7 +104,7 @@ class CanSchedule(permissions.BasePermission):
 class EventViewSet(viewsets.ModelViewSet):
     queryset = models.Game.objects.filter(start__gt=datetime.now())
     serializer_class = serializers.GameSerializer
-    permission_classes = [IsScheduler, CanSchedule]
+    permission_classes = [CanScheduleEvent, IsScheduler]
 
     def create(self, request):
         game = models.Game()
@@ -176,13 +174,12 @@ class LeagueScheduleViewSet(EventViewSet):
 
 
 class ScheduleViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Game.objects.filter(start__gt=datetime.now())
+    queryset = models.Game.objects.none()
     serializer_class = serializers.GameSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-    def list(self, request):
-        if not request.user.is_authenticated():
-            raise Http404
-        user = request.user
+    def get_queryset(self):
+        user = self.request.user
         rosters = models.Roster.objects.filter(
             Q(hr=user) | Q(ipr=user) | Q(jr1=user) | Q(jr2=user) |
             Q(opr1=user) | Q(opr2=user) | Q(opr3=user) | Q(alt=user) |
@@ -192,9 +189,13 @@ class ScheduleViewSet(viewsets.ReadOnlyModelViewSet):
             Q(so=user) | Q(hnso=user) | Q(nsoalt=user) | Q(ptimer=user)
         )
         # TODO: Should we add in applications?
-        queryset = self.queryset.filter(id__in=[r.game.id for r in rosters])
+        return models.Game.objects.filter(
+            start__gt=datetime.now(),
+            id__in=[r.game.id for r in rosters])
+
+    def list(self, request):
         serializer = self.serializer_class(
-            data=queryset, context={'request': request}, many=True)
+            data=self.get_queryset(), context={'request': request}, many=True)
         serializer.is_valid()
         return Response(serializer.data)
 
@@ -219,62 +220,59 @@ def _update_roster_from_data(roster, data):
             setattr(roster, key, None)
 
 
+class CanRoster(permissions.BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+        from django.db.models.query import QuerySet
+        if type(obj) is QuerySet:
+            return request.user in obj.first().game.league.schedulers.all()
+        else:
+            return request.user in obj.game.league.schedulers.all()
+
+
 class RosterViewSet(viewsets.ModelViewSet):
     queryset = models.Roster.objects.none()
     serializer_class = serializers.RosterSerializer
+    permission_classes = [permissions.IsAuthenticated, CanRoster]
 
-    def list(self, request, event_pk=None):
-        if not request.user.is_authenticated():
-            raise Http404
-        event = models.Game.objects.get(pk=event_pk)
-        if request.user not in event.league.schedulers.all():
-            raise Http404
-        serializer = self.serializer_class(
-            event.rosters.all(), many=True)
+    def get_queryset(self, event_pk, pk=None):
+        if pk is not None:
+            return models.Roster.objects.get(pk=pk, game__id=event_pk)
+        else:
+            return models.Roster.objects.filter(game__id=event_pk)
+
+    def list(self, request, event_pk):
+        qs = self.get_queryset(event_pk)
+        self.check_object_permissions(self.request, qs)
+        serializer = self.serializer_class(qs, many=True)
         return Response(serializer.data)
 
-    def retrieve(self, request, event_pk=None, pk=None):
-        if not request.user.is_authenticated():
-            raise Http404
-        event = models.Game.objects.get(pk=event_pk)
-        if request.user not in event.league.schedulers.all():
-            raise Http404
-        roster = event.rosters.get(pk=pk)
-        serializer = self.serializer_class(roster)
+    def retrieve(self, request, event_pk, pk):
+        qs = self.get_queryset(event_pk, pk)
+        self.check_object_permissions(self.request, qs)
+        serializer = self.serializer_class(qs)
         return Response(serializer.data)
 
     def create(self, request, event_pk):
-        if not request.user.is_authenticated():
-            raise Http404
-        event = models.Game.objects.get(pk=event_pk)
-        if request.user not in event.league.schedulers.all():
-            raise Http404
-
-        roster = models.Roster(game=event)
+        roster = models.Roster(game_id=event_pk)
+        self.check_object_permissions(self.request, roster)
         _update_roster_from_data(roster, request.data)
         roster.save()
         serializer = self.serializer_class(roster)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, event_pk, pk):
-        if not request.user.is_authenticated():
-            raise Http404
-        roster = models.Roster.objects.get(pk=pk, game_id=event_pk)
-        if request.user not in roster.game.league.schedulers.all():
-            raise Http404
-
+        roster = self.get_queryset(event_pk, pk)
+        self.check_object_permissions(self.request, roster)
         _update_roster_from_data(roster, request.data)
         roster.save()
         serializer = self.serializer_class(roster)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def destroy(self, request, event_pk, pk):
-        if not request.user.is_authenticated():
-            raise Http404
-        event = models.Game.objects.get(pk=event_pk)
-        if request.user not in event.league.schedulers.all():
-            raise Http404
-        event.rosters.get(pk=pk).delete()
+        roster = self.get_queryset(event_pk, pk)
+        self.check_object_permissions(self.request, roster)
+        roster.delete()
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 
