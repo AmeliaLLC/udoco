@@ -206,10 +206,10 @@ SOCIAL_AUTH_PIPELINE = (
     'udoco.pipelines.save_profile_picture',
 )
 
-SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/profile/edit'
-SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/events'
-LOGIN_REDIRECT_URL = '/events'
-LOGIN_URL = '/events'
+SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/profile'
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/'
 
 # see http://developer.yahoo.com/performance/rules.html#expires
 #AWS_HEADERS = {
