@@ -6,7 +6,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.core import mail
 from django.db.models import Q
-from django.http import Http404, HttpResponseBadRequest
+from django.http import HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
@@ -233,20 +233,37 @@ def _update_roster_from_data(roster, data):
             setattr(roster, key, None)
 
 
-class CanRoster(permissions.BasePermission):
+class CanScheduleEvent(permissions.BasePermission):
+    """Whether the user can schedule an event.
 
-    def has_object_permission(self, request, view, obj):
-        from django.db.models.query import QuerySet
-        if type(obj) is QuerySet:
-            return request.user in obj.first().game.league.schedulers.all()
-        else:
-            return request.user in obj.game.league.schedulers.all()
+    This is gross, because it parses the PATH_INFO of the
+    request to get the event id.  That's probably bad, but
+    I don't see a better way to do it.
+    """
+    NONADMIN_METHODS = []
+
+    def _get_event(self, request):
+        parts = request.META['PATH_INFO'].split('/')
+        event_id = int(parts[3])
+        return models.Game.objects.get(pk=event_id)
+
+    def has_permission(self, request, *args, **kwargs):
+        if request.method in self.NONADMIN_METHODS:
+            return True
+        event = self._get_event(request)
+        return request.user in event.league.schedulers.all()
+    has_object_permission = has_permission
+
+
+class CanViewScheduleEvent(CanScheduleEvent):
+    """Some endpoints are for scheduling AND applying."""
+    NONADMIN_METHODS = ['POST', 'DELETE']
 
 
 class RosterViewSet(viewsets.ModelViewSet):
     queryset = models.Roster.objects.none()
     serializer_class = serializers.RosterSerializer
-    permission_classes = [permissions.IsAuthenticated, CanRoster]
+    permission_classes = [permissions.IsAuthenticated, CanScheduleEvent]
 
     def get_queryset(self, event_pk, pk=None):
         if pk is not None:
@@ -292,25 +309,22 @@ class RosterViewSet(viewsets.ModelViewSet):
 class ApplicationViewSet(viewsets.ModelViewSet):
     queryset = models.Official.objects.none()
     serializer_class = serializers.ApplicationSerializer
+    permission_classes = [permissions.IsAuthenticated, CanViewScheduleEvent]
 
-    def list(self, request, event_pk=None):
-        if not request.user.is_authenticated():
-            raise Http404
+    def get_queryset(self, event_pk, pk=None):
         event = models.Game.objects.get(pk=event_pk)
-        if request.user not in event.league.schedulers.all():
-            raise Http404
-        officials = models.Official.objects.filter(
+        return models.Official.objects.filter(
             applicationentries__in=event.applicationentries.all()
         ).distinct()
-        context = {'event': event}
+
+    def list(self, request, event_pk):
+        officials = self.get_queryset(event_pk)
+        event = models.Game.objects.get(pk=event_pk)
         serializer = serializers.ApplicationSerializer(
-            officials, context=context, many=True)
+            officials, context={'event': event}, many=True)
         return Response(serializer.data)
 
-    def create(self, request, event_pk=None):
-        if not request.user.is_authenticated():
-            raise Http404
-
+    def create(self, request, event_pk):
         event = models.Game.objects.get(pk=event_pk)
         if not event.official_can_apply(request.user):
             return Response(None, status=status.HTTP_409_CONFLICT)
@@ -327,10 +341,7 @@ class ApplicationViewSet(viewsets.ModelViewSet):
             request.user, context=context)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def destroy(self, request, pk=None, event_pk=None):
-        if not request.user.is_authenticated():
-            raise Http404
-
+    def destroy(self, request, event_pk, pk):
         event = models.Game.objects.get(pk=event_pk)
         if request.user not in event.applicants:
             return Response(None, status=status.HTTP_400_BAD_REQUEST)
@@ -340,16 +351,23 @@ class ApplicationViewSet(viewsets.ModelViewSet):
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 
+class LoserApplicationViewPermission(CanScheduleEvent):
+    def has_permission(self, request, *args, **kwargs):
+        event = self._get_event(request)
+        return (
+            (request.method == 'GET' and
+                request.user in event.league.schedulers.all()) or
+            (request.method == 'POST' and
+                request.user.is_anonymous()))
+
+
 class LoserApplicationViewSet(viewsets.ViewSet):
     queryset = models.Loser.objects.none()
     serializer_class = serializers.LoserApplicationSerializer
+    permission_classes = [LoserApplicationViewPermission]
 
     def list(self, request, event_pk=None):
-        if not request.user.is_authenticated():
-            raise Http404
         event = models.Game.objects.get(pk=event_pk)
-        if request.user not in event.league.schedulers.all():
-            raise Http404
         losers = models.Loser.objects.filter(
             applicationentries__in=event.loserapplicationentries.all()
         ).distinct()
@@ -359,8 +377,6 @@ class LoserApplicationViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
     def create(self, request, event_pk=None):
-        if request.user.is_authenticated():
-            raise Http404
         event = models.Game.objects.get(pk=event_pk)
         if event.start < datetime.utcnow().replace(tzinfo=pytz.UTC):
             return Response(None, status=status.HTTP_400_BAD_REQUEST)

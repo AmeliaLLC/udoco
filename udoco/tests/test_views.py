@@ -407,7 +407,7 @@ class TestApplicationViewSet(TestCase):
         response = client.get(
             '/api/events/{}/applications/'.format(entry.event.id))
 
-        self.assertEqual(404, response.status_code)
+        self.assertEqual(403, response.status_code)
 
     def test_list_not_scheduler(self):
         entry = _factory.ApplicationEntryFactory()
@@ -418,7 +418,7 @@ class TestApplicationViewSet(TestCase):
         response = client.get(
             '/api/events/{}/applications/'.format(entry.event.id))
 
-        self.assertEqual(404, response.status_code)
+        self.assertEqual(403, response.status_code)
 
     def test_create(self):
         user = _factory.OfficialFactory()
@@ -446,7 +446,7 @@ class TestApplicationViewSet(TestCase):
             '/api/events/{}/applications/'.format(game.id),
             data, format='json')
 
-        self.assertEqual(404, response.status_code)
+        self.assertEqual(403, response.status_code)
 
     def test_create_cant_apply(self):
         entry = _factory.ApplicationEntryFactory()
@@ -485,7 +485,7 @@ class TestApplicationViewSet(TestCase):
             '/api/events/{}/applications/{}/'.format(
                 entry.event.id, entry.id))
 
-        self.assertEqual(404, response.status_code)
+        self.assertEqual(403, response.status_code)
 
     def test_delete_not_applied(self):
         entry = _factory.ApplicationEntryFactory()
@@ -525,7 +525,7 @@ class TestLoserApplicationViewSet(TestCase):
         response = client.get(
             '/api/events/{}/lapplications/'.format(entry.event.id))
 
-        self.assertEqual(404, response.status_code)
+        self.assertEqual(403, response.status_code)
 
     def test_list_not_admin(self):
         entry = _factory.LoserApplicationEntryFactory()
@@ -537,7 +537,7 @@ class TestLoserApplicationViewSet(TestCase):
         response = client.get(
             '/api/events/{}/lapplications/'.format(entry.event.id))
 
-        self.assertEqual(404, response.status_code)
+        self.assertEqual(403, response.status_code)
 
     def test_create(self):
         game = _factory.GameFactory()
@@ -603,7 +603,7 @@ class TestLoserApplicationViewSet(TestCase):
             '/api/events/{}/lapplications/'.format(game.id),
             data, format='json')
 
-        self.assertEqual(404, response.status_code)
+        self.assertEqual(403, response.status_code)
 
     def test_create_date_in_the_past(self):
         game = _factory.GameFactory(
