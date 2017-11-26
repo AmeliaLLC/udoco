@@ -16,8 +16,7 @@ class Official(AbstractUser):
     """A representation of an official (or user) of the site."""
     verbose_name = _('Official')
     verbose_name_plural = _('Officials')
-    # NOTE: rockstar (9 Jan 2016) - Django's default user allows email
-    # to be blank and non-unique. That is insane.
+    email = models.EmailField(_('email address'), blank=False)
     display_name = models.CharField(_('name'), max_length=256)
     phone_number = models.CharField(
         validators=[PHONE_NUMBER_VALIDATOR], blank=True,
