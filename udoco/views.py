@@ -130,9 +130,22 @@ class EventViewSet(viewsets.ModelViewSet):
 
         if 'complete' in request.data.keys():
             game.complete = request.data['complete']
-            # TODO: send out emails.
+            game.save()
+            game = self.queryset.get(pk=pk)
 
-        game.save()
+            with mail.get_connection() as connection:
+                mail.EmailMessage(
+                    render_to_string(
+                        'email/scheduling_title.txt',
+                        {'event': game}),
+                    render_to_string(
+                        'email/scheduling_body.txt',
+                        {'event': game}),
+                    'United Derby Officials Colorado <no-reply@udoco.org>',
+                    ['United Derby Officials Colorado <no-reply@udoco.org>'],
+                    bcc=game.emails,
+                    connection=connection).send()
+
         serializer = self.serializer_class(
             game, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
