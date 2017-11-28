@@ -158,7 +158,7 @@ class TestEventViewSet(TestCase):
         self.assertEqual(403, response.status_code)
 
     @unittest.mock.patch('udoco.views.mail')
-    def test_update(self, mail):
+    def test_partial_update(self, mail):
         user = _factory.OfficialFactory(email='abc@example.com')
         roster = _factory.RosterFactory(hr=user)
         game = roster.game
@@ -166,7 +166,7 @@ class TestEventViewSet(TestCase):
         client = APIClient()
         client.force_authenticate(user)
 
-        response = client.put(
+        response = client.patch(
             '/api/events/{}'.format(game.id),
             {'complete': True}, format='json')
 

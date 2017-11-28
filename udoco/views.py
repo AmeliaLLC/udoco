@@ -124,7 +124,7 @@ class EventViewSet(viewsets.ModelViewSet):
             game, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def update(self, request, pk):
+    def partial_update(self, request, pk):
         game = self.queryset.get(pk=pk)
         self.check_object_permissions(self.request, game)
 
