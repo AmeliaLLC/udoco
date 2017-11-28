@@ -124,15 +124,25 @@ class EventViewSet(viewsets.ModelViewSet):
             game, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    def retrieve(self, request, pk):
+        qs = self.queryset.get(pk=pk)
+        serializer = self.serializer_class(qs, context={'request': request})
+        return Response(serializer.data)
+
     def partial_update(self, request, pk):
         game = self.queryset.get(pk=pk)
         self.check_object_permissions(self.request, game)
 
-        if 'complete' in request.data.keys():
-            game.complete = request.data['complete']
-            game.save()
-            game = self.queryset.get(pk=pk)
+        completing = False
 
+        if request.data.get('complete', False) and game.complete is False:
+            game.complete = request.data['complete']
+            completing = True
+
+        game.save()
+        game = self.queryset.get(pk=pk)
+
+        if completing:
             with mail.get_connection() as connection:
                 mail.EmailMessage(
                     render_to_string(

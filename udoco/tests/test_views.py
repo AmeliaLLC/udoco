@@ -126,6 +126,14 @@ class TestEventViewSet(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(10, len(response.data['results']))
 
+    def test_retrieve(self):
+        game = _factory.GameFactory()
+        client = APIClient()
+
+        response = client.get('/api/events/{}'.format(game.id))
+
+        self.assertEqual(200, response.status_code)
+
     def test_create(self):
         league = _factory.LeagueFactory()
         user = _factory.OfficialFactory()
