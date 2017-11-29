@@ -166,7 +166,7 @@ class TestEventViewSet(TestCase):
         self.assertEqual(403, response.status_code)
 
     @unittest.mock.patch('udoco.views.mail')
-    def test_partial_update(self, mail):
+    def test_partial_update_complete(self, mail):
         user = _factory.OfficialFactory(email='abc@example.com')
         roster = _factory.RosterFactory(hr=user)
         game = roster.game
@@ -183,6 +183,34 @@ class TestEventViewSet(TestCase):
         self.assertTrue(game.complete)
         call = mail.EmailMessage.call_args[1]
         self.assertIn('abc@example.com', call['bcc'])
+
+    @unittest.mock.patch('udoco.views.mail')
+    def test_partial_update(self, mail):
+        user = _factory.OfficialFactory(email='abc@example.com')
+        roster = _factory.RosterFactory(hr=user)
+        game = roster.game
+        user.scheduling.add(game.league)
+        client = APIClient()
+        client.force_authenticate(user)
+        data = {
+            'title': 'A new title',
+            'location': 'A new location',
+            'dateTime': 'Tue Oct 24 2020 00:00:00 GMT-0000 (UTC)',
+        }
+
+        response = client.patch(
+            '/api/events/{}'.format(game.id),
+            data, format='json')
+
+        self.assertEqual(200, response.status_code)
+        game = models.Game.objects.get(id=game.id)
+        self.assertEqual('A new title', game.title)
+        self.assertEqual('A new location', game.location)
+        self.assertEqual(2020, game.start.year)
+        self.assertEqual(10, game.start.month)
+        self.assertEqual(24, game.start.day)
+        self.assertFalse(game.complete)
+        self.assertEqual(0, mail.EmailMessage.call_count)
 
     @unittest.mock.patch('udoco.views.mail')
     def test_delete(self, mail):

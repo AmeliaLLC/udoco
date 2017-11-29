@@ -139,6 +139,11 @@ class EventViewSet(viewsets.ModelViewSet):
             game.complete = request.data['complete']
             completing = True
 
+        game.title = request.data.get('title', game.title)
+        game.location = request.data.get('location', game.location)
+        if 'dateTime' in request.data:
+            game.start = game.end = date_parser.parse(request.data['dateTime'])
+
         game.save()
         game = self.queryset.get(pk=pk)
 
