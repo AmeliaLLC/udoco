@@ -6,7 +6,7 @@ import django
 os.environ['DJANGO_SETTINGS_MODULE'] = 'udoco.settings'
 django.setup()
 
-from udoco.tests.test_views import GameFactory, LeagueFactory
+from udoco.tests.factory import GameFactory, LeagueFactory
 
 
 league = LeagueFactory(name='Demo league')
