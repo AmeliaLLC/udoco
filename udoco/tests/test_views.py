@@ -135,18 +135,18 @@ class TestMe(unittest.TestCase):
             self.assertEqual(data[k], response.data[k])
 
 
-class TestEventViewSet(TestCase):
-    """Tests for udoco.views.EventViewSet."""
+class TestGameViewSet(TestCase):
+    """Tests for udoco.views.GameViewSet."""
 
     def setUp(self):
-        super(TestEventViewSet, self).setUp()
+        super(TestGameViewSet, self).setUp()
         for i in range(0, 10):
             _factory.GameFactory()
 
     def test_list(self):
         client = APIClient()
 
-        response = client.get('/api/events')
+        response = client.get('/api/games')
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(10, len(response.data['results']))
@@ -155,7 +155,7 @@ class TestEventViewSet(TestCase):
         game = _factory.GameFactory()
         client = APIClient()
 
-        response = client.get('/api/events/{}'.format(game.id))
+        response = client.get('/api/games/{}'.format(game.id))
 
         self.assertEqual(200, response.status_code)
 
@@ -171,7 +171,7 @@ class TestEventViewSet(TestCase):
             'start': '2020-10-24T00:00:00-06:10',
         }
 
-        response = client.post('/api/events', data, format='json')
+        response = client.post('/api/games', data, format='json')
 
         self.assertEqual(201, response.status_code)
         json = response.json()
@@ -186,7 +186,7 @@ class TestEventViewSet(TestCase):
         self.assertEqual(10, game.start.minute)
 
     def test_create_no_schedule(self):
-        """Users who can't schedule can't create events."""
+        """Users who can't schedule can't create games."""
         user = _factory.OfficialFactory()
         client = APIClient()
         client.force_authenticate(user)
@@ -196,7 +196,7 @@ class TestEventViewSet(TestCase):
             'start': '2020-10-24T00:00:00-06:00',
         }
 
-        response = client.post('/api/events', data, format='json')
+        response = client.post('/api/games', data, format='json')
 
         self.assertEqual(403, response.status_code)
 
@@ -210,7 +210,7 @@ class TestEventViewSet(TestCase):
         client.force_authenticate(user)
 
         response = client.patch(
-            '/api/events/{}'.format(game.id),
+            '/api/games/{}'.format(game.id),
             {'complete': True}, format='json')
 
         self.assertEqual(200, response.status_code)
@@ -234,7 +234,7 @@ class TestEventViewSet(TestCase):
         }
 
         response = client.patch(
-            '/api/events/{}'.format(game.id),
+            '/api/games/{}'.format(game.id),
             data, format='json')
 
         self.assertEqual(200, response.status_code)
@@ -256,16 +256,16 @@ class TestEventViewSet(TestCase):
         client.force_authenticate(user)
 
         game = _factory.GameFactory(league=league)
-        _factory.ApplicationEntryFactory(official=user, event=game)
+        _factory.ApplicationEntryFactory(official=user, game=game)
 
-        response = client.delete('/api/events/{}'.format(game.id))
+        response = client.delete('/api/games/{}'.format(game.id))
 
         self.assertEqual(204, response.status_code)
         call = mail.EmailMessage.call_args[1]
         self.assertIn('abc@example.com', call['bcc'])
 
     @unittest.mock.patch('udoco.views.mail')
-    def test_delete_completed_event(self, mail):
+    def test_delete_completed_game(self, mail):
         league = _factory.LeagueFactory()
         user = _factory.OfficialFactory(email='abc@example.com')
         user.scheduling.add(league)
@@ -275,7 +275,7 @@ class TestEventViewSet(TestCase):
         game = _factory.GameFactory(league=league, complete=True)
         _factory.RosterFactory(hr=user, game=game)
 
-        response = client.delete('/api/events/{}'.format(game.id))
+        response = client.delete('/api/games/{}'.format(game.id))
 
         self.assertEqual(204, response.status_code)
         call = mail.EmailMessage.call_args[1]
@@ -283,7 +283,7 @@ class TestEventViewSet(TestCase):
 
     @unittest.mock.patch('udoco.views.mail')
     def test_delete_disallowed(self, mail):
-        """If the user's league doesn't own the event, it can't be deleted."""
+        """If the user's league doesn't own the game, it can't be deleted."""
         league = _factory.LeagueFactory()
         user = _factory.OfficialFactory()
         user.scheduling.add(league)
@@ -292,7 +292,7 @@ class TestEventViewSet(TestCase):
 
         game = _factory.GameFactory()
 
-        response = client.delete('/api/events/{}'.format(game.id))
+        response = client.delete('/api/games/{}'.format(game.id))
 
         self.assertEqual(403, response.status_code)
 
@@ -357,7 +357,7 @@ class TestRosterViewSet(TestCase):
         client.force_authenticate(user)
 
         response = client.get(
-            '/api/events/{}/rosters/'.format(roster.game.id))
+            '/api/games/{}/rosters/'.format(roster.game.id))
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.json()))
@@ -370,7 +370,7 @@ class TestRosterViewSet(TestCase):
         client = APIClient()
 
         response = client.get(
-            '/api/events/{}/rosters/'.format(roster.game.id))
+            '/api/games/{}/rosters/'.format(roster.game.id))
 
         self.assertEqual(403, response.status_code)
 
@@ -383,7 +383,7 @@ class TestRosterViewSet(TestCase):
         client.force_authenticate(user)
 
         response = client.get(
-            '/api/events/{}/rosters/'.format(roster.game.id))
+            '/api/games/{}/rosters/'.format(roster.game.id))
 
         self.assertEqual(403, response.status_code)
 
@@ -396,7 +396,7 @@ class TestRosterViewSet(TestCase):
         client.force_authenticate(user)
 
         response = client.get(
-            '/api/events/{}/rosters/{}/'.format(
+            '/api/games/{}/rosters/{}/'.format(
                 roster.game.id, roster.id))
 
         self.assertEqual(200, response.status_code)
@@ -413,7 +413,7 @@ class TestRosterViewSet(TestCase):
         data = {'hr': user.id, 'ipr': 0 - loser.id}
 
         response = client.post(
-            '/api/events/{}/rosters/'.format(game.id),
+            '/api/games/{}/rosters/'.format(game.id),
             data, format='json')
 
         self.assertEqual(201, response.status_code)
@@ -430,7 +430,7 @@ class TestRosterViewSet(TestCase):
         data = {'hr': user.id, 'ipr': None}
 
         response = client.put(
-            '/api/events/{}/rosters/{}/'.format(
+            '/api/games/{}/rosters/{}/'.format(
                 roster.game.id, roster.id),
             data, format='json')
 
@@ -447,7 +447,7 @@ class TestRosterViewSet(TestCase):
         client.force_authenticate(user)
 
         response = client.delete(
-            '/api/events/{}/rosters/{}/'.format(
+            '/api/games/{}/rosters/{}/'.format(
                 roster.game.id, roster.id))
 
         self.assertEqual(204, response.status_code)
@@ -459,13 +459,13 @@ class TestApplicationViewSet(TestCase):
     def test_list(self):
         entry = _factory.ApplicationEntryFactory()
         admin = entry.official
-        admin.scheduling.add(entry.event.league)
+        admin.scheduling.add(entry.game.league)
 
         client = APIClient()
         client.force_authenticate(admin)
 
         response = client.get(
-            '/api/events/{}/applications/'.format(entry.event.id))
+            '/api/games/{}/applications/'.format(entry.game.id))
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.json()))
@@ -476,7 +476,7 @@ class TestApplicationViewSet(TestCase):
         client = APIClient()
 
         response = client.get(
-            '/api/events/{}/applications/'.format(entry.event.id))
+            '/api/games/{}/applications/'.format(entry.game.id))
 
         self.assertEqual(403, response.status_code)
 
@@ -487,7 +487,7 @@ class TestApplicationViewSet(TestCase):
         client.force_authenticate(entry.official)
 
         response = client.get(
-            '/api/events/{}/applications/'.format(entry.event.id))
+            '/api/games/{}/applications/'.format(entry.game.id))
 
         self.assertEqual(403, response.status_code)
 
@@ -500,7 +500,7 @@ class TestApplicationViewSet(TestCase):
         data = ['1']
 
         response = client.post(
-            '/api/events/{}/applications/'.format(game.id),
+            '/api/games/{}/applications/'.format(game.id),
             data, format='json')
 
         self.assertEqual(201, response.status_code)
@@ -514,7 +514,7 @@ class TestApplicationViewSet(TestCase):
         data = ['1']
 
         response = client.post(
-            '/api/events/{}/applications/'.format(game.id),
+            '/api/games/{}/applications/'.format(game.id),
             data, format='json')
 
         self.assertEqual(403, response.status_code)
@@ -527,7 +527,7 @@ class TestApplicationViewSet(TestCase):
         data = ['1']
 
         response = client.post(
-            '/api/events/{}/applications/'.format(entry.event.id),
+            '/api/games/{}/applications/'.format(entry.game.id),
             data, format='json')
 
         self.assertEqual(409, response.status_code)
@@ -540,10 +540,10 @@ class TestApplicationViewSet(TestCase):
         client.force_authenticate(user)
 
         response = client.delete(
-            '/api/events/{}/applications/0/'.format(entry.event.id))
+            '/api/games/{}/applications/0/'.format(entry.game.id))
 
         self.assertEqual(204, response.status_code)
-        game = models.Game.objects.get(pk=entry.event.id)
+        game = models.Game.objects.get(pk=entry.game.id)
         self.assertEqual(0, game.applicants.count())
 
     def test_delete_not_logged_in(self):
@@ -552,7 +552,7 @@ class TestApplicationViewSet(TestCase):
         client = APIClient()
 
         response = client.delete(
-            '/api/events/{}/applications/0/'.format(entry.event.id))
+            '/api/games/{}/applications/0/'.format(entry.game.id))
 
         self.assertEqual(403, response.status_code)
 
@@ -564,7 +564,7 @@ class TestApplicationViewSet(TestCase):
         client.force_authenticate(user)
 
         response = client.delete(
-            '/api/events/{}/applications/0/'.format(entry.event.id))
+            '/api/games/{}/applications/0/'.format(entry.game.id))
 
         self.assertEqual(400, response.status_code)
 
@@ -574,13 +574,13 @@ class TestLoserApplicationViewSet(TestCase):
     def test_list(self):
         entry = _factory.LoserApplicationEntryFactory()
         admin = _factory.OfficialFactory()
-        admin.scheduling.add(entry.event.league)
+        admin.scheduling.add(entry.game.league)
 
         client = APIClient()
         client.force_authenticate(admin)
 
         response = client.get(
-            '/api/events/{}/lapplications/'.format(entry.event.id))
+            '/api/games/{}/lapplications/'.format(entry.game.id))
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.json()))
@@ -591,7 +591,7 @@ class TestLoserApplicationViewSet(TestCase):
         client = APIClient()
 
         response = client.get(
-            '/api/events/{}/lapplications/'.format(entry.event.id))
+            '/api/games/{}/lapplications/'.format(entry.game.id))
 
         self.assertEqual(403, response.status_code)
 
@@ -603,7 +603,7 @@ class TestLoserApplicationViewSet(TestCase):
         client.force_authenticate(user)
 
         response = client.get(
-            '/api/events/{}/lapplications/'.format(entry.event.id))
+            '/api/games/{}/lapplications/'.format(entry.game.id))
 
         self.assertEqual(403, response.status_code)
 
@@ -618,7 +618,7 @@ class TestLoserApplicationViewSet(TestCase):
         }
 
         response = client.post(
-            '/api/events/{}/lapplications/'.format(game.id),
+            '/api/games/{}/lapplications/'.format(game.id),
             data, format='json')
 
         self.assertEqual(201, response.status_code)
@@ -635,7 +635,7 @@ class TestLoserApplicationViewSet(TestCase):
         }
 
         response = client.post(
-            '/api/events/{}/lapplications/'.format(game.id),
+            '/api/games/{}/lapplications/'.format(game.id),
             data, format='json')
 
         self.assertEqual(400, response.status_code)
@@ -651,7 +651,7 @@ class TestLoserApplicationViewSet(TestCase):
         }
 
         response = client.post(
-            '/api/events/{}/lapplications/'.format(game.id),
+            '/api/games/{}/lapplications/'.format(game.id),
             data, format='json')
 
         self.assertEqual(400, response.status_code)
@@ -668,7 +668,7 @@ class TestLoserApplicationViewSet(TestCase):
         }
 
         response = client.post(
-            '/api/events/{}/lapplications/'.format(game.id),
+            '/api/games/{}/lapplications/'.format(game.id),
             data, format='json')
 
         self.assertEqual(403, response.status_code)
@@ -685,7 +685,7 @@ class TestLoserApplicationViewSet(TestCase):
         }
 
         response = client.post(
-            '/api/events/{}/lapplications/'.format(game.id),
+            '/api/games/{}/lapplications/'.format(game.id),
             data, format='json')
 
         self.assertEqual(400, response.status_code)

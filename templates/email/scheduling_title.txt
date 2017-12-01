@@ -1,1 +1,1 @@
-Officials Staffing - {{ event.title|safe }} -- {{ event.start|date:"j M Y" }}
+Officials Staffing - {{ game.title|safe }} -- {{ game.start|date:"j M Y" }}

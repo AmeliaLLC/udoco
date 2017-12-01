@@ -28,7 +28,7 @@ class LeagueFactory(factory.django.DjangoModelFactory):
 class GameFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Game
-    title = factory.fuzzy.FuzzyText(prefix='Event ')
+    title = factory.fuzzy.FuzzyText(prefix='Game ')
     start = factory.fuzzy.FuzzyDateTime(
         start_dt=timezone.now() + timedelta(days=1),
         end_dt=timezone.now() + timedelta(days=10))
@@ -51,7 +51,7 @@ class ApplicationEntryFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.ApplicationEntry
     official = factory.SubFactory(OfficialFactory)
-    event = factory.SubFactory(GameFactory)
+    game = factory.SubFactory(GameFactory)
     index = factory.fuzzy.FuzzyInteger(1)
     preference = factory.fuzzy.FuzzyChoice(
         tuple([x for x in range(0, 16)]))
@@ -68,7 +68,7 @@ class LoserApplicationEntryFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.LoserApplicationEntry
     official = factory.SubFactory(LoserFactory)
-    event = factory.SubFactory(GameFactory)
+    game = factory.SubFactory(GameFactory)
     index = factory.fuzzy.FuzzyInteger(1)
     preference = factory.fuzzy.FuzzyChoice(
         tuple([x for x in range(0, 16)]))

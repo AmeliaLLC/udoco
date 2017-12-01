@@ -2,5 +2,5 @@ Thank you for your willingness to officiate. Unfortunately, the event has been
 cancelled.
 
 Thank you,
-{% for scheduler in event.league.schedulers.all %}{{ scheduler }}
+{% for scheduler in game.league.schedulers.all %}{{ scheduler }}
 {% endfor %}

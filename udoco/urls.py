@@ -11,12 +11,12 @@ router = routers.SimpleRouter(trailing_slash=False)
 router.register('schedule', views.ScheduleViewSet)
 router.register('league_schedule', views.LeagueScheduleViewSet)
 
-router.register('events', views.EventViewSet)
+router.register('games', views.GameViewSet)
 
-events_router = routers.NestedSimpleRouter(router, r'events', lookup='event')
-events_router.register(r'rosters', views.RosterViewSet)
-events_router.register(r'applications', views.ApplicationViewSet)
-events_router.register(r'lapplications', views.LoserApplicationViewSet)
+games_router = routers.NestedSimpleRouter(router, r'games', lookup='game')
+games_router.register(r'rosters', views.RosterViewSet)
+games_router.register(r'applications', views.ApplicationViewSet)
+games_router.register(r'lapplications', views.LoserApplicationViewSet)
 
 
 admin.autodiscover()
@@ -25,7 +25,7 @@ urlpatterns = [
     url(r'^robots.txt', TemplateView.as_view(template_name='robots.txt')),
     url('^auth/', include('social_django.urls', namespace='social')),
 
-    url(r'^api/', include(events_router.urls)),
+    url(r'^api/', include(games_router.urls)),
     url(r'^api/', include(router.urls)),
     url(r'^api/me', views.me),
 

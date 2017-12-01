@@ -2,7 +2,7 @@ Officials,
 
   Thank you for your willingness to officiate at this event. Below are the rosters.
 
-{% for roster in event.rosters.all %}{% if event.rosters.count > 1 %}
+{% for roster in game.rosters.all %}{% if game.rosters.count > 1 %}
 Game {{ forloop.counter }}
 ========
 {% endif %}
@@ -41,8 +41,8 @@ Non-skating Officials
 {% endif %}
 {% endfor %}
 
-{{ event.league.email_template|safe }}
+{{ game.league.email_template|safe }}
 
 Thank you,
-{% for scheduler in event.league.schedulers.all %}{{ scheduler }}
+{% for scheduler in game.league.schedulers.all %}{{ scheduler }}
 {% endfor %}

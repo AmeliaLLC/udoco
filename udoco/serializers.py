@@ -47,9 +47,9 @@ class ApplicationSerializer(serializers.ModelSerializer):
     preferences = serializers.SerializerMethodField('_preferences')
 
     def _preferences(self, instance):
-        event = self.context['event']
+        game = self.context['game']
         entries = models.ApplicationEntry.objects.filter(
-            official=instance, event=event).order_by('index')
+            official=instance, game=game).order_by('index')
         return [entry.name for entry in entries]
 
 
@@ -64,9 +64,9 @@ class LoserApplicationSerializer(serializers.ModelSerializer):
     preferences = serializers.SerializerMethodField('_preferences')
 
     def _preferences(self, instance):
-        event = self.context['event']
+        game = self.context['game']
         entries = models.LoserApplicationEntry.objects.filter(
-            official=instance, event=event).order_by('index')
+            official=instance, game=game).order_by('index')
         return [entry.name for entry in entries]
 
 
@@ -100,7 +100,7 @@ class GameSerializer(serializers.ModelSerializer):
         if not user.is_authenticated():
             return False
         return (models.ApplicationEntry.objects.filter(
-            event=instance, official=user).count() > 0)
+            game=instance, official=user).count() > 0)
 
     def _can_apply(self, instance):
         return (self.context['request'].user.is_authenticated()

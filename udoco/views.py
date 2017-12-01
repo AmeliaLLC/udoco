@@ -106,17 +106,17 @@ class IsScheduler(permissions.BasePermission):
                 and request.user.league is not None)
 
 
-class CanScheduleEvent(permissions.BasePermission):
+class CanScheduleGame(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return (request.user.is_authenticated()
                 and request.user in obj.league.schedulers.all())
 
 
-class EventViewSet(viewsets.ModelViewSet):
+class GameViewSet(viewsets.ModelViewSet):
     queryset = models.Game.objects.filter(start__gt=datetime.now())
     serializer_class = serializers.GameSerializer
-    permission_classes = [CanScheduleEvent, IsScheduler]
+    permission_classes = [CanScheduleGame, IsScheduler]
 
     def create(self, request):
         game = models.Game()
@@ -164,10 +164,10 @@ class EventViewSet(viewsets.ModelViewSet):
                 mail.EmailMessage(
                     render_to_string(
                         'email/scheduling_title.txt',
-                        {'event': game}),
+                        {'game': game}),
                     render_to_string(
                         'email/scheduling_body.txt',
-                        {'event': game}),
+                        {'game': game}),
                     'United Derby Officials Colorado <no-reply@udoco.org>',
                     ['United Derby Officials Colorado <no-reply@udoco.org>'],
                     bcc=game.emails,
@@ -178,30 +178,30 @@ class EventViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def destroy(self, request, pk):
-        event = self.queryset.get(pk=pk)
-        self.check_object_permissions(self.request, event)
-        if event.complete:
-            recipients = [user.email for user in event.staff]
+        game = self.queryset.get(pk=pk)
+        self.check_object_permissions(self.request, game)
+        if game.complete:
+            recipients = [user.email for user in game.staff]
         else:
             recipients = [
-                official.email for official in event.applicants]
+                official.email for official in game.applicants]
         with mail.get_connection() as connection:
             mail.EmailMessage(
                 render_to_string(
                     'email/cancelled_title.txt',
-                    {'event': event}),
+                    {'game': game}),
                 render_to_string(
                     'email/cancelled_body.txt',
-                    {'event': event}),
+                    {'game': game}),
                 'United Derby Officials Colorado <no-reply@udoco.org>',
                 ['United Derby Officials Colorado <no-reply@udoco.org>'],
                 bcc=recipients, connection=connection).send()
 
-        event.delete()
+        game.delete()
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 
-class LeagueScheduleViewSet(EventViewSet):
+class LeagueScheduleViewSet(GameViewSet):
     """League-specific listing."""
     permission_classes = [IsScheduler]
 
@@ -260,29 +260,29 @@ def _update_roster_from_data(roster, data):
             setattr(roster, key, None)
 
 
-class CanScheduleEvent(permissions.BasePermission):
-    """Whether the user can schedule an event.
+class CanScheduleGame(permissions.BasePermission):
+    """Whether the user can schedule an game.
 
     This is gross, because it parses the PATH_INFO of the
-    request to get the event id.  That's probably bad, but
+    request to get the game id.  That's probably bad, but
     I don't see a better way to do it.
     """
     NONADMIN_METHODS = []
 
-    def _get_event(self, request):
+    def _get_game(self, request):
         parts = request.META['PATH_INFO'].split('/')
-        event_id = int(parts[3])
-        return models.Game.objects.get(pk=event_id)
+        game_id = int(parts[3])
+        return models.Game.objects.get(pk=game_id)
 
     def has_permission(self, request, *args, **kwargs):
         if request.method in self.NONADMIN_METHODS:
             return True
-        event = self._get_event(request)
-        return request.user in event.league.schedulers.all()
+        game = self._get_game(request)
+        return request.user in game.league.schedulers.all()
     has_object_permission = has_permission
 
 
-class CanViewScheduleEvent(CanScheduleEvent):
+class CanViewScheduleGame(CanScheduleGame):
     """Some endpoints are for scheduling AND applying."""
     NONADMIN_METHODS = ['POST', 'DELETE']
 
@@ -290,44 +290,44 @@ class CanViewScheduleEvent(CanScheduleEvent):
 class RosterViewSet(viewsets.ModelViewSet):
     queryset = models.Roster.objects.none()
     serializer_class = serializers.RosterSerializer
-    permission_classes = [permissions.IsAuthenticated, CanScheduleEvent]
+    permission_classes = [permissions.IsAuthenticated, CanScheduleGame]
 
-    def get_queryset(self, event_pk, pk=None):
+    def get_queryset(self, game_pk, pk=None):
         if pk is not None:
-            return models.Roster.objects.get(pk=pk, game__id=event_pk)
+            return models.Roster.objects.get(pk=pk, game__id=game_pk)
         else:
-            return models.Roster.objects.filter(game__id=event_pk)
+            return models.Roster.objects.filter(game__id=game_pk)
 
-    def list(self, request, event_pk):
-        qs = self.get_queryset(event_pk)
+    def list(self, request, game_pk):
+        qs = self.get_queryset(game_pk)
         self.check_object_permissions(self.request, qs)
         serializer = self.serializer_class(qs, many=True)
         return Response(serializer.data)
 
-    def retrieve(self, request, event_pk, pk):
-        qs = self.get_queryset(event_pk, pk)
+    def retrieve(self, request, game_pk, pk):
+        qs = self.get_queryset(game_pk, pk)
         self.check_object_permissions(self.request, qs)
         serializer = self.serializer_class(qs)
         return Response(serializer.data)
 
-    def create(self, request, event_pk):
-        roster = models.Roster(game_id=event_pk)
+    def create(self, request, game_pk):
+        roster = models.Roster(game_id=game_pk)
         self.check_object_permissions(self.request, roster)
         _update_roster_from_data(roster, request.data)
         roster.save()
         serializer = self.serializer_class(roster)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def update(self, request, event_pk, pk):
-        roster = self.get_queryset(event_pk, pk)
+    def update(self, request, game_pk, pk):
+        roster = self.get_queryset(game_pk, pk)
         self.check_object_permissions(self.request, roster)
         _update_roster_from_data(roster, request.data)
         roster.save()
         serializer = self.serializer_class(roster)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def destroy(self, request, event_pk, pk):
-        roster = self.get_queryset(event_pk, pk)
+    def destroy(self, request, game_pk, pk):
+        roster = self.get_queryset(game_pk, pk)
         self.check_object_permissions(self.request, roster)
         roster.delete()
         return Response(None, status=status.HTTP_204_NO_CONTENT)
@@ -336,56 +336,56 @@ class RosterViewSet(viewsets.ModelViewSet):
 class ApplicationViewSet(viewsets.ModelViewSet):
     queryset = models.Official.objects.none()
     serializer_class = serializers.ApplicationSerializer
-    permission_classes = [permissions.IsAuthenticated, CanViewScheduleEvent]
+    permission_classes = [permissions.IsAuthenticated, CanViewScheduleGame]
 
-    def get_queryset(self, event_pk, pk=None):
-        event = models.Game.objects.get(pk=event_pk)
+    def get_queryset(self, game_pk, pk=None):
+        game = models.Game.objects.get(pk=game_pk)
         return models.Official.objects.filter(
-            applicationentries__in=event.applicationentries.all()
+            applicationentries__in=game.applicationentries.all()
         ).distinct()
 
-    def list(self, request, event_pk):
-        officials = self.get_queryset(event_pk)
-        event = models.Game.objects.get(pk=event_pk)
+    def list(self, request, game_pk):
+        officials = self.get_queryset(game_pk)
+        game = models.Game.objects.get(pk=game_pk)
         serializer = serializers.ApplicationSerializer(
-            officials, context={'event': event}, many=True)
+            officials, context={'game': game}, many=True)
         return Response(serializer.data)
 
-    def create(self, request, event_pk):
-        event = models.Game.objects.get(pk=event_pk)
-        if not event.official_can_apply(request.user):
+    def create(self, request, game_pk):
+        game = models.Game.objects.get(pk=game_pk)
+        if not game.official_can_apply(request.user):
             return Response(None, status=status.HTTP_409_CONFLICT)
 
         preferences = [int(p) for p in request.data]
         for p in preferences:
             models.ApplicationEntry.objects.create(
-                official=request.user, event=event,
+                official=request.user, game=game,
                 index=preferences.index(p),
                 preference=p)
 
-        context = {'event': event}
+        context = {'game': game}
         serializer = serializers.ApplicationSerializer(
             request.user, context=context)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     # XXX: rockstar (30 Nov 2017) - We don't care about the application
-    # event. We just pass 0 as the pk.
-    def destroy(self, request, event_pk, pk=None):
-        event = models.Game.objects.get(pk=event_pk)
-        if request.user not in event.applicants:
+    # id. We just pass 0 as the pk.
+    def destroy(self, request, game_pk, pk=None):
+        game = models.Game.objects.get(pk=game_pk)
+        if request.user not in game.applicants:
             return Response(None, status=status.HTTP_400_BAD_REQUEST)
 
         models.ApplicationEntry.objects.filter(
-            official=request.user, event=event).delete()
+            official=request.user, game=game).delete()
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 
-class LoserApplicationViewPermission(CanScheduleEvent):
+class LoserApplicationViewPermission(CanScheduleGame):
     def has_permission(self, request, *args, **kwargs):
-        event = self._get_event(request)
+        game = self._get_game(request)
         return (
             (request.method == 'GET' and
-                request.user in event.league.schedulers.all()) or
+                request.user in game.league.schedulers.all()) or
             (request.method == 'POST' and
                 request.user.is_anonymous()))
 
@@ -395,19 +395,19 @@ class LoserApplicationViewSet(viewsets.ViewSet):
     serializer_class = serializers.LoserApplicationSerializer
     permission_classes = [LoserApplicationViewPermission]
 
-    def list(self, request, event_pk=None):
-        event = models.Game.objects.get(pk=event_pk)
+    def list(self, request, game_pk=None):
+        game = models.Game.objects.get(pk=game_pk)
         losers = models.Loser.objects.filter(
-            applicationentries__in=event.loserapplicationentries.all()
+            applicationentries__in=game.loserapplicationentries.all()
         ).distinct()
-        context = {'event': event}
+        context = {'game': game}
         serializer = serializers.LoserApplicationSerializer(
             losers, context=context, many=True)
         return Response(serializer.data)
 
-    def create(self, request, event_pk=None):
-        event = models.Game.objects.get(pk=event_pk)
-        if event.start < datetime.utcnow().replace(tzinfo=pytz.UTC):
+    def create(self, request, game_pk=None):
+        game = models.Game.objects.get(pk=game_pk)
+        if game.start < datetime.utcnow().replace(tzinfo=pytz.UTC):
             return Response(None, status=status.HTTP_400_BAD_REQUEST)
         try:
             loser = models.Loser.objects.create(
@@ -423,10 +423,10 @@ class LoserApplicationViewSet(viewsets.ViewSet):
             return HttpResponseBadRequest()
         for preference in preferences:
             models.LoserApplicationEntry.objects.create(
-                official=loser, event=event,
+                official=loser, game=game,
                 index=preferences.index(preference),
                 preference=preference).save()
-        context = {'event': event}
+        context = {'game': game}
         serializer = serializers.LoserApplicationSerializer(
             loser, context=context)
         return Response(serializer.data, status=status.HTTP_201_CREATED)

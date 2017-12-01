@@ -104,7 +104,7 @@ class Game(models.Model):
         return (
             not self.complete and
             ApplicationEntry.objects.filter(
-                event=self, official=official).count() == 0)
+                game=self, official=official).count() == 0)
 
     def can_schedule(self, official):
         return official in self.league.schedulers.all()
@@ -184,7 +184,8 @@ class Application(models.Model):
 class ApplicationEntry(models.Model):
     """An application preference entry."""
     official = models.ForeignKey(Official, related_name='applicationentries')
-    event = models.ForeignKey(Game, related_name='applicationentries')
+    game = models.ForeignKey(
+        Game, related_name='applicationentries')
 
     index = models.PositiveIntegerField()
     preference = models.PositiveIntegerField(
@@ -199,7 +200,7 @@ class Loser(models.Model):
     """A 'User' that doesn't want to sign in."""
 
     # WARNING: email_address can't be unique here, because it gets created every
-    # time a loser applies for a new event.
+    # time a loser applies for a new game.
     derby_name = models.CharField(_('Derby name'), max_length=265, blank=False)
     email_address = models.EmailField(
         _('Email address'), blank=False)
@@ -215,7 +216,8 @@ class Loser(models.Model):
 class LoserApplicationEntry(models.Model):
     """An application for a Loser."""
     official = models.ForeignKey(Loser, related_name='applicationentries')
-    event = models.ForeignKey(Game, related_name='loserapplicationentries')
+    game = models.ForeignKey(
+        Game, related_name='loserapplicationentries')
 
     index = models.PositiveIntegerField()
     preference = models.PositiveIntegerField(
@@ -227,7 +229,7 @@ class LoserApplicationEntry(models.Model):
 
 
 class Roster(models.Model):
-    """A roster for an event."""
+    """A roster for an game."""
 
     class Meta:
         ordering = ['id']
