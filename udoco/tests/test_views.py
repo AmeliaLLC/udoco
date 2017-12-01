@@ -505,8 +505,7 @@ class TestApplicationViewSet(TestCase):
         client.force_authenticate(user)
 
         response = client.delete(
-            '/api/events/{}/applications/{}/'.format(
-                entry.event.id, entry.id))
+            '/api/events/{}/applications/0/'.format(entry.event.id))
 
         self.assertEqual(204, response.status_code)
         game = models.Game.objects.get(pk=entry.event.id)
@@ -518,8 +517,7 @@ class TestApplicationViewSet(TestCase):
         client = APIClient()
 
         response = client.delete(
-            '/api/events/{}/applications/{}/'.format(
-                entry.event.id, entry.id))
+            '/api/events/{}/applications/0/'.format(entry.event.id))
 
         self.assertEqual(403, response.status_code)
 
@@ -531,8 +529,7 @@ class TestApplicationViewSet(TestCase):
         client.force_authenticate(user)
 
         response = client.delete(
-            '/api/events/{}/applications/{}/'.format(
-                entry.event.id, entry.id))
+            '/api/events/{}/applications/0/'.format(entry.event.id))
 
         self.assertEqual(400, response.status_code)
 

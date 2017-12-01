@@ -356,7 +356,9 @@ class ApplicationViewSet(viewsets.ModelViewSet):
             request.user, context=context)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def destroy(self, request, event_pk, pk):
+    # XXX: rockstar (30 Nov 2017) - We don't care about the application
+    # event. We just pass 0 as the pk.
+    def destroy(self, request, event_pk, pk=None):
         event = models.Game.objects.get(pk=event_pk)
         if request.user not in event.applicants:
             return Response(None, status=status.HTTP_400_BAD_REQUEST)
