@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta
 import os
+import sys
 
 import django
 
+sys.path += [os.path.dirname(os.path.dirname(__file__))]
 os.environ['DJANGO_SETTINGS_MODULE'] = 'udoco.settings'
 django.setup()
 
