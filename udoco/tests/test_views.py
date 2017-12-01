@@ -168,7 +168,7 @@ class TestEventViewSet(TestCase):
         data = {
             'title': 'Quadruple header',
             'location': 'Anywhere, USA',
-            'start': '2020-10-24T00:00:00-06:00',
+            'start': '2020-10-24T00:00:00-06:10',
         }
 
         response = client.post('/api/events', data, format='json')
@@ -178,6 +178,13 @@ class TestEventViewSet(TestCase):
         self.assertEqual(data['title'], json['title'])
         self.assertEqual(data['location'], json['location'])
         self.assertEqual(data['start'], json['start'])
+
+        game = models.Game.objects.get(pk=json['id'])
+        self.assertEqual(2020, game.start.year)
+        self.assertEqual(10, game.start.month)
+        self.assertEqual(24, game.start.day)
+        self.assertEqual(6, game.start.hour)
+        self.assertEqual(10, game.start.minute)
 
     def test_create_no_schedule(self):
         """Users who can't schedule can't create events."""
