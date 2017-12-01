@@ -199,18 +199,14 @@ class ApplicationEntry(models.Model):
 class Loser(models.Model):
     """A 'User' that doesn't want to sign in."""
 
-    # WARNING: email_address can't be unique here, because it gets created every
+    # WARNING: email can't be unique here, because it gets created every
     # time a loser applies for a new game.
     derby_name = models.CharField(_('Derby name'), max_length=265, blank=False)
-    email_address = models.EmailField(
+    email = models.EmailField(
         _('Email address'), blank=False)
 
     def __str__(self):
         return self.derby_name
-
-    @property
-    def email(self):
-        return self.email_address
 
 
 class LoserApplicationEntry(models.Model):

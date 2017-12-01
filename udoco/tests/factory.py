@@ -61,7 +61,7 @@ class LoserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Loser
     derby_name = factory.fuzzy.FuzzyText()
-    email_address = factory.fuzzy.FuzzyText(prefix='loser@')
+    email = factory.fuzzy.FuzzyText(prefix='loser@')
 
 
 class LoserApplicationEntryFactory(factory.django.DjangoModelFactory):

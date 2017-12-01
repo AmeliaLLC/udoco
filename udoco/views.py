@@ -412,7 +412,7 @@ class LoserApplicationViewSet(viewsets.ViewSet):
         try:
             loser = models.Loser.objects.create(
                 derby_name=request.data['name'],
-                email_address=request.data['email'],
+                email=request.data['email'],
             )
             loser.save()
             preferences = request.data['preferences']
