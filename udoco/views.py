@@ -1,11 +1,13 @@
 from datetime import datetime
 
 from dateutil import parser as date_parser
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core import mail
 from django.db.models import Q
-from django.http import HttpResponseBadRequest
+from django.http import (
+    HttpResponse, HttpResponseBadRequest, HttpResponseNotFound)
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
@@ -18,6 +20,19 @@ from rest_framework import permissions
 from rest_framework.response import Response
 
 from udoco import choices, forms, models, serializers
+
+
+def certbot_view(request, public):
+    """A view for handling cerbot.
+
+    When renewing a `certbot` cert, a service will check that a url on your
+    site has been updated with a private/public key challenge. This view allows
+    us to update CERTBOT_KEY and then deploy and get negotiation for free.
+    """
+    key, _ = settings.CERTBOT_KEY.split('.')
+    if public != key:
+        return HttpResponseNotFound()
+    return HttpResponse(settings.CERTBOT_KEY)
 
 
 class ContactLeaguesView(View):

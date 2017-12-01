@@ -9,6 +9,31 @@ from udoco import forms, models, views
 from udoco.tests import factory as _factory
 
 
+class TestCertbotView(unittest.TestCase):
+    """Tests for udoco.views.certbot_view."""
+
+    @unittest.mock.patch('udoco.views.settings')
+    def test_response(self, settings):
+        """A good public key results in the key being returned."""
+        settings.CERTBOT_KEY = 'a.b'
+        request = unittest.mock.Mock(method='GET')
+
+        response = views.certbot_view(request, 'a')
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(b'a.b', response.content)
+
+    @unittest.mock.patch('udoco.views.settings')
+    def test_bad_public_key(self, settings):
+        """A 404 public/private key is returned."""
+        settings.CERTBOT_KEY = 'a.b'
+        request = unittest.mock.Mock(method='GET')
+
+        response = views.certbot_view(request, 'c')
+
+        self.assertEqual(404, response.status_code)
+
+
 class TestContactLeaguesView(unittest.TestCase):
     """Tests for udoco.views.ContactLeaguesView."""
 
