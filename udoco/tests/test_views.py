@@ -178,7 +178,6 @@ class TestEventViewSet(TestCase):
         self.assertEqual(data['title'], json['title'])
         self.assertEqual(data['location'], json['location'])
         self.assertEqual(data['start'], json['start'])
-
         game = models.Game.objects.get(pk=json['id'])
         self.assertEqual(2020, game.start.year)
         self.assertEqual(10, game.start.month)
@@ -676,8 +675,7 @@ class TestLoserApplicationViewSet(TestCase):
 
     def test_create_date_in_the_past(self):
         game = _factory.GameFactory(
-            start=timezone.now() - timedelta(days=1),
-            end=timezone.now() - timedelta(days=10))
+            start=timezone.now() - timedelta(days=1))
 
         client = APIClient()
         data = {

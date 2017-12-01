@@ -86,7 +86,6 @@ class Game(models.Model):
 
     title = models.CharField(_('title'), max_length=1024)
     start = models.DateTimeField(_('game start'))
-    end = models.DateTimeField(_('game end'))
     location = models.CharField(_('address'), max_length=1024)
 
     association = models.PositiveIntegerField(

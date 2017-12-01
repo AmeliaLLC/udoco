@@ -32,9 +32,6 @@ class GameFactory(factory.django.DjangoModelFactory):
     start = factory.fuzzy.FuzzyDateTime(
         start_dt=timezone.now() + timedelta(days=1),
         end_dt=timezone.now() + timedelta(days=10))
-    end = factory.fuzzy.FuzzyDateTime(
-        start_dt=timezone.now() + timedelta(days=11),
-        end_dt=timezone.now() + timedelta(days=12))
 
     association = factory.fuzzy.FuzzyInteger(0, 2)
     game_type = factory.fuzzy.FuzzyInteger(0, 1)

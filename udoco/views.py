@@ -125,7 +125,7 @@ class EventViewSet(viewsets.ModelViewSet):
         game.league = request.user.league
         game.creator = request.user
 
-        game.start = game.end = date_parser.parse(request.data['start'])
+        game.start = date_parser.parse(request.data['start'])
 
         # This is temporary
         game.association = choices.AssociationChoices.OTHER
@@ -154,7 +154,7 @@ class EventViewSet(viewsets.ModelViewSet):
         if 'title' in request.data:
             game.title = request.data.get('title', game.title)
             game.location = request.data.get('location', game.location)
-            game.start = game.end = date_parser.parse(request.data['start'])
+            game.start = date_parser.parse(request.data['start'])
 
         game.save()
         game = self.queryset.get(pk=pk)
