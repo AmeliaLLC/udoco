@@ -1,3 +1,17 @@
+Development toolchain
+=====================
+
+The backend uses Django, so you'll need to install the packages in `requirements.txt`
+and `requirements-dev.txt`. How you do that is up to you (there are too many opinions).
+The frontend uses React, so you'll need to install those dependencies with
+`npm install`.
+
+The entire stack is run via `manage.py run`. That starts a npm process that runs
+`npm run watch` along with the the development server. It will build the application
+in `frontend/src` into `static/app.js` and `static/app.css`. The only relevant
+django templates are `templates/application.html` (the application itself) and
+`templates/udoco/contact.html` (which should really be replaced with a admin view.
+
 Deploying the site
 ==================
 
@@ -7,6 +21,14 @@ To deploy:
     git push heroku master
     heroku config:set GITVERSION=`git rev-parse --short HEAD`
     heroku run python manage.py migrate
+
+Updating certs
+--------------
+
+There is a task for updating the certs in `fab renew_cert`. A bunch of questions will
+be asked of you, and then you'll be prompted to put some data on the server. Set
+the key provided to `CERTBOT_KEY` in `settings` and then redeploy. At that time,
+the key will be updated.
 
 Create a superuser
 ==================
@@ -22,19 +44,6 @@ then:
     o.save()
 
 The user will now be able to navigate to udoco.org/manage to add leagues, etc.
-
-
-Javascript toolchain
-====================
-
-The entire stack is run via `manage.py run`. That runs a grunt process that runs
-`npm run watch` along with the the development server. It will build the files in
-`static/application/**/*.css` as `static/app.css` and `static/application/**/*.js` as
-`static/app.js`.
-
-# TODO: Add information about how bower works to handle browserifying dependency
-# assets.
-
 
 Update to social
 ================
