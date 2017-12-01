@@ -14,6 +14,9 @@ PHONE_NUMBER_VALIDATOR = validators.RegexValidator(
 
 class Official(AbstractUser):
     """A representation of an official (or user) of the site."""
+    class Meta:
+        ordering = ['display_name']
+
     verbose_name = _('Official')
     verbose_name_plural = _('Officials')
     email = models.EmailField(_('email address'), blank=False)
