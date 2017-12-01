@@ -64,6 +64,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social.apps.django_app.middleware.SocialAuthExceptionMiddleware',
 ]
 
 
@@ -208,6 +209,7 @@ SOCIAL_AUTH_PIPELINE = (
 
 SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/profile'
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
+SOCIAL_AUTH_LOGIN_ERROR_URL = '/'
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/'
 
