@@ -3,7 +3,6 @@ from datetime import datetime
 from dateutil import parser as date_parser
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth.decorators import login_required
 from django.core import mail
 from django.db.models import Q
 from django.http import HttpResponseBadRequest
@@ -31,7 +30,6 @@ class ContactLeaguesView(View):
         return super(ContactLeaguesView, self).dispatch(
             request, *args, **kwargs)
 
-    @method_decorator(login_required)
     def get(self, request):
         officials = models.Official.objects.filter(scheduling__gte=1)
 
@@ -41,7 +39,6 @@ class ContactLeaguesView(View):
         }
         return render(request, self.template, context)
 
-    @method_decorator(login_required)
     def post(self, request):
         officials = models.Official.objects.filter(scheduling__gte=1)
 
