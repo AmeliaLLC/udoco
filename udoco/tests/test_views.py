@@ -168,12 +168,16 @@ class TestEventViewSet(TestCase):
         data = {
             'title': 'Quadruple header',
             'location': 'Anywhere, USA',
-            'dateTime': 'Tue Oct 24 2020 00:00:00 GMT-0600 (MDT)'
+            'start': '2020-10-24T00:00:00-06:00',
         }
 
         response = client.post('/api/events', data, format='json')
 
         self.assertEqual(201, response.status_code)
+        json = response.json()
+        self.assertEqual(data['title'], json['title'])
+        self.assertEqual(data['location'], json['location'])
+        self.assertEqual(data['start'], json['start'])
 
     def test_create_no_schedule(self):
         """Users who can't schedule can't create events."""
@@ -183,7 +187,7 @@ class TestEventViewSet(TestCase):
         data = {
             'title': 'Quadruple header',
             'location': 'Anywhere, USA',
-            'dateTime': 'Tue Oct 24 2020 00:00:00 GMT-0600 (MDT)'
+            'start': '2020-10-24T00:00:00-06:00',
         }
 
         response = client.post('/api/events', data, format='json')
@@ -220,7 +224,7 @@ class TestEventViewSet(TestCase):
         data = {
             'title': 'A new title',
             'location': 'A new location',
-            'dateTime': 'Tue Oct 24 2020 00:00:00 GMT-0000 (UTC)',
+            'start': '2020-10-24T00:00:00-06:00',
         }
 
         response = client.patch(

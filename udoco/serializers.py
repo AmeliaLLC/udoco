@@ -78,7 +78,6 @@ class GameSerializer(serializers.ModelSerializer):
             'id',
             'title',
             'start',
-            'end',
             'location',
             'league',
             'complete',
