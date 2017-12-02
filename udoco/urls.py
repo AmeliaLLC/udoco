@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
 from rest_framework_nested import routers
 
@@ -38,6 +39,7 @@ urlpatterns = [
     url(r'^manage/', admin.site.urls),
     # Only needed for logout
     url('', include('django.contrib.auth.urls', namespace='auth')),
+    url(r'^logout/$', auth_views.logout, name='logout'),
 
     url(r'^$', TemplateView.as_view(template_name='application.html'),
         name='index'),
