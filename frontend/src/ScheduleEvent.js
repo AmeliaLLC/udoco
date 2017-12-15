@@ -1,4 +1,5 @@
 /* global jQuery */
+/* global Materialize */
 import React from 'react';
 import LoadingText from './Loading.js';
 import Applicant from './Applicant.js'
@@ -7,6 +8,7 @@ import { BaseURL } from './config.js';
 import { confirmAlert } from 'react-confirm-alert';
 import { getCSRFToken } from './utils.js';
 import RosterComponent from './ROster.js';
+import 'react-confirm-alert/src/react-confirm-alert.css'
 
 function Roster(){
   this['hr'] = "";
@@ -98,7 +100,6 @@ export default class ScheduleEvent extends React.Component {
             })
             .then((response)=>(response.json()))
             .then((rosters)=>{
-              console.log('received rosters:\n', rosters);
               rosters.forEach((roster)=>{
                 for(let position in roster){
                   if(roster[position]===null){
@@ -179,7 +180,7 @@ export default class ScheduleEvent extends React.Component {
       return response.json()
     })
     .then((updateRoster)=>{
-      console.log('saved roster:\n',updateRoster);
+      Materialize.toast('Roster saved.', 1500);
     });
   }
   submitEvent = (index) => {
@@ -218,7 +219,9 @@ export default class ScheduleEvent extends React.Component {
     .then(()=>{
       let copy = this.state.rosters.slice();
       copy.splice(index,1);
-      this.setState({rosters: copy});
+      this.setState({rosters: copy},()=>{
+        Materialize.toast('Roster deleted.', 1000);
+      });
     });
   }
 
@@ -270,7 +273,7 @@ export default class ScheduleEvent extends React.Component {
                   ))}
                 </div>
                 <div className="row" hidden={this.state.event.complete}>
-                  <button onClick={this.submitEvent} className="waves-effect waves-light btn grey lighten-1 col s12">
+                  <button onClick={this.submitEvent} className="waves-effect waves-light btn grey lighten-1 col s12 m6">
                     finalize event
                   </button>
                 </div>

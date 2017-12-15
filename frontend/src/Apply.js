@@ -228,7 +228,7 @@ class Apply extends Component {
             ))}
             <div className="row">
               <div className="input-field col s12">
-                <a onClick={this.onApply.bind(this)} className="center waves-effect waves-light btn blue-grey darken-4 col s12">apply</a>
+                <a onClick={this.onApply.bind(this)} className="center waves-effect waves-light btn blue-grey darken-4 col s12 m6">apply</a>
               </div>
             </div>
           </form>

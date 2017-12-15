@@ -43,11 +43,11 @@ class Navbar extends Component {
             )
             :null}
 
-            <li className="hide-on-med-and-down">
+            {this.props.user && (<li className="hide-on-med-and-down">
               <Link to="/feedback" onClick={this.closeSide}>
                 <i className="left material-icons">lightbulb_outline</i>Feedback
               </Link>
-            </li>
+            </li>)}
 
             {this.props.user &&
               (<li className="hide-on-med-and-down">
@@ -109,11 +109,11 @@ class Navbar extends Component {
               </li>
               }
 
-              <li>
+              {this.props.user && (<li>
                 <Link to="/feedback" onClick={this.closeSide}>
                   <i className="left material-icons">lightbulb_outline</i>Feedback
                 </Link>
-              </li>
+              </li>)}
 
               <li>
                   <a href="/logout/?next=/">

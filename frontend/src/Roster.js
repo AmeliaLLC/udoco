@@ -38,7 +38,7 @@ export default class Roster extends React.Component {
       <div id={`roster${this.props.index}`}>
         <h1>{`ROSTER ${this.props.index+1}`}</h1>
         <div className="row">
-          <div className="input-field col s12">
+          <div className="input-field col s12 m6">
           <form onChange={this.updateRoster}>
 
             <h6 className="center">Head Ref</h6>
@@ -552,11 +552,11 @@ export default class Roster extends React.Component {
         </div>
         <div className="rosterController row" hidden={this.props.completeEvent}>
 
-          <button onClick={()=>{this.props.saveEvent(this.props.index)}} className="waves-effect waves-light btn grey lighten-1 col s6">
+          <button onClick={()=>{this.props.saveEvent(this.props.index)}} className="waves-effect waves-light btn grey lighten-1 col s6 m3">
             save roster
           </button>
 
-          <button className="waves-effect waves-light btn grey lighten-1 col s6" onClick={()=>{this.props.deleteEvent(this.props.index)}}>
+          <button className="waves-effect waves-light btn grey lighten-1 col s6 m3" onClick={()=>{this.props.deleteEvent(this.props.index)}}>
             delete roster
           </button>
 
