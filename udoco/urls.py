@@ -2,7 +2,6 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
-from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic import TemplateView
 from rest_framework_nested import routers
 
@@ -23,8 +22,7 @@ games_router.register(r'lapplications', views.LoserApplicationViewSet)
 
 admin.autodiscover()
 
-application = ensure_csrf_cookie(
-    TemplateView.as_view(template_name='application.html'))
+application = TemplateView.as_view(template_name='application.html')
 urlpatterns = [
     url(r'^robots.txt', TemplateView.as_view(template_name='robots.txt')),
     url('^auth/', include('social_django.urls', namespace='social')),

@@ -13,6 +13,8 @@ from django.http import (
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 from django.views.generic import View
 import pytz
 from rest_framework import status
@@ -97,6 +99,8 @@ def me(request):
     return Response(serializer.data)
 
 
+@require_http_methods(['POST'])
+@csrf_exempt
 @login_required
 def feedback(request):
     """A view for providing feedback."""
