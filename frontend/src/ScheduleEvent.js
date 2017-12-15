@@ -1,4 +1,5 @@
 /* global jQuery */
+/* global Materialize */
 import React from 'react';
 import LoadingText from './Loading.js';
 import Applicant from './Applicant.js'
@@ -179,6 +180,7 @@ export default class ScheduleEvent extends React.Component {
       return response.json()
     })
     .then((updateRoster)=>{
+      Materialize.toast('Roster saved.', 1500);
     });
   }
   submitEvent = (index) => {
@@ -217,7 +219,9 @@ export default class ScheduleEvent extends React.Component {
     .then(()=>{
       let copy = this.state.rosters.slice();
       copy.splice(index,1);
-      this.setState({rosters: copy});
+      this.setState({rosters: copy},()=>{
+        Materialize.toast('Roster deleted.', 1000);
+      });
     });
   }
 
