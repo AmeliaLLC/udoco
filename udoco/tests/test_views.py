@@ -1,5 +1,4 @@
 from datetime import timedelta
-import json
 import unittest
 
 from django.test import TestCase
@@ -141,10 +140,8 @@ class TestFeedback(TestCase):
 
     def test_not_logged_in(self):
         """No anonymous feedback allowed."""
-        user = unittest.mock.Mock()
-        user.is_authenticated.return_value = False
-        request = unittest.mock.Mock(
-            user=user, method='POST', body=json.dumps({'message': 'test'}))
+        factory = APIRequestFactory()
+        request = factory.put('/api/feedback')
 
         response = views.feedback(request)
 
@@ -155,22 +152,26 @@ class TestFeedback(TestCase):
     def test_sends_mail(self, mail, settings):
         """Feedback sends mail."""
         settings.ADMINS = [('A Admin', 'admin@example.com')]
-        user = _factory.OfficialFactory()
-        request = unittest.mock.Mock(
-            user=user, method='POST', body=json.dumps({'message': 'test'}))
+        user = _factory.OfficialFactory(email='abc@example.com')
+        factory = APIRequestFactory()
+        request = factory.put(
+            '/api/feedback', {'message': 'ey yo'}, format='json')
+        force_authenticate(request, user=user)
 
         response = views.feedback(request)
 
         self.assertEqual(200, response.status_code)
         call = mail.EmailMessage.call_args[0]
         self.assertEqual('Feedback for UDOCO', call[0].strip())
+        self.assertIn('abc@example.com', call[1])
         self.assertEqual(['admin@example.com'], call[3])
 
     def test_no_malformed_data(self):
         """Malformed data results in a 400."""
         user = _factory.OfficialFactory()
-        request = unittest.mock.Mock(
-            user=user, method='POST', body='')
+        factory = APIRequestFactory()
+        request = factory.put('/api/feedback', format='json')
+        force_authenticate(request, user=user)
 
         response = views.feedback(request)
 
@@ -179,8 +180,10 @@ class TestFeedback(TestCase):
     def test_no_message_no_mail(self):
         """Missing the message key is also bad."""
         user = _factory.OfficialFactory()
-        request = unittest.mock.Mock(
-            user=user, method='POST', body=json.dumps({'_message': 'test'}))
+        factory = APIRequestFactory()
+        request = factory.put(
+            '/api/feedback', {'_message': 'ey yo'}, format='json')
+        force_authenticate(request, user=user)
 
         response = views.feedback(request)
 

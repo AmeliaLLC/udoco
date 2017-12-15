@@ -1,5 +1,4 @@
 from datetime import datetime
-import json
 
 from dateutil import parser as date_parser
 from django.conf import settings
@@ -12,8 +11,6 @@ from django.http import (
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
 from django.views.generic import View
 import pytz
 from rest_framework import status
@@ -98,19 +95,16 @@ def me(request):
     return Response(serializer.data)
 
 
-@require_http_methods(['POST'])
-@csrf_exempt
+@api_view(['PUT'])
 def feedback(request):
     """A view for providing feedback."""
     if not request.user.is_authenticated():
         return Response(None, status=401)
 
     try:
-        data = json.loads(request.body)
         context = {
-            'user': models.Official.objects.all()[0],
-            #'user': request.user,
-            'message': data['message'],
+            'user': request.user,
+            'message': request.data['message'],
         }
     except (KeyError, ValueError):
         return HttpResponseBadRequest()
@@ -121,7 +115,7 @@ def feedback(request):
             'United Derby Officials Colorado <no-reply@udoco.org>',
             [admin[1] for admin in settings.ADMINS],
             connection=connection).send()
-    return HttpResponse()
+    return Response('')
 
 
 class IsScheduler(permissions.BasePermission):
