@@ -8,6 +8,7 @@ import { BaseURL } from './config.js';
 import { getCSRFToken } from './utils.js';
 import { Navbar } from './Navigation.js';
 import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
 
 class EventGroup extends Component {
   static propTypes = {
