@@ -3,3 +3,36 @@ ul.collapsible {
   margin-top: 0;
   margin-bottom: 0;
 }
+.navbar-fixed {
+  z-index: 9999;
+}
+.center{
+  text-align: center;
+}
+.bold{
+  font-weight: bolder;
+}
+
+.game-league-presents {
+  margin-bottom: 0;
+}
+.game-leage-event-name{
+  margin-top: 0;
+}
+
+.picker__date-display{
+  background-color: #424242;
+}
+.picker__weekday-display{
+  background-color: #212121;
+}
+.picker__day.picker__day--today {
+  color: black;
+  font-weight: 700;
+}
+.picker__day.picker__day--infocus.picker__day--selected.picker__day--highlighted{
+  background-color: #212121;
+}
+.picker__today,.picker__close{
+  color: black;
+}

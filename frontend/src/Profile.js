@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import {getCSRFToken} from './utils.js';
 import { BaseURL } from './config.js';
+import { Navbar } from './Navigation.js';
 
 
 class EditProfile extends Component {
@@ -67,64 +68,67 @@ class EditProfile extends Component {
     }
 
     return (
-      <div className="row">
-        <form className="col s12">
-          <div className="row">
-            <div className="input-field col s6">
-              <input placeholder="" id="display_name" type="text" className="validate" value={this.state.user.display_name} onChange={this.onChange.bind(this)} />
-              <label for="display_name">Derby name</label>
+      <div>
+      <Navbar user={this.props.user}/>
+        <div className="row">
+          <form className="col s12">
+            <div className="row">
+              <div className="input-field col s12 m6">
+                <input placeholder="" id="display_name" type="text" className="validate" value={this.state.user.display_name} onChange={this.onChange.bind(this)} />
+                <label for="display_name">Derby name</label>
+              </div>
             </div>
-          </div>
 
-          <div className="row">
-            <div className="input-field col s6">
-              <input placeholder="" id="email" type="email" className="validate" value={this.state.user.email} onChange={this.onChange.bind(this)} />
-              <label for="email">Preferred email address</label>
+            <div className="row">
+              <div className="input-field col s12 m6">
+                <input placeholder="" id="email" type="email" className="validate" value={this.state.user.email} onChange={this.onChange.bind(this)} />
+                <label for="email">Preferred email address</label>
+              </div>
             </div>
-          </div>
 
-          <div className="row">
-            <div className="input-field col s6">
-              <input placeholder="" id="league_affiliation" type="text" className="validate" value={this.state.user.league_affiliation} onChange={this.onChange.bind(this)} />
-              <label for="league_affiliation">League affiliation</label>
+            <div className="row">
+              <div className="input-field col s12 m6">
+                <input placeholder="" id="league_affiliation" type="text" className="validate" value={this.state.user.league_affiliation} onChange={this.onChange.bind(this)} />
+                <label for="league_affiliation">League affiliation</label>
+              </div>
             </div>
-          </div>
 
-          <div className="row">
-            <div className="input-field col s6">
-              <input placeholder="" id="game_history" type="text" className="validate" value={this.state.user.game_history} onChange={this.onChange.bind(this)} />
-              <label for="game_history">Game history</label>
+            <div className="row">
+              <div className="input-field col s12 m6">
+                <input placeholder="" id="game_history" type="text" className="validate" value={this.state.user.game_history} onChange={this.onChange.bind(this)} />
+                <label for="game_history">Game history</label>
+              </div>
             </div>
-          </div>
 
-          <div className="row">
-            <div className="input-field col s6">
-              <input placeholder="" id="phone_number" type="text" className="validate" value={this.state.user.phone_number} onChange={this.onChange.bind(this)} />
-              <label for="phone_number">Phone number</label>
+            <div className="row">
+              <div className="input-field col s12 m6">
+                <input placeholder="" id="phone_number" type="text" className="validate" value={this.state.user.phone_number} onChange={this.onChange.bind(this)} />
+                <label for="phone_number">Phone number</label>
+              </div>
             </div>
-          </div>
 
-          <div className="row">
-            <div className="input-field col s6">
-              <input placeholder="" id="emergency_contact_name" type="text" className="validate" value={this.state.user.emergency_contact_name} onChange={this.onChange.bind(this)} />
-              <label for="emergency_contact_name">Emergency contact name</label>
+            <div className="row">
+              <div className="input-field col s12 m6">
+                <input placeholder="" id="emergency_contact_name" type="text" className="validate" value={this.state.user.emergency_contact_name} onChange={this.onChange.bind(this)} />
+                <label for="emergency_contact_name">Emergency contact name</label>
+              </div>
             </div>
-          </div>
 
-          <div className="row">
-            <div className="input-field col s6">
-              <input placeholder="" id="emergency_contact_number" type="text" className="validate" value={this.state.user.emergency_contact_number} onChange={this.onChange.bind(this)} />
-              <label for="emergency_contact_number">Emergency contact phone number</label>
+            <div className="row">
+              <div className="input-field col s12 m6">
+                <input placeholder="" id="emergency_contact_number" type="text" className="validate" value={this.state.user.emergency_contact_number} onChange={this.onChange.bind(this)} />
+                <label for="emergency_contact_number">Emergency contact phone number</label>
+              </div>
             </div>
-          </div>
 
-          <div className="row">
-            <div className="input-field col s6">
-              <a className="center waves-effect waves-light btn" onClick={this.onSave.bind(this)}>Save</a>
+            <div className="row">
+              <div className="input-field col s12 m6">
+                <a className="center waves-effect waves-light btn blue-grey darken-4 col s12" onClick={this.onSave.bind(this)}>Save</a>
+              </div>
             </div>
-          </div>
 
-        </form>
+          </form>
+        </div>
       </div>
     );
   }
