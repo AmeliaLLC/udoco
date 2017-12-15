@@ -20,6 +20,3 @@ python-dateutil==2.6.1
 
 # This one is required by drf-social-oauth2...
 django-braces==1.11.0
-
-# This should actually just be required in dev
-django-nose==1.4.5
