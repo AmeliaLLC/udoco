@@ -68,6 +68,9 @@ def deploy_notify():
 def deploy():
     local('git push origin')
 
+    local('rm static/app.js static/app.css')
+    local('cd frontend && npm run integrate')
+
     staticupload()
     local('heroku config:set GITVERSION=`git rev-parse --short HEAD`')
     local('git push heroku master')
