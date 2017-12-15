@@ -4,7 +4,6 @@ import json
 from dateutil import parser as date_parser
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core import mail
 from django.db.models import Q
@@ -101,9 +100,11 @@ def me(request):
 
 @require_http_methods(['POST'])
 @csrf_exempt
-@login_required
 def feedback(request):
     """A view for providing feedback."""
+    if not request.user.is_authenticated():
+        return Response(None, status=401)
+
     try:
         data = json.loads(request.body)
         context = {

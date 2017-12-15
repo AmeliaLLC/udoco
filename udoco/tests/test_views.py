@@ -139,6 +139,17 @@ class TestMe(unittest.TestCase):
 class TestFeedback(TestCase):
     """Tests for udoco.views.feedback."""
 
+    def test_not_logged_in(self):
+        """No anonymous feedback allowed."""
+        user = unittest.mock.Mock()
+        user.is_authenticated.return_value = False
+        request = unittest.mock.Mock(
+            user=user, method='POST', body=json.dumps({'message': 'test'}))
+
+        response = views.feedback(request)
+
+        self.assertEqual(401, response.status_code)
+
     @unittest.mock.patch('udoco.views.settings')
     @unittest.mock.patch('udoco.views.mail')
     def test_sends_mail(self, mail, settings):
