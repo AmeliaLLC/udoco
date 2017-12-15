@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import AbstractUser
 from django.core import validators
 from django.db import models
@@ -99,6 +101,10 @@ class Game(models.Model):
     creator = models.ForeignKey('Official')
 
     complete = models.BooleanField(default=False)
+
+    @property
+    def call_time(self):
+        return self.start - timedelta(hours=1)
 
     def official_can_apply(self, official):
         return (
