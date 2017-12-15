@@ -141,7 +141,7 @@ class TestFeedback(TestCase):
     def test_not_logged_in(self):
         """No anonymous feedback allowed."""
         factory = APIRequestFactory()
-        request = factory.put('/api/feedback')
+        request = factory.post('/api/feedback')
 
         response = views.feedback(request)
 
@@ -154,7 +154,7 @@ class TestFeedback(TestCase):
         settings.ADMINS = [('A Admin', 'admin@example.com')]
         user = _factory.OfficialFactory(email='abc@example.com')
         factory = APIRequestFactory()
-        request = factory.put(
+        request = factory.post(
             '/api/feedback', {'message': 'ey yo'}, format='json')
         force_authenticate(request, user=user)
 
@@ -170,7 +170,7 @@ class TestFeedback(TestCase):
         """Malformed data results in a 400."""
         user = _factory.OfficialFactory()
         factory = APIRequestFactory()
-        request = factory.put('/api/feedback', format='json')
+        request = factory.post('/api/feedback', format='json')
         force_authenticate(request, user=user)
 
         response = views.feedback(request)
@@ -181,7 +181,7 @@ class TestFeedback(TestCase):
         """Missing the message key is also bad."""
         user = _factory.OfficialFactory()
         factory = APIRequestFactory()
-        request = factory.put(
+        request = factory.post(
             '/api/feedback', {'_message': 'ey yo'}, format='json')
         force_authenticate(request, user=user)
 

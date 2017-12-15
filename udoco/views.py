@@ -95,7 +95,7 @@ def me(request):
     return Response(serializer.data)
 
 
-@api_view(['PUT'])
+@api_view(['POST'])
 def feedback(request):
     """A view for providing feedback."""
     if not request.user.is_authenticated():
