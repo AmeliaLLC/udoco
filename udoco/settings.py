@@ -25,6 +25,8 @@ SECRET_KEY = '1zr^soyvlm3y@d%-=qtbtvbns3d6t$xm$3)sx^ispeya!a2o87'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
+ADMINS = [
+    ('Paul Hummer', 'paul@eventuallyanyway.com')]
 ALLOWED_HOSTS = [
     'www.udoco.org', 'udoco.org', 'localhost', 'local.udoco.org']
 INTERNAL_IPS = ['127.0.0.1']

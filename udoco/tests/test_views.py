@@ -1,4 +1,5 @@
 from datetime import timedelta
+import json
 import unittest
 
 from django.test import TestCase
@@ -133,6 +134,46 @@ class TestMe(unittest.TestCase):
         self.assertEqual(200, response.status_code)
         for k in data.keys():
             self.assertEqual(data[k], response.data[k])
+
+
+class TestFeedback(TestCase):
+    """Tests for udoco.views.feedback."""
+
+    @unittest.mock.patch('udoco.views.settings')
+    @unittest.mock.patch('udoco.views.mail')
+    def test_sends_mail(self, mail, settings):
+        """Feedback sends mail."""
+        settings.ADMINS = [('A Admin', 'admin@example.com')]
+        user = _factory.OfficialFactory()
+        request = unittest.mock.Mock(
+            user=user, method='POST', body=json.dumps({'message': 'test'}))
+
+        response = views.feedback(request)
+
+        self.assertEqual(200, response.status_code)
+        call = mail.EmailMessage.call_args[0]
+        self.assertEqual('Feedback for UDOCO', call[0].strip())
+        self.assertEqual(['admin@example.com'], call[3])
+
+    def test_no_malformed_data(self):
+        """Malformed data results in a 400."""
+        user = _factory.OfficialFactory()
+        request = unittest.mock.Mock(
+            user=user, method='POST', body='')
+
+        response = views.feedback(request)
+
+        self.assertEqual(400, response.status_code)
+
+    def test_no_message_no_mail(self):
+        """Missing the message key is also bad."""
+        user = _factory.OfficialFactory()
+        request = unittest.mock.Mock(
+            user=user, method='POST', body=json.dumps({'_message': 'test'}))
+
+        response = views.feedback(request)
+
+        self.assertEqual(400, response.status_code)
 
 
 class TestGameViewSet(TestCase):

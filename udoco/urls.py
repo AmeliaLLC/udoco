@@ -29,6 +29,7 @@ urlpatterns = [
     url(r'^api/', include(games_router.urls)),
     url(r'^api/', include(router.urls)),
     url(r'^api/me', views.me),
+    url(r'^api/feedback', views.feedback),
 
     url(r'^manage/contact', views.ContactLeaguesView.as_view(),
         name='contact_leagues'),

@@ -1,0 +1,3 @@
+From: {{ user.display_name }} ({{ user.email }})
+
+{{ message }}

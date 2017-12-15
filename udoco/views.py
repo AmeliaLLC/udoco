@@ -1,8 +1,10 @@
 from datetime import datetime
+import json
 
 from dateutil import parser as date_parser
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core import mail
 from django.db.models import Q
@@ -95,6 +97,28 @@ def me(request):
         request.user.save()
     serializer = serializers.OfficialSerializer(request.user)
     return Response(serializer.data)
+
+
+@login_required
+def feedback(request):
+    """A view for providing feedback."""
+    try:
+        data = json.loads(request.body)
+        context = {
+            'user': models.Official.objects.all()[0],
+            #'user': request.user,
+            'message': data['message'],
+        }
+    except (KeyError, ValueError):
+        return HttpResponseBadRequest()
+    with mail.get_connection() as connection:
+        mail.EmailMessage(
+            render_to_string('email/feedback_title.txt',),
+            render_to_string('email/feedback_body.txt', context),
+            'United Derby Officials Colorado <no-reply@udoco.org>',
+            [admin[1] for admin in settings.ADMINS],
+            connection=connection).send()
+    return HttpResponse()
 
 
 class IsScheduler(permissions.BasePermission):
