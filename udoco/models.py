@@ -51,6 +51,11 @@ class Official(AbstractUser):
     def can_schedule(self):
         return self.scheduling.count() > 0
 
+    def clean(self):
+        if self.display_name == '':
+            self.display_name = self.username
+        super(Official, self).clean()
+
     # XXX: rockstar (17 Jan 2017) - This makes it impossible to schedule
     # for multiple leagues. I think that's okay, for now.
     @property
