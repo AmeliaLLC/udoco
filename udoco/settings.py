@@ -175,6 +175,10 @@ SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
     'fields': 'id,name,email',
 }
 FACEBOOK_EXTENDED_PERMISSIONS = ['email', 'public_profile']
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email', 'public_profile']
+SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
+    'fields': 'id,name,email',
+}
 
 SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.social_auth.social_details',
