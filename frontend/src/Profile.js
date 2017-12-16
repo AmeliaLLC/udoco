@@ -46,7 +46,6 @@ class EditProfile extends Component {
       },
       body: JSON.stringify(this.state.user)})
     .then((response) => {
-      console.log('saved?');
     });
   }
 

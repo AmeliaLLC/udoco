@@ -31,9 +31,6 @@ export default class NewEvent extends React.Component {
       redirect: false
     };
   }
-  componentWillMount=()=>{
-    console.log(this.props);
-  }
   componentDidMount(){
     jQuery('.datepicker').pickadate({
       selectMonths: true, // Creates a dropdown to control month
