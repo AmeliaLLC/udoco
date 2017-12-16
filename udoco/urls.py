@@ -5,7 +5,7 @@ from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
 from rest_framework_nested import routers
 
-from udoco import views
+from udoco import feeds, views
 
 
 router = routers.SimpleRouter(trailing_slash=False)
@@ -24,6 +24,9 @@ admin.autodiscover()
 
 application = TemplateView.as_view(template_name='application.html')
 urlpatterns = [
+    url(r'^calendar/$', feeds.AllGameFeed()),
+    url(r'^calendar/leagues/(?P<league_id>\d+)/$', feeds.LeagueGameFeed()),
+
     url(r'^robots.txt', TemplateView.as_view(template_name='robots.txt')),
     url('^auth/', include('social_django.urls', namespace='social')),
 

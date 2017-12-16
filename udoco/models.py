@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core import validators
 from django.db import models
@@ -106,6 +107,13 @@ class Game(models.Model):
     creator = models.ForeignKey('Official')
 
     complete = models.BooleanField(default=False)
+
+    def get_absolute_url(self):
+        if settings.DEBUG:
+            root = 'http://local.udoco.org:8000'
+        else:
+            root = 'https://www.udoco.org'
+        return '{}/games/{}'.format(root, self.id)
 
     @property
     def call_time(self):
