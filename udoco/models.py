@@ -3,6 +3,7 @@ from datetime import timedelta
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core import validators
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -52,10 +53,13 @@ class Official(AbstractUser):
     def can_schedule(self):
         return self.scheduling.count() > 0
 
-    def clean(self):
+    def save(self, *args, **kwargs):
         if self.display_name == '':
             self.display_name = self.username
-        super(Official, self).clean()
+        if self.email == '':
+            raise ValidationError(_('Email cannot be empty'))
+
+        super(Official, self).save(*args, **kwargs)
 
     # XXX: rockstar (17 Jan 2017) - This makes it impossible to schedule
     # for multiple leagues. I think that's okay, for now.
