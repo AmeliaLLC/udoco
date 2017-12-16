@@ -61,8 +61,18 @@ class Event extends Component {
     return (
       <li>
         <div className="collapsible-header">
-          {event.league} presents - {event.title}
-          <a href={`/games/${event.id}`} title="direct game link"><i className="right material-icons" >chevron_right</i></a>
+          <div className="row marginLess">
+            <div className="col s11 eventHeader">
+              {event.league} presents - {event.title}
+            </div>
+            <div className="col s1">
+              <p className="arrowHolder">
+                <a href={`/games/${event.id}`} title="direct game link">
+                  <i className="right material-icons noRightLeft moveRightALittle" >chevron_right</i>
+                </a>
+              </p>
+            </div>
+          </div>
         </div>
         <div className="collapsible-body">
 
