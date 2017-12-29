@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core import mail
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.http import (
     HttpResponse, HttpResponseBadRequest, HttpResponseNotFound)
@@ -158,7 +159,10 @@ class GameViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, pk):
-        qs = self.queryset.get(pk=pk)
+        try:
+            qs = self.queryset.get(pk=pk)
+        except ObjectDoesNotExist:
+            return Response({}, status=status.HTTP_404_NOT_FOUND)
         serializer = self.serializer_class(qs, context={'request': request})
         return Response(serializer.data)
 
