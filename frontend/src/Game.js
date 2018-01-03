@@ -46,7 +46,10 @@ export default class Game extends React.Component {
         'Content-type': 'application/json'
       }
     })
-    .then(response=>response.json())
+    .then((response)=>{
+      console.log(response);
+      return response.json()
+    })
     .then((game)=>{
       this.setState({game});
     });
