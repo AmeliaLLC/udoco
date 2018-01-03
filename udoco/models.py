@@ -1,5 +1,9 @@
+from datetime import timedelta
+
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core import validators
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -48,6 +52,14 @@ class Official(AbstractUser):
 
     def can_schedule(self):
         return self.scheduling.count() > 0
+
+    def save(self, *args, **kwargs):
+        if self.display_name == '':
+            self.display_name = self.username
+        if self.email == '':
+            raise ValidationError(_('Email cannot be empty'))
+
+        super(Official, self).save(*args, **kwargs)
 
     # XXX: rockstar (17 Jan 2017) - This makes it impossible to schedule
     # for multiple leagues. I think that's okay, for now.
@@ -99,6 +111,17 @@ class Game(models.Model):
     creator = models.ForeignKey('Official')
 
     complete = models.BooleanField(default=False)
+
+    def get_absolute_url(self):
+        if settings.DEBUG:
+            root = 'http://local.udoco.org:8000'
+        else:
+            root = 'https://www.udoco.org'
+        return '{}/games/{}'.format(root, self.id)
+
+    @property
+    def call_time(self):
+        return self.start - timedelta(hours=1)
 
     def official_can_apply(self, official):
         return (

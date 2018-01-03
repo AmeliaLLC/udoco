@@ -17,6 +17,7 @@ class OfficialFactory(factory.django.DjangoModelFactory):
         model = models.Official
     display_name = factory.fuzzy.FuzzyText(prefix='Official ')
     username = factory.fuzzy.FuzzyText(prefix='user-')
+    email = factory.fuzzy.FuzzyText(suffix='@example.com')
 
 
 class LeagueFactory(factory.django.DjangoModelFactory):

@@ -107,7 +107,7 @@ class Event extends Component {
           {event.complete &&
             <div className="row">
               <div className="col s12">
-                <b>This Game Is Closed.</b>
+                <b>This game is no longer accepting applications.</b>
               </div>
             </div>
           }

@@ -1,6 +1,22 @@
-Officials,
+{% load tz %}Dear Official,
 
-  Thank you for your willingness to officiate at this event. Below are the rosters.
+  Thank you for your willingness to officiate at this event. Derby can't happen without you, and your efforts are appreciated by your peers. This email contains all the information you'll need to know to do give your best effort at the event. Please read it carefully.
+
+  Please arrive at the venue ({{ game.location }}) NO LATER than {{ game.call_time|localtime|date:"H:i" }}. Head officials may elect to hold an officials meeting any time between that time and the start of the event, so it is imperative that you are punctual. How and when you dress/gear once at the event is up to you, but please be in your positions ready to work five minutes before the start.
+
+  The Officials' Roster(s) can be found below. Please familiarize yourself with the appropriate rulesets, procedures, and standard practices. Unless otherwise noted, please adhere to the WFTDA Uniform Policy[1].
+
+  If, for any reason, you have issues on the day of the event, please call or text any of us at the numbers below.
+
+Thank you,
+
+{% for scheduler in game.league.schedulers.all %}{{ scheduler }} {% if scheduler.phone_number %}({{ scheduler.phone_number }}){% endif %}{% endfor %}
+
+And special thank you from your United Derby Officials
+
+[1] https://static.wftda.com/officiating/officiating-uniform-policy.pdf
+
+
 
 {% for roster in game.rosters.all %}{% if game.rosters.count > 1 %}
 Game {{ forloop.counter }}
@@ -39,10 +55,4 @@ Non-skating Officials
 {% endif %}{% if roster.real_nsoalt %}Alternate NSO - {{ roster.real_nsoalt }}
 {% endif %}{% if roster.real_ptimer %}Period Timer - {{ roster.real_ptimer }}
 {% endif %}
-{% endfor %}
-
-{{ game.league.email_template|safe }}
-
-Thank you,
-{% for scheduler in game.league.schedulers.all %}{{ scheduler }}
 {% endfor %}
