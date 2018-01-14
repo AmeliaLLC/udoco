@@ -1,6 +1,7 @@
 /* global Materialize */
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Redirect } from 'react-router';
 import { Navbar } from './Navigation.js';
 import { BaseURL } from './config.js';
 import { getCSRFToken } from './utils.js';
@@ -11,7 +12,8 @@ export default class Game extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-      game: {}
+      game: {},
+      redirect: false
     }
   }
   withdrawApplication = (event)=>{
@@ -46,7 +48,15 @@ export default class Game extends React.Component {
         'Content-type': 'application/json'
       }
     })
-    .then(response=>response.json())
+    .then((response)=>{
+      if (response.status === 404){
+        this.setState({redirect: true},()=>{
+          Materialize.toast('Game not found.', 2000);
+        });
+        return;
+      }
+      return response.json();
+    })
     .then((game)=>{
       this.setState({game});
     });
@@ -56,6 +66,8 @@ export default class Game extends React.Component {
     return(
       <div>
         <Navbar user={this.props.user}/>
+        {this.state.redirect?<Redirect to={{pathname: '/'}}/>:null
+      }
 
         <div className="row game-league-presents">
           <p className="center col s12 m6 game-league-presents">{game.league} presents</p>
