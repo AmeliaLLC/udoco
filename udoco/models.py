@@ -177,33 +177,6 @@ class Game(models.Model):
         return recipients
 
 
-class Application(models.Model):
-    """An application for a game."""
-
-    official = models.ForeignKey(Official, related_name='applications')
-    game = models.ForeignKey(Game, related_name='applications')
-
-    so_first_choice = models.PositiveIntegerField(
-        choices=choices.SkatingPositions.choices)
-    so_second_choice = models.PositiveIntegerField(
-        choices=choices.SkatingPositions.choices)
-    so_third_choice = models.PositiveIntegerField(
-        choices=choices.SkatingPositions.choices)
-
-    nso_first_choice = models.PositiveIntegerField(
-        choices=choices.NonskatingPositions.choices)
-    nso_second_choice = models.PositiveIntegerField(
-        choices=choices.NonskatingPositions.choices)
-    nso_third_choice = models.PositiveIntegerField(
-        choices=choices.NonskatingPositions.choices)
-
-    def __unicode__(self):
-        return self.official.display_name
-
-    def __str__(self):
-        return self.official.display_name
-
-
 class ApplicationNotes(models.Model):
     """Notes for an application."""
     official = models.ForeignKey(Official, related_name='+')
