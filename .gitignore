@@ -1,5 +1,6 @@
 .coverage
 __pycache__
+certbot/
 cover/
 db.sqlite3
 udoco/_settings.py
