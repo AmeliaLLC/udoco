@@ -43,14 +43,25 @@ class ApplicationSerializer(serializers.ModelSerializer):
             'avatar',
             'league_affiliation',
             'preferences',
+            'notes',
         )
     preferences = serializers.SerializerMethodField('_preferences')
+    notes = serializers.SerializerMethodField('_notes')
 
     def _preferences(self, instance):
         game = self.context['game']
         entries = models.ApplicationEntry.objects.filter(
             official=instance, game=game).order_by('index')
         return [entry.name for entry in entries]
+
+    def _notes(self, instance):
+        game = self.context['game']
+        try:
+            notes = models.ApplicationNotes.objects.get(
+                official=instance, game=game)
+            return notes.content
+        except models.ApplicationNotes.DoesNotExist:
+            return ''
 
 
 class LoserApplicationSerializer(serializers.ModelSerializer):
@@ -60,6 +71,7 @@ class LoserApplicationSerializer(serializers.ModelSerializer):
             'id',
             'derby_name',
             'preferences',
+            'notes'
         )
     preferences = serializers.SerializerMethodField('_preferences')
 
@@ -103,16 +115,16 @@ class GameSerializer(serializers.ModelSerializer):
             game=instance, official=user).count() > 0)
 
     def _can_apply(self, instance):
-        return (self.context['request'].user.is_authenticated()
-                and not self._has_applied(instance)
-                and not instance.complete
-                and instance.start > timezone.now())
+        return (self.context['request'].user.is_authenticated() and not
+                self._has_applied(instance) and not
+                instance.complete and
+                instance.start > timezone.now())
 
     def _can_schedule(self, instance):
         user = self.context['request'].user
-        return (user.is_authenticated()
-                and user.league is not None
-                and user.league.id == instance.league.id)
+        return (user.is_authenticated() and
+                user.league is not None and
+                user.league.id == instance.league.id)
 
     # XXX: rockstar (20 Feb 2017) - Ugh ugh ugh.
     def _is_authenticated(self, instance):

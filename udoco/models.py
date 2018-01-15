@@ -198,10 +198,18 @@ class Application(models.Model):
         choices=choices.NonskatingPositions.choices)
 
     def __unicode__(self):
-        return unicode(self.official)
+        return self.official.display_name
 
     def __str__(self):
-        return str(self.official)
+        return self.official.display_name
+
+
+class ApplicationNotes(models.Model):
+    """Notes for an application."""
+    official = models.ForeignKey(Official, related_name='+')
+    game = models.ForeignKey(Game, related_name='+')
+
+    content = models.CharField(max_length=256, blank=True)
 
 
 class ApplicationEntry(models.Model):
@@ -227,6 +235,8 @@ class Loser(models.Model):
     derby_name = models.CharField(_('Derby name'), max_length=265, blank=False)
     email = models.EmailField(
         _('Email address'), blank=False)
+
+    notes = models.CharField(max_length=256, blank=True)
 
     def __str__(self):
         return self.derby_name
@@ -411,8 +421,8 @@ class Roster(models.Model):
         for attr in dir(self.__class__):
             try:
                 field = getattr(self.__class__, attr).field
-                if (type(field) is models.ForeignKey
-                        and field.related_model is Official):
+                if (type(field) is models.ForeignKey and
+                        field.related_model is Official):
                     val = getattr(self, attr)
                     if val is not None:
                         ids.append(val.id)
@@ -426,8 +436,8 @@ class Roster(models.Model):
         for attr in dir(self.__class__):
             try:
                 field = getattr(self.__class__, attr).field
-                if (type(field) is models.ForeignKey
-                        and field.related_model is Loser):
+                if (type(field) is models.ForeignKey and
+                        field.related_model is Loser):
                     val = getattr(self, attr)
                     if val is not None:
                         ids.append(val.id)
