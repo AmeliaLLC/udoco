@@ -48,6 +48,14 @@ class RosterFactory(factory.django.DjangoModelFactory):
     game = factory.SubFactory(GameFactory)
 
 
+class ApplicationNotesFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.ApplicationNotes
+    official = factory.SubFactory(OfficialFactory)
+    game = factory.SubFactory(GameFactory)
+    content = factory.fuzzy.FuzzyText(prefix='I have notes')
+
+
 class ApplicationEntryFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.ApplicationEntry

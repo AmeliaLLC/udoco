@@ -124,15 +124,15 @@ class IsScheduler(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
-        return (request.user.is_authenticated()
-                and request.user.league is not None)
+        return (request.user.is_authenticated() and
+                request.user.league is not None)
 
 
 class CanScheduleGame(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
-        return (request.user.is_authenticated()
-                and request.user in obj.league.schedulers.all())
+        return (request.user.is_authenticated() and
+                request.user in obj.league.schedulers.all())
 
 
 class GameViewSet(viewsets.ModelViewSet):
@@ -381,12 +381,17 @@ class ApplicationViewSet(viewsets.ModelViewSet):
         if not game.official_can_apply(request.user):
             return Response(None, status=status.HTTP_409_CONFLICT)
 
-        preferences = [int(p) for p in request.data]
+        preferences = [int(p) for p in request.data['preferences']]
         for p in preferences:
             models.ApplicationEntry.objects.create(
                 official=request.user, game=game,
                 index=preferences.index(p),
                 preference=p)
+
+        if request.data.get('notes') is not None:
+            models.ApplicationNotes.objects.create(
+                official=request.user, game=game,
+                content=request.data.get('notes'))
 
         context = {'game': game}
         serializer = serializers.ApplicationSerializer(
@@ -438,6 +443,7 @@ class LoserApplicationViewSet(viewsets.ViewSet):
             loser = models.Loser.objects.create(
                 derby_name=request.data['name'],
                 email=request.data['email'],
+                notes=request.data.get('notes', ''),
             )
             loser.save()
             preferences = request.data['preferences']

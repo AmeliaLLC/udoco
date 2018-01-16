@@ -214,6 +214,13 @@ class TestGameViewSet(TestCase):
 
         self.assertEqual(200, response.status_code)
 
+    def test_retrieve_not_found(self):
+        client = APIClient()
+
+        response = client.get('/api/games/83')
+
+        self.assertEqual(404, response.status_code)
+
     def test_create(self):
         league = _factory.LeagueFactory()
         user = _factory.OfficialFactory()
@@ -525,6 +532,25 @@ class TestApplicationViewSet(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.json()))
 
+    def test_list_notes(self):
+        entry = _factory.ApplicationEntryFactory()
+        notes = _factory.ApplicationNotesFactory(
+            official=entry.official, game=entry.game,
+            content='Here is an note')
+        admin = entry.official
+        admin.scheduling.add(entry.game.league)
+
+        client = APIClient()
+        client.force_authenticate(admin)
+
+        response = client.get(
+            '/api/games/{}/applications/'.format(entry.game.id))
+
+        self.assertEqual(200, response.status_code)
+        applications = response.json()
+        self.assertEqual(1, len(applications))
+        self.assertEqual(notes.content, applications[0]['notes'])
+
     def test_list_not_logged_in(self):
         entry = _factory.ApplicationEntryFactory()
 
@@ -552,7 +578,7 @@ class TestApplicationViewSet(TestCase):
 
         client = APIClient()
         client.force_authenticate(user)
-        data = ['1']
+        data = {'preferences': ['1']}
 
         response = client.post(
             '/api/games/{}/applications/'.format(game.id),
@@ -562,11 +588,32 @@ class TestApplicationViewSet(TestCase):
         game = models.Game.objects.get(pk=game.id)
         self.assertEqual(1, game.applicants.count())
 
+    def test_create_notes(self):
+        user = _factory.OfficialFactory()
+        game = _factory.GameFactory()
+
+        client = APIClient()
+        client.force_authenticate(user)
+        data = {
+            'notes': 'Here is a note',
+            'preferences': ['1']}
+
+        response = client.post(
+            '/api/games/{}/applications/'.format(game.id),
+            data, format='json')
+
+        self.assertEqual(201, response.status_code)
+        game = models.Game.objects.get(pk=game.id)
+        self.assertEqual(1, game.applicants.count())
+        notes = models.ApplicationNotes.objects.get(
+            official=user, game=game)
+        self.assertEqual(notes.content, 'Here is a note')
+
     def test_create_not_logged_in(self):
         game = _factory.GameFactory()
 
         client = APIClient()
-        data = ['1']
+        data = {'preferences': ['1']}
 
         response = client.post(
             '/api/games/{}/applications/'.format(game.id),
@@ -579,7 +626,7 @@ class TestApplicationViewSet(TestCase):
 
         client = APIClient()
         client.force_authenticate(entry.official)
-        data = ['1']
+        data = {'preferences': ['1']}
 
         response = client.post(
             '/api/games/{}/applications/'.format(entry.game.id),
@@ -640,6 +687,24 @@ class TestLoserApplicationViewSet(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.json()))
 
+    def test_list_notes(self):
+        entry = _factory.LoserApplicationEntryFactory()
+        entry.official.notes = 'Here is a note'
+        entry.official.save()
+        admin = _factory.OfficialFactory()
+        admin.scheduling.add(entry.game.league)
+
+        client = APIClient()
+        client.force_authenticate(admin)
+
+        response = client.get(
+            '/api/games/{}/lapplications/'.format(entry.game.id))
+
+        self.assertEqual(200, response.status_code)
+        lapplications = response.json()
+        self.assertEqual(1, len(lapplications))
+        self.assertEqual(entry.official.notes, lapplications[0]['notes'])
+
     def test_list_not_logged_in(self):
         entry = _factory.LoserApplicationEntryFactory()
 
@@ -667,8 +732,8 @@ class TestLoserApplicationViewSet(TestCase):
 
         client = APIClient()
         data = {
-            'name': 'Mike Mayhem',
-            'email': 'abc@example.com',
+            'name': 'Maddy Mayhem',
+            'email': 'maddy@example.com',
             'preferences': ['1']
         }
 
@@ -679,6 +744,25 @@ class TestLoserApplicationViewSet(TestCase):
         self.assertEqual(201, response.status_code)
         game = models.Game.objects.get(pk=game.id)
         self.assertEqual(1, game.losers.count())
+
+    def test_create_with_notes(self):
+        game = _factory.GameFactory()
+
+        client = APIClient()
+        data = {
+            'name': 'Maddy Mayhem',
+            'email': 'maddy@example.com',
+            'preferences': ['1'],
+            'notes': 'Suh',
+        }
+
+        response = client.post(
+            '/api/games/{}/lapplications/'.format(game.id),
+            data, format='json')
+
+        self.assertEqual(201, response.status_code)
+        game = models.Game.objects.get(pk=game.id)
+        self.assertEqual('Suh', game.losers.all()[0].notes)
 
     def test_create_bad_data(self):
         game = _factory.GameFactory()
