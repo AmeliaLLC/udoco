@@ -9,37 +9,26 @@ export default class Applicant extends React.Component{
     }
     this.state = {classes};
   }
-  select=(index)=>{
-    // let copy = this.state.classes.slice('');
-    // if(!copy[index]){
-    //   copy[index] = " blue lighten-2";
-    // }else{
-    //   copy[index] = null;
-    // }
-    //
-    // this.setState({classes:copy});
-    // let rosterAddition = {
-    //   role: this.props.preferences[index],
-    //   name: this.props.name
-    // };
-    // this.props.addToRoster(rosterAddition);
-  }
   render(){
     return (
       <div className="row">
         <div className="col s12">
           <ul className="collapsible">
             <li>
-            <div className="collapsible-header">{this.props.name}</div>
-            <div className="collapsible-body">
-              {this.props.preferences.map((preference,index)=>(
-                <div onClick={()=>{this.select(index)}} className={"chip "+this.state.classes[index]}>
-                  {preference}
-                </div>))
-              }
-              <br/>
-              <a hidden={true}>VIEW ACCOUNT</a>
-            </div>
+              <div className="collapsible-header">{this.props.name}</div>
+              <div className="collapsible-body">
+                <h6><b>Preferred Positions</b></h6>
+                {this.props.preferences.map((preference,index)=>(
+                  <div onClick={()=>{this.select(index)}} className={"chip "+this.state.classes[index]}>
+                    {preference}
+                  </div>))
+                }
+                <hr/>
+                <h6><b>Notes</b></h6>
+                <p>{`"${this.props.notes}"`}</p>
+                <br/>
+                <a hidden={true}>VIEW ACCOUNT</a>
+              </div>
             </li>
           </ul>
 

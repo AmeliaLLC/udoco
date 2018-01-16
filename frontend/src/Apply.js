@@ -142,28 +142,27 @@ class Apply extends Component {
       };
     }
 
-    console.log(body);
-    // fetch(url, {
-    //   credentials: 'include',
-    //   method: 'POST',
-    //   headers: {
-    //     'X-CSRFToken': getCSRFToken(),
-    //     'Content-type': 'application/json'
-    //   },
-    //   body: JSON.stringify(body)
-    // })
-    // .then((response) => {
-    //   if (response.status === 409) {
-    //     Materialize.toast('You cannot apply to this event at this time.', 10000);
-    //   } else if (response.status === 201) {
-    //     Materialize.toast('Your application has been received.', 10000)
-    //     this.setState({redirect: true});
-    //   }
-    // })
-    // .catch((err) => {
-    //   console.error(err);
-    //   Materialize.toast('An unknown error has occurred.', 10000)
-    // });
+    fetch(url, {
+      credentials: 'include',
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCSRFToken(),
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    })
+    .then((response) => {
+      if (response.status === 409) {
+        Materialize.toast('You cannot apply to this event at this time.', 10000);
+      } else if (response.status === 201) {
+        Materialize.toast('Your application has been received.', 10000)
+        this.setState({redirect: true});
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      Materialize.toast('An unknown error has occurred.', 10000)
+    });
   }
 
   onChange(old_value, new_value) {
