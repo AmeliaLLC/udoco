@@ -247,7 +247,13 @@ export default class ScheduleEvent extends React.Component {
                 {(this.state.applications.length === 0 &&
                   <p>There are no Applicants for this event.</p>
                 )}
-                {this.state.applications.map((application)=>(<Applicant name={application.display_name || application.derby_name} preferences={application.preferences} addToRoster={this.addToRoster}/>))}
+                {( this.state.applications.length > 0 &&
+                  <div>
+                    <p className="center">{"Touch an applicant's name to see their preferences and notes"}.</p>
+                  </div>
+                )}
+                <br/>
+                {this.state.applications.map((application)=>(<Applicant name={application.display_name || application.derby_name} preferences={application.preferences} addToRoster={this.addToRoster} notes={application.notes}/>))}
                 </div>
               </li>
             </ul>
