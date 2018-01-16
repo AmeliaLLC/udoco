@@ -72,7 +72,8 @@ class Apply extends Component {
       email: '',
       user: null,
       preferences: [''],
-      redirect: false
+      redirect: false,
+      notes: ''
     }
   }
 
@@ -131,34 +132,38 @@ class Apply extends Component {
       body = {
         name: this.state.name,
         email: this.state.email,
-        preferences: preferences
+        preferences: preferences,
+        notes: this.state.notes
       };
     }else{
-      body = preferences;
+      body = {
+        preferences,
+        notes: this.state.notes
+      };
     }
 
-
-    fetch(url, {
-      credentials: 'include',
-      method: 'POST',
-      headers: {
-        'X-CSRFToken': getCSRFToken(),
-        'Content-type': 'application/json'
-      },
-      body: JSON.stringify(body)
-    })
-    .then((response) => {
-      if (response.status === 409) {
-        Materialize.toast('You cannot apply to this event at this time.', 10000);
-      } else if (response.status === 201) {
-        Materialize.toast('Your application has been received.', 10000)
-        this.setState({redirect: true});
-      }
-    })
-    .catch((err) => {
-      console.error(err);
-      Materialize.toast('An unknown error has occurred.', 10000)
-    });
+    console.log(body);
+    // fetch(url, {
+    //   credentials: 'include',
+    //   method: 'POST',
+    //   headers: {
+    //     'X-CSRFToken': getCSRFToken(),
+    //     'Content-type': 'application/json'
+    //   },
+    //   body: JSON.stringify(body)
+    // })
+    // .then((response) => {
+    //   if (response.status === 409) {
+    //     Materialize.toast('You cannot apply to this event at this time.', 10000);
+    //   } else if (response.status === 201) {
+    //     Materialize.toast('Your application has been received.', 10000)
+    //     this.setState({redirect: true});
+    //   }
+    // })
+    // .catch((err) => {
+    //   console.error(err);
+    //   Materialize.toast('An unknown error has occurred.', 10000)
+    // });
   }
 
   onChange(old_value, new_value) {
@@ -191,6 +196,11 @@ class Apply extends Component {
     this.setState({email: e.target.value});
   }
 
+  updateNotes = (e)=> {
+    e.preventDefault();
+    this.setState({notes: this.refs.notes.value})
+  }
+
   render() {
     return (
       <div>
@@ -209,23 +219,35 @@ class Apply extends Component {
             </div>
             {(this.state.user === null &&
               <div className="row">
-                <div className="input-field col s12">
+                <div className="input-field col s12 m6">
                   <input placeholder="" id="name" type="text" className="validate" value={this.state.name} onChange={this.onNameChange.bind(this)} />
-                  <label for="name">Derby name</label>
+                  <label HTMLfor="name">Derby name</label>
                 </div>
               </div>
             )}
             {(this.state.user === null &&
               <div className="row">
-                <div className="input-field col s6">
+                <div className="input-field col s12 m6">
                   <input placeholder="" id="email" type="email" className="validate" value={this.state.email} onChange={this.onEmailChange.bind(this)} />
-                  <label for="email">Email address</label>
+                  <label HTMLfor="email">Email address</label>
                 </div>
               </div>
             )}
             {this.state.preferences.map((item, idx) => (
               <Preference change={this.onChange.bind(this)} value={item}/>
             ))}
+
+            <div className="row">
+              <form className="col s12">
+                <div className="row">
+                  <div className="input-field col s12 m6">
+                    <label>Additional Notes</label>
+                    <textarea onChange={this.updateNotes} ref="notes"  className="materialize-textarea"></textarea>
+                  </div>
+                </div>
+              </form>
+            </div>
+
             <div className="row">
               <div className="input-field col s12">
                 <a onClick={this.onApply.bind(this)} className="center waves-effect waves-light btn blue-grey darken-4 col s12 m6">apply</a>
