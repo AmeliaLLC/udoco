@@ -202,10 +202,10 @@ LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/'
 
 # see http://developer.yahoo.com/performance/rules.html#expires
-#AWS_HEADERS = {
-#    'Expires': 'Thu, 31 Dec 2099 20:00:00 GMT',
-#    'Cache-Control': 'max-age=94608000',
-#}
+# AWS_HEADERS = {
+#     'Expires': 'Thu, 31 Dec 2099 20:00:00 GMT',
+#     'Cache-Control': 'max-age=94608000',
+# }
 AWS_ACCESS_KEY_ID = 'AKIAIUM5IHXVVDTZDQZA'
 AWS_SECRET_ACCESS_KEY = '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'
 CERTBOT_KEY = 'rRTGUXm3mog8R8A-ya8jZd7oaCxAUoqaGoePIjEHzNs.1hN7_j2-YyhJL2p6UlQIEvs3u7g3uP8LuwyXnjemVoM'  # NOQA
@@ -276,6 +276,11 @@ if 'DATABASE_URL' in os.environ:
     CSRF_COOKIE_SECURE = True
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+    REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = (
+        'rest_framework.renderers.JSONRenderer',
+    )
+
 else:
     import subprocess
     GITREV = subprocess.check_output(
