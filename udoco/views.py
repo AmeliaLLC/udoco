@@ -231,6 +231,8 @@ class LeagueScheduleViewSet(GameViewSet):
     permission_classes = [IsScheduler]
 
     def list(self, request):
+        if getattr(request.user, 'league', None) is None:
+            return Response(None, status=status.HTTP_401_UNAUTHORIZED)
         queryset = self.queryset.filter(league=request.user.league)
         serializer = self.serializer_class(
             data=queryset, context={'request': request}, many=True)
