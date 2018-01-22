@@ -257,7 +257,7 @@ class ScheduleViewSet(viewsets.ReadOnlyModelViewSet):
         )
         # TODO: Should we add in applications?
         return models.Game.objects.filter(
-            start__gt=datetime.now(),
+            start__gt=datetime.now(), complete=True,
             id__in=[r.game.id for r in rosters])
 
     def list(self, request):

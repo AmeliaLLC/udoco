@@ -396,7 +396,7 @@ class TestScheduleViewSet(TestCase):
 
     def test_list(self):
         user = _factory.OfficialFactory()
-        _factory.RosterFactory(hr=user)
+        _factory.RosterFactory(hr=user, game__complete=True)
 
         client = APIClient()
         client.force_authenticate(user)
@@ -405,6 +405,18 @@ class TestScheduleViewSet(TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.json()))
+
+    def test_list_rostered_but_not_complete(self):
+        user = _factory.OfficialFactory()
+        _factory.RosterFactory(hr=user)
+
+        client = APIClient()
+        client.force_authenticate(user)
+
+        response = client.get('/api/schedule')
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0, len(response.json()))
 
     def test_list_anonymous(self):
         _factory.RosterFactory()
