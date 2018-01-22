@@ -380,6 +380,16 @@ class TestLeagueScheduleViewSet(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(5, len(response.json()))
 
+    def test_list_non_scheduler(self):
+        user = _factory.OfficialFactory()
+
+        client = APIClient()
+        client.force_authenticate(user)
+
+        response = client.get('/api/league_schedule')
+
+        self.assertEqual(401, response.status_code)
+
 
 class TestScheduleViewSet(TestCase):
     """Tests for udoco.views.ScheduleViewSet."""
