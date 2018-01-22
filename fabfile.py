@@ -1,9 +1,10 @@
 import os
-import subprocess
 import sys
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'udoco.settings'
-sys.path += ['.']
+os.environ['DJANGO_SETTINGS_MODULE'] = 'udoco.settings'  # NOQA
+sys.path += ['.']  # NOQA
+
+import subprocess
 
 from django.conf import settings
 from fabric.api import local
