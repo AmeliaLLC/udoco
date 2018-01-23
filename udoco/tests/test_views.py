@@ -404,7 +404,9 @@ class TestScheduleViewSet(TestCase):
         response = client.get('/api/schedule')
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1, len(response.json()))
+        data = response.json()
+        self.assertEqual(1, len(data))
+        self.assertTrue(data[0]['complete'])
 
     def test_list_rostered_but_not_complete(self):
         user = _factory.OfficialFactory()
@@ -426,6 +428,35 @@ class TestScheduleViewSet(TestCase):
         response = client.get('/api/schedule')
 
         self.assertEqual(403, response.status_code)
+
+    def test_list_applied_but_not_complete(self):
+        entry = _factory.ApplicationEntryFactory()
+        user = entry.official
+
+        client = APIClient()
+        client.force_authenticate(user)
+
+        response = client.get('/api/schedule')
+
+        self.assertEqual(200, response.status_code)
+        data = response.json()
+        self.assertEqual(1, len(data))
+        self.assertFalse(data[0]['complete'])
+        self.assertTrue(data[0]['has_applied'])
+
+    def test_list_applied_but_not_rostered(self):
+        entry = _factory.ApplicationEntryFactory()
+        entry.game.complete = True
+        entry.game.save()
+        user = entry.official
+
+        client = APIClient()
+        client.force_authenticate(user)
+
+        response = client.get('/api/schedule')
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0, len(response.json()))
 
 
 class TestRosterViewSet(TestCase):

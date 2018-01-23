@@ -253,12 +253,15 @@ class ScheduleViewSet(viewsets.ReadOnlyModelViewSet):
             Q(jt=user) | Q(sk1=user) | Q(sk2=user) | Q(pbm=user) |
             Q(pbt1=user) | Q(pbt2=user) | Q(pt1=user) | Q(pt2=user) |
             Q(pw=user) | Q(iwb=user) | Q(lt1=user) | Q(lt2=user) |
-            Q(so=user) | Q(hnso=user) | Q(nsoalt=user) | Q(ptimer=user)
+            Q(so=user) | Q(hnso=user) | Q(nsoalt=user) | Q(ptimer=user),
+            game__complete=True
         )
-        # TODO: Should we add in applications?
+        applications = models.ApplicationEntry.objects.filter(
+            game__complete=False, official=user)
+        ids = set(
+            [r.game.id for r in rosters] + [a.game.id for a in applications])
         return models.Game.objects.filter(
-            start__gt=datetime.now(), complete=True,
-            id__in=[r.game.id for r in rosters])
+            start__gt=datetime.now(), id__in=ids)
 
     def list(self, request):
         serializer = self.serializer_class(
