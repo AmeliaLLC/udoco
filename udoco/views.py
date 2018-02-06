@@ -415,6 +415,8 @@ class ApplicationViewSet(viewsets.ModelViewSet):
 
         models.ApplicationEntry.objects.filter(
             official=request.user, game=game).delete()
+        models.ApplicationNotes.objects.filter(
+            official=request.user, game=game).delete()
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 

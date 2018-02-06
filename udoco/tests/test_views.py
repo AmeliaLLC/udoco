@@ -640,6 +640,26 @@ class TestApplicationViewSet(TestCase):
         self.assertEqual(201, response.status_code)
         game = models.Game.objects.get(pk=game.id)
         self.assertEqual(1, game.applicants.count())
+        self.assertEqual(0, models.ApplicationNotes.objects.all().count())
+
+    def test_create_empty_notes(self):
+        user = _factory.OfficialFactory()
+        game = _factory.GameFactory()
+
+        client = APIClient()
+        client.force_authenticate(user)
+        data = {
+            'notes': '',
+            'preferences': ['1']}
+
+        response = client.post(
+            '/api/games/{}/applications/'.format(game.id),
+            data, format='json')
+
+        self.assertEqual(201, response.status_code)
+        game = models.Game.objects.get(pk=game.id)
+        self.assertEqual(1, game.applicants.count())
+        self.assertEqual(0, models.ApplicationNotes.objects.all().count())
 
     def test_create_notes(self):
         user = _factory.OfficialFactory()
@@ -700,6 +720,24 @@ class TestApplicationViewSet(TestCase):
         self.assertEqual(204, response.status_code)
         game = models.Game.objects.get(pk=entry.game.id)
         self.assertEqual(0, game.applicants.count())
+
+    def test_delete_application_notes(self):
+        entry = _factory.ApplicationEntryFactory()
+        _factory.ApplicationNotesFactory(
+            official=entry.official, game=entry.game,
+            content='Here is an note')
+        user = entry.official
+
+        client = APIClient()
+        client.force_authenticate(user)
+
+        response = client.delete(
+            '/api/games/{}/applications/0/'.format(entry.game.id))
+
+        self.assertEqual(204, response.status_code)
+        game = models.Game.objects.get(pk=entry.game.id)
+        self.assertEqual(0, game.applicants.count())
+        self.assertEqual(0, models.ApplicationNotes.objects.all().count())
 
     def test_delete_not_logged_in(self):
         entry = _factory.ApplicationEntryFactory()
