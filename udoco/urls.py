@@ -27,8 +27,10 @@ urlpatterns = [
     url(r'^calendar/$', feeds.AllGameFeed()),
     url(r'^calendar/leagues/(?P<league_id>\d+)/$', feeds.LeagueGameFeed()),
 
-    url(r'^robots.txt', TemplateView.as_view(template_name='robots.txt')),
-    url(r'^privacy.txt', TemplateView.as_view(template_name='privacy.txt')),
+    url(r'^robots.txt', TemplateView.as_view(
+        template_name='robots.txt', content_type='text/plain')),
+    url(r'^privacy', TemplateView.as_view(
+        template_name='privacy.txt', content_type='text/plain')),
     url('^auth/', include('social_django.urls', namespace='social')),
 
     url(r'^api/', include(games_router.urls)),
