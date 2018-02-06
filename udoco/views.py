@@ -177,6 +177,7 @@ class GameViewSet(viewsets.ModelViewSet):
             completing = True
 
         if 'title' in request.data:
+            # Updating event info, but not completing
             game.title = request.data.get('title', game.title)
             game.location = request.data.get('location', game.location)
             game.start = date_parser.parse(request.data['start'])
@@ -185,6 +186,7 @@ class GameViewSet(viewsets.ModelViewSet):
         game = self.queryset.get(pk=pk)
 
         if completing:
+            # Completing game schedule, not updating info
             with mail.get_connection() as connection:
                 mail.EmailMessage(
                     render_to_string(
@@ -393,7 +395,8 @@ class ApplicationViewSet(viewsets.ModelViewSet):
                 index=preferences.index(p),
                 preference=p)
 
-        if request.data.get('notes') is not None:
+        notes = request.data.get('notes')
+        if notes is not None and len(notes) > 0:
             models.ApplicationNotes.objects.create(
                 official=request.user, game=game,
                 content=request.data.get('notes'))
