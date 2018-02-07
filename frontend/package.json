@@ -20,7 +20,7 @@
   },
   "scripts": {
     "watch": "npm-watch",
-    "integrate": "react-scripts build && cp build/static/js/main.*.js ../static/app.js && cp build/static/css/main.*.css ../static/app.css",
+    "integrate": "rm -f ../static/*.map && react-scripts build && cp build/static/js/main.*.js ../static/app.js && cp build/static/css/main.*.css ../static/app.css && cp build/static/css/*.map build/static/js/*.map ../static/",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",

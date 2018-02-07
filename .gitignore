@@ -6,4 +6,5 @@ db.sqlite3
 udoco/_settings.py
 static/app.js
 static/app.css
+static/*.map
 media/
