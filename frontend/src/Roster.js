@@ -18,15 +18,13 @@ export default class Roster extends React.Component {
   }
 
   spotFilled = (spot)=>{
-      console.log('spotFilled 1');
     let filledApplicantId = this.props.roster[spot];
     if(!filledApplicantId){
       return null;
     }
-      console.log('spotFilled 2');
     let relevantUser = this.props.applications.find(user=>user.id===Math.abs(filledApplicantId));
+      console.log(relevantUser);
     let name = relevantUser.display_name || relevantUser.derby_name;
-      console.log('spotFilled 3');
     return name;
   }
 
