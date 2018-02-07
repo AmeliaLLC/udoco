@@ -22,6 +22,7 @@ export default class Roster extends React.Component {
     if(!filledApplicantId){
       return null;
     }
+    debugger;
     let relevantUser = this.props.applications.find(user=>user.id===Math.abs(filledApplicantId));
     let name = relevantUser.display_name || relevantUser.derby_name;
     return name;
