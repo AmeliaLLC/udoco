@@ -24,7 +24,8 @@ export default class Roster extends React.Component {
     }
     let relevantUser = this.props.applications.find(user=>user.id===Math.abs(filledApplicantId));
     if (relevantUser === undefined) {
-        console.err(`No relevant user found with id: ${filledApplicantId} and applications: ${this.props.applications}`);
+        console.log('Problem with user ', filledApplicantId);
+        console.log('Applications: ', this.props.applications);
         return null;
     }
     let name = relevantUser.display_name || relevantUser.derby_name;
