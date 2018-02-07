@@ -23,6 +23,9 @@ export default class Roster extends React.Component {
       return null;
     }
     let relevantUser = this.props.applications.find(user=>user.id===Math.abs(filledApplicantId));
+    /* XXX: rockstar (7 Feb 2018) - If the user withdraws their application,
+     * they should no longer be rostered. This is a bug.
+     */
     if (relevantUser === undefined) {
         console.log('Problem with user ', filledApplicantId);
         console.log('Applications: ', this.props.applications);
