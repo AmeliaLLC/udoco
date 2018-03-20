@@ -65,7 +65,6 @@ MIDDLEWARE_CLASSES = [
 
 
 AUTHENTICATION_BACKENDS = (
-    'social_core.backends.facebook.FacebookAppOAuth2',
     'social_core.backends.facebook.FacebookOAuth2',
 )
 
