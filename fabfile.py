@@ -17,25 +17,25 @@ PROJECT_ID = '137988'
 PROJECT_KEY = '08759bfe62310fbf1c03df886c525000'
 
 
-def generate_cert():
+def manage_certs():
     """Generate a certificate."""
-    local('mkdir -p certbot')
-    local(
-        'certbot --config-dir certbot --work-dir certbot --logs-dir certbot '
-        'certonly --manual'
-    )
-    local('heroku certs:add certbot/live/www.udoco.org/fullchain.pem '
-          'certbot/live/www.udoco.org/privkey.pem')
+    update = True
+    if not os.path.exists('certbot'):
+        local('mkdir -p certbot')
+        update = False
 
-
-def renew_cert():
-    """Renew the cert."""
     local(
-        'certbot --config-dir certbot --work-dir certbot --logs-dir certbot '
-        'renew'
+        'certbot --config-dir certbot --work-dir certbot --logs-dir '
+        'certbot -d www.udoco.org certonly --manual'
     )
-    local('heroku certs:update certbot/live/www.udoco.org/fullchain.pem '
-          'certbot/live/www.udoco.org/privkey.pem')
+
+    if update:
+        local('heroku certs:update --confirm udoco '
+              'certbot/live/www.udoco.org/fullchain.pem '
+              'certbot/live/www.udoco.org/privkey.pem')
+    else:
+        local('heroku certs:add certbot/live/www.udoco.org/fullchain.pem '
+              'certbot/live/www.udoco.org/privkey.pem')
 
 
 def staticupload():
