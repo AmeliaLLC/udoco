@@ -55,3 +55,11 @@ ul.collapsible {
 .picker__today,.picker__close{
   color: black;
 }
+
+div.tab-content {
+    padding-top: 50px;
+}
+
+span.notes {
+    font-size: 80%;
+}

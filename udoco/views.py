@@ -103,9 +103,12 @@ def feedback(request):
         return Response(None, status=401)
 
     try:
+        message = request.data['message']
+        if len(message) < 1:
+            raise ValueError
         context = {
             'user': request.user,
-            'message': request.data['message'],
+            'message': message,
         }
     except (KeyError, ValueError):
         return HttpResponseBadRequest()
@@ -324,7 +327,11 @@ class RosterViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.RosterSerializer
     permission_classes = [permissions.IsAuthenticated, CanScheduleGame]
 
-    def get_queryset(self, game_pk, pk=None):
+    def get_queryset(self, game_pk=None, pk=None):
+        # XXX: rockstar (1 Jan 2019) - Wtf. Why did this work without the
+        # default?
+        if game_pk is None:
+            return None
         if pk is not None:
             return models.Roster.objects.get(pk=pk, game__id=game_pk)
         else:
@@ -370,7 +377,11 @@ class ApplicationViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ApplicationSerializer
     permission_classes = [permissions.IsAuthenticated, CanViewScheduleGame]
 
-    def get_queryset(self, game_pk, pk=None):
+    def get_queryset(self, game_pk=None, pk=None):
+        # XXX: rockstar (1 Jan 2019) - Wtf. Why did this work without the
+        # default?
+        if game_pk is None:
+            return None
         game = models.Game.objects.get(pk=game_pk)
         return models.Official.objects.filter(
             applicationentries__in=game.applicationentries.all()
