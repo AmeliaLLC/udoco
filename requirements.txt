@@ -9,7 +9,7 @@ django-airbrake==1.2.0
 django-storages==1.4.1
 boto==2.40.0
 dj-database-url==0.4.1
-psycopg2==2.6.1  # LDFLAGS="-L/usr/local/opt/openssl/lib"
+psycopg2==2.7.5  # LDFLAGS="-L/usr/local/opt/openssl/lib"
 Pillow==3.3.1
 django-anymail==0.5
 djangorestframework==3.4.7
