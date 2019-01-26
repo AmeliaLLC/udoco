@@ -6,11 +6,8 @@ and `requirements-dev.txt`. How you do that is up to you (there are too many opi
 The frontend uses React, so you'll need to install those dependencies with
 `npm install`.
 
-The entire stack is run via `manage.py run`. That starts a npm process that runs
-`npm run watch` along with the the development server. It will build the application
-in `frontend/src` into `static/app.js` and `static/app.css`. The only relevant
-django templates are `templates/application.html` (the application itself) and
-`templates/udoco/contact.html` (which should really be replaced with a admin view.
+To run the entire stack, start the backend via `manage.py runserver`, and then
+`cd frontend && HTTPS=true npm start`.
 
 Deploying the site
 ==================

@@ -8,7 +8,7 @@ sys.path += [os.path.dirname(os.path.dirname(__file__))]
 os.environ['DJANGO_SETTINGS_MODULE'] = 'udoco.settings'
 django.setup()
 
-from udoco.tests.factory import GameFactory, LeagueFactory
+from udoco.tests.factory import GameFactory, LeagueFactory  # NOQA
 
 
 league = LeagueFactory(name='Demo league')

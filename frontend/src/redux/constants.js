@@ -1,4 +1,0 @@
-export default {
-  DO_A_THING: "DO_A_THING",
-  DO_A_DIFFERENT_THING: "DO_A_DIFFERENT_THING"
-}
