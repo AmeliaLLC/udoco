@@ -351,17 +351,49 @@ class RosterViewSet(viewsets.ModelViewSet):
 
     def create(self, request, game_pk):
         roster = models.Roster(game_id=game_pk)
+        old_emails = roster.game.rostered_emails
         self.check_object_permissions(self.request, roster)
         _update_roster_from_data(roster, request.data)
         roster.save()
+        new_emails = roster.game.rostered_emails
+        emails = [e for e in new_emails if e not in old_emails]
+        if len(emails) > 0:
+            with mail.get_connection() as connection:
+                mail.EmailMessage(
+                    render_to_string(
+                        'email/rostered_title.txt',
+                        {'game': roster.game}),
+                    render_to_string(
+                        'email/rostered_body.txt',
+                        {'game': roster.game}),
+                    'United Derby Officials Colorado <no-reply@udoco.org>',
+                    ['United Derby Officials Colorado <no-reply@udoco.org>'],
+                    bcc=emails,
+                    connection=connection).send()
         serializer = self.serializer_class(roster)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, game_pk, pk):
         roster = self.get_queryset(game_pk, pk)
+        old_emails = roster.game.rostered_emails
         self.check_object_permissions(self.request, roster)
         _update_roster_from_data(roster, request.data)
         roster.save()
+        new_emails = roster.game.rostered_emails
+        emails = [e for e in new_emails if e not in old_emails]
+        if len(emails) > 0:
+            with mail.get_connection() as connection:
+                mail.EmailMessage(
+                    render_to_string(
+                        'email/rostered_title.txt',
+                        {'game': roster.game}),
+                    render_to_string(
+                        'email/rostered_body.txt',
+                        {'game': roster.game}),
+                    'United Derby Officials Colorado <no-reply@udoco.org>',
+                    ['United Derby Officials Colorado <no-reply@udoco.org>'],
+                    bcc=emails,
+                    connection=connection).send()
         serializer = self.serializer_class(roster)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

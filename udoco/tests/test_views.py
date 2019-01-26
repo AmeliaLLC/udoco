@@ -517,9 +517,10 @@ class TestRosterViewSet(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(user.id, response.json()['hr'])
 
-    def test_create(self):
+    @unittest.mock.patch('udoco.views.mail')
+    def test_create(self, mail):
         game = _factory.GameFactory()
-        user = _factory.OfficialFactory()
+        user = _factory.OfficialFactory(email='headref_is_best@example.com')
         loser = _factory.LoserFactory()
         user.scheduling.add(game.league)
 
@@ -534,10 +535,37 @@ class TestRosterViewSet(TestCase):
         self.assertEqual(201, response.status_code)
         self.assertEqual(user.id, response.json()['hr'])
         self.assertEqual(0 - loser.id, response.json()['ipr'])
+        call = mail.EmailMessage.call_args[1]
+        self.assertIn('headref_is_best@example.com', call['bcc'])
 
-    def test_update(self):
+    @unittest.mock.patch('udoco.views.mail')
+    def test_create_already_rostered(self, mail):
+        """Officials already rostered in the same event are not notified."""
+        user = _factory.OfficialFactory(email='headref_is_best@example.com')
+        roster = _factory.RosterFactory(hr=user)
+        game = roster.game
+        loser = _factory.LoserFactory()
+        user.scheduling.add(game.league)
+
+        client = APIClient()
+        client.force_authenticate(user)
+        data = {'hr': user.id, 'ipr': 0 - loser.id}
+
+        response = client.post(
+            '/api/games/{}/rosters/'.format(game.id),
+            data, format='json')
+
+        self.assertEqual(201, response.status_code)
+        self.assertEqual(user.id, response.json()['hr'])
+        self.assertEqual(0 - loser.id, response.json()['ipr'])
+        call = mail.EmailMessage.call_args[1]
+        self.assertNotIn('headref_is_best@example.com', call['bcc'])
+        self.assertIn(loser.email, call['bcc'])
+
+    @unittest.mock.patch('udoco.views.mail')
+    def test_update(self, mail):
         roster = _factory.RosterFactory()
-        user = _factory.OfficialFactory()
+        user = _factory.OfficialFactory(email='headref_is_best@example.com')
         user.scheduling.add(roster.game.league)
 
         client = APIClient()
@@ -552,6 +580,31 @@ class TestRosterViewSet(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(user.id, response.json()['hr'])
         self.assertEqual(None, response.json()['ipr'])
+        call = mail.EmailMessage.call_args[1]
+        self.assertIn('headref_is_best@example.com', call['bcc'])
+
+    @unittest.mock.patch('udoco.views.mail')
+    def test_update_already_rostered(self, mail):
+        """Officials already rostered are not notified again."""
+        ipr = _factory.OfficialFactory(email='lowly_ipr@example.com')
+        user = _factory.OfficialFactory(email='headref_is_best@example.com')
+        roster = _factory.RosterFactory(ipr=ipr)
+        user.scheduling.add(roster.game.league)
+
+        client = APIClient()
+        client.force_authenticate(user)
+        data = {'hr': user.id, 'ipr': None}
+
+        response = client.put(
+            '/api/games/{}/rosters/{}/'.format(
+                roster.game.id, roster.id),
+            data, format='json')
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(user.id, response.json()['hr'])
+        self.assertEqual(None, response.json()['ipr'])
+        call = mail.EmailMessage.call_args[1]
+        self.assertNotIn('lowly_ipr@example.com', call['bcc'])
 
     def test_destroy(self):
         user = _factory.OfficialFactory()

@@ -164,11 +164,17 @@ class Game(models.Model):
         ).distinct()
 
     @property
+    def rostered_emails(self):
+        """Return the emails of all rostered officials."""
+        recipients = []
+        for roster in self.rosters.all():
+            recipients += roster.emails
+        return recipients
+
+    @property
     def emails(self):
         if self.complete:
-            recipients = []
-            for roster in self.rosters.all():
-                recipients += roster.emails
+            return self.rostered_emails
         else:
             recipients = [
                 official.email for official in self.applicants]

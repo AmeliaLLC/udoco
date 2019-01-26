@@ -1,0 +1,10 @@
+{% load tz %}Dear Official,
+
+  Save the date! You've been staffed for {{ game.title }} on {{ game.start|date:"j M Y" }} with a {{ game.call_time|localtime|date:"H:i" }} call time. As the scheduling firms up and is completed, you'll find out more information. For now, sit tight!
+
+  If your plans change, and you need to withdraw your application, you can do so by visiting {{ game.get_absolute_url }} - You'll find a link to withdraw your application.
+
+  Thanks so much for your willingness to help. You're what makes Colorado Roller Derby happpen!
+
+{% for scheduler in game.league.schedulers.all %}{{ scheduler }} {% if scheduler.phone_number %}{% endif %}
+{% endfor %}

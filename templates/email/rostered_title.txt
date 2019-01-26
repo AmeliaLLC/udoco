@@ -1,0 +1,1 @@
+Save the date! {{ game.start|date:"j M Y" }} @ {{ game.title|safe }}
