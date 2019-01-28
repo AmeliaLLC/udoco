@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from dateutil import parser as date_parser
 from django.conf import settings
@@ -278,9 +278,10 @@ class ScheduleViewSet(viewsets.ReadOnlyModelViewSet):
 def _update_roster_from_data(roster, data):
     """Update a roster based on json data.
 
-    This updates the roster *in place*, but does not call save on the
-    resulting changes.
+    This function will update the roster and save it. It will return a list
+    of newly rostered officials that were not previously rostered.
     """
+    old_rostered = roster.game.rostered
     for key, val in data.items():
         if val is None or val == '':
             setattr(roster, key, None)
@@ -293,6 +294,33 @@ def _update_roster_from_data(roster, data):
             official = models.Loser.objects.get(pk=abs(val))
             setattr(roster, '{}_x'.format(key), official)
             setattr(roster, key, None)
+    roster.save()
+    return [e for e in roster.game.rostered if e not in old_rostered]
+
+
+def _remove_adjacent_applications(game, rostered):
+    """Remove applications on adjacent games.
+
+    When two games are time-adjacent, judged by the THRESHOLD variable,
+    the moment one league schedules the official, their application is
+    withdrawn from the adjacent events.
+
+    There *may* be cases where this adjacent event logic is overly
+    aggressive. In those cases, it's easy to work around by re-applying
+    to the adjacent event, as this logic only kicks on for newly
+    rostered officials.
+    """
+    # It's possible we'll want to include this information in the
+    # "Save the date!" email.
+    THRESHOLD = timedelta(hours=3)
+    adjacent_games = models.Game.objects.filter(
+        start__gte=game.start - THRESHOLD,
+        start__lte=game.start + THRESHOLD)
+    models.ApplicationEntry.objects.filter(
+        official_id__in=[o.id for o in rostered],
+        game_id__in=[
+            g.id for g in adjacent_games
+            if g.id != game.id]).delete()
 
 
 class CanScheduleGame(permissions.BasePermission):
@@ -351,13 +379,10 @@ class RosterViewSet(viewsets.ModelViewSet):
 
     def create(self, request, game_pk):
         roster = models.Roster(game_id=game_pk)
-        old_emails = roster.game.rostered_emails
         self.check_object_permissions(self.request, roster)
-        _update_roster_from_data(roster, request.data)
-        roster.save()
-        new_emails = roster.game.rostered_emails
-        emails = [e for e in new_emails if e not in old_emails]
-        if len(emails) > 0:
+        rostered = _update_roster_from_data(roster, request.data)
+        if len(rostered) > 0:
+            _remove_adjacent_applications(roster.game, rostered)
             with mail.get_connection() as connection:
                 mail.EmailMessage(
                     render_to_string(
@@ -368,20 +393,17 @@ class RosterViewSet(viewsets.ModelViewSet):
                         {'game': roster.game}),
                     'United Derby Officials Colorado <no-reply@udoco.org>',
                     ['United Derby Officials Colorado <no-reply@udoco.org>'],
-                    bcc=emails,
+                    bcc=[r.email for r in rostered],
                     connection=connection).send()
         serializer = self.serializer_class(roster)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, game_pk, pk):
         roster = self.get_queryset(game_pk, pk)
-        old_emails = roster.game.rostered_emails
         self.check_object_permissions(self.request, roster)
-        _update_roster_from_data(roster, request.data)
-        roster.save()
-        new_emails = roster.game.rostered_emails
-        emails = [e for e in new_emails if e not in old_emails]
-        if len(emails) > 0:
+        rostered = _update_roster_from_data(roster, request.data)
+        if len(rostered) > 0:
+            _remove_adjacent_applications(roster.game, rostered)
             with mail.get_connection() as connection:
                 mail.EmailMessage(
                     render_to_string(
@@ -392,7 +414,7 @@ class RosterViewSet(viewsets.ModelViewSet):
                         {'game': roster.game}),
                     'United Derby Officials Colorado <no-reply@udoco.org>',
                     ['United Derby Officials Colorado <no-reply@udoco.org>'],
-                    bcc=emails,
+                    bcc=[r.email for r in rostered],
                     connection=connection).send()
         serializer = self.serializer_class(roster)
         return Response(serializer.data, status=status.HTTP_200_OK)

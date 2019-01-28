@@ -558,9 +558,43 @@ class TestRosterViewSet(TestCase):
         self.assertEqual(201, response.status_code)
         self.assertEqual(user.id, response.json()['hr'])
         self.assertEqual(0 - loser.id, response.json()['ipr'])
-        call = mail.EmailMessage.call_args[1]
-        self.assertNotIn('headref_is_best@example.com', call['bcc'])
-        self.assertIn(loser.email, call['bcc'])
+        self.assertEqual(0, mail.EmailMessage.call_count)
+
+    @unittest.mock.patch('udoco.views.mail')
+    def test_create_roster_competition(self, mail):
+        """When an official is rostered, adjacent applications are withdrawn."""
+        official = _factory.OfficialFactory()
+        official2 = _factory.OfficialFactory()
+        game1 = _factory.GameFactory()
+        _factory.ApplicationEntryFactory(official=official, game=game1)
+        _factory.ApplicationEntryFactory(official=official2, game=game1)
+        game2 = _factory.GameFactory(start=game1.start)
+        _factory.ApplicationEntryFactory(official=official, game=game2)
+        _factory.ApplicationEntryFactory(official=official2, game=game2)
+        nonadjacent_game = _factory.GameFactory(
+            start=game1.start - timedelta(hours=5))
+        _factory.ApplicationEntryFactory(
+            official=official, game=nonadjacent_game)
+        _factory.ApplicationEntryFactory(
+            official=official2, game=nonadjacent_game)
+
+        user = _factory.OfficialFactory()
+        user.scheduling.add(game1.league)
+
+        client = APIClient()
+        client.force_authenticate(user)
+        data = {'hr': official.id}
+        client.post(
+            '/api/games/{}/rosters/'.format(game1.id),
+            data, format='json')
+
+        self.assertNotIn(official, game2.applicants)
+        self.assertIn(official, game1.applicants)
+        self.assertIn(official, game1.rostered)
+        self.assertIn(official2, game1.applicants)
+        self.assertIn(official2, game2.applicants)
+        self.assertIn(official, nonadjacent_game.applicants)
+        self.assertIn(official2, nonadjacent_game.applicants)
 
     @unittest.mock.patch('udoco.views.mail')
     def test_update(self, mail):
@@ -605,6 +639,31 @@ class TestRosterViewSet(TestCase):
         self.assertEqual(None, response.json()['ipr'])
         call = mail.EmailMessage.call_args[1]
         self.assertNotIn('lowly_ipr@example.com', call['bcc'])
+
+    @unittest.mock.patch('udoco.views.mail')
+    def test_update_roster_competition(self, mail):
+        """When an official is rostered, adjacent applications are withdrawn."""
+        official = _factory.OfficialFactory()
+        game1 = _factory.GameFactory()
+        _factory.ApplicationEntryFactory(official=official, game=game1)
+        game2 = _factory.GameFactory(start=game1.start)
+        _factory.ApplicationEntryFactory(official=official, game=game2)
+
+        roster = _factory.RosterFactory(game=game1)
+        user = _factory.OfficialFactory()
+        user.scheduling.add(game1.league)
+
+        client = APIClient()
+        client.force_authenticate(user)
+        data = {'hr': official.id}
+        client.put(
+            '/api/games/{}/rosters/{}/'.format(
+                roster.game.id, roster.id),
+            data, format='json')
+
+        self.assertNotIn(official, game2.applicants)
+        self.assertIn(official, game1.applicants)
+        self.assertIn(official, game1.rostered)
 
     def test_destroy(self):
         user = _factory.OfficialFactory()
