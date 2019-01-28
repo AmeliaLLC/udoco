@@ -63,3 +63,16 @@ div.tab-content {
 span.notes {
     font-size: 80%;
 }
+
+img.non-mobile-profile {
+    margin: 12px 8px 0px 0px;
+    max-height: 32px;
+    float: left;
+}
+
+img.mobile-profile {
+    margin: 6px 28px 0px 30px;
+    max-height: 32px;
+    float: left;
+}
+
