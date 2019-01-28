@@ -87,7 +87,7 @@ interface IEventApplyRouterProps {
     gameId: string;
 }
 interface IEventApplyProps extends RouteComponentProps<IEventApplyRouterProps> {
-    user?: object;
+    user?: any;
 }
 
 const DefaultEventApplyState = {
@@ -156,6 +156,16 @@ export default class EventApply extends React.Component<IEventApplyProps, IEvent
                 <textarea onChange={this.updateNotes.bind(this)}  className="materialize-textarea"/>
               </div>
             </div>
+
+            {this.props.user !== undefined && (
+            <div className="row">
+                <div className="col s12 m6">
+                    If accepted, you'll recieve an email at {this.props.user.email}. If
+                    this is not your desired email address, <a href="/profile">edit
+                    your profile</a> and set your preferred email address.
+                </div>
+            </div>
+            )}
 
             <div className="row">
               <div className="input-field col s12">
