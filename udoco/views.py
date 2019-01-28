@@ -23,6 +23,15 @@ from rest_framework.response import Response
 from udoco import choices, forms, models, serializers
 
 
+def redirect_old_apply_url(request, game_id):
+    """Redirect the old apply url to the new apply url.
+
+    This is a temporary view while the outstanding links are still
+    active.
+    """
+    return redirect('/games/{}/apply'.format(game_id))
+
+
 def certbot_view(request, public):
     """A view for handling cerbot.
 

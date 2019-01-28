@@ -49,8 +49,13 @@ urlpatterns = [
     url('', include('django.contrib.auth.urls', namespace='auth')),
     url(r'^logout/$', auth_views.logout, name='logout'),
 
+    # XXX: rockstar (28 Jan 2019) - Remove this url and the accompanying
+    # view on or after 28 Apr 2019.
+    url(r'^apply/(?P<game_id>\d+)/', views.redirect_old_apply_url),
+
     url(r'^$', application),
     url(r'^.*/$', application),
+
 ]
 
 
