@@ -11,7 +11,6 @@ interface IButton {
 
 interface INavbarProps {
     user?: any;
-    button?: IButton;
 }
 
 class Navbar extends React.Component <INavbarProps, {}> {
@@ -48,6 +47,11 @@ class Navbar extends React.Component <INavbarProps, {}> {
                         <i className="left material-icons">today</i>My Schedule
                     </Link></li>
                     {this.props.user.league !== null &&
+                    <li><Link to="/games/new">
+                            <i className="left material-icons">add_circle_outline</i>Add New Event
+                    </Link></li>
+                    }
+                    {this.props.user.league !== null &&
                     <li><Link to="/league">
                             <i className="left material-icons">date_range</i>Manage League
                     </Link></li>
@@ -72,25 +76,6 @@ class Navbar extends React.Component <INavbarProps, {}> {
 
                         {this.props.user !== undefined ? (
                         <ul id="nav-non-mobile" className="right hide-on-med-and-down">
-                            {this.props.button ? (
-                            <li>
-
-
-                                {this.props.button.to ? (
-                                <Link to={this.props.button.to}>
-                                    <i className="left material-icons">{this.props.button.icon}</i>
-                                    <span className=" hide-on-med-and-down">{this.props.button.text}</span>
-                                </Link>) : null}
-
-                                {this.props.button.action ? (
-                                <a onClick={this.props.button.action}>
-                                    <i className="left material-icons">{this.props.button.icon}</i>
-                                    <span className=" hide-on-med-and-down">{this.props.button.text}</span>
-                                </a>) : null}
-
-
-                            </li>
-                            ):null}
                             <li className="hide-on-med-and-down"><a className="dropdown-trigger" href="#!" data-target="auth-dropdown">
                                 <img src={this.props.user.avatar} alt="" title={this.props.user.display_name} className="circle non-mobile-profile"/>
                                 {this.props.user.display_name}
@@ -128,9 +113,16 @@ class Navbar extends React.Component <INavbarProps, {}> {
                         </li>
 
                         {this.props.user.league !== null &&
+                        <li><Link to="/games/new">
+                            <i className="left material-icons">add_circle_outline</i>
+                            Add New Event
+                        </Link></li>
+                        }
+                        {this.props.user.league !== null &&
                         <li>
                             <Link to="/league">
-                                <i className="left material-icons">date_range</i>Manage League Events
+                                <i className="left material-icons">date_range</i>
+                                Manage League Events
                             </Link>
                         </li>
                         }
