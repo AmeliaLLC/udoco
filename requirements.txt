@@ -1,4 +1,4 @@
-uwsgi==2.0.171 # CFLAGS=-Wno-error
+uwsgi==2.0.17.1 # CFLAGS=-Wno-error
 
 Django==1.10.8
 python-social-auth==0.3.6
