@@ -160,8 +160,8 @@ export default class EventApply extends React.Component<IEventApplyProps, IEvent
             {this.props.user !== undefined && (
             <div className="row">
                 <div className="col s12 m6">
-                    If accepted, you'll receive an email at
-                    <em>{this.props.user.email}</em>. If
+                    If accepted, you'll receive an email
+                    at <em>{this.props.user.email}</em>. If
                     this is not your desired email address, <a href="/profile">edit
                     your profile</a> and set your preferred email address.
                 </div>
