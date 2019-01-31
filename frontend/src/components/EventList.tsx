@@ -301,7 +301,7 @@ class EventList extends React.Component <IEventListProps, IEventListState> {
     public render(): JSX.Element {
         return (
             <div>
-                <Navbar user={this.props.user} />;
+                <Navbar user={this.props.user} />
                 <section>
                     {this.state.groups.map((item) => { return (
                         <EventGroup {...this.props} key={item} label={item} renderWithdraw={this.renderWithdraw} events={this.state.grouped_events[item]} cancelEvent={this.cancelEvent}/>
