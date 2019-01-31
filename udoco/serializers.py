@@ -109,26 +109,26 @@ class GameSerializer(serializers.ModelSerializer):
 
     def _has_applied(self, instance):
         user = self.context['request'].user
-        if not user.is_authenticated():
+        if not user.is_authenticated:
             return False
         return (models.ApplicationEntry.objects.filter(
             game=instance, official=user).count() > 0)
 
     def _can_apply(self, instance):
-        return (self.context['request'].user.is_authenticated() and not
+        return (bool(self.context['request'].user.is_authenticated) and not
                 self._has_applied(instance) and not
                 instance.complete and
                 instance.start > timezone.now())
 
     def _can_schedule(self, instance):
         user = self.context['request'].user
-        return (user.is_authenticated() and
+        return (bool(user.is_authenticated) and
                 user.league is not None and
                 user.league.id == instance.league.id)
 
     # XXX: rockstar (20 Feb 2017) - Ugh ugh ugh.
     def _is_authenticated(self, instance):
-        return self.context['request'].user.is_authenticated()
+        return bool(self.context['request'].user.is_authenticated)
 
 
 class RosterSerializer(serializers.ModelSerializer):

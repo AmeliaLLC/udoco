@@ -88,7 +88,7 @@ class ContactLeaguesView(View):
 # REST Framework
 @api_view(['GET', 'PUT'])
 def me(request):
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         return Response(None, status=401)
 
     if request.method == 'PUT':
@@ -108,7 +108,7 @@ def me(request):
 @api_view(['POST'])
 def feedback(request):
     """A view for providing feedback."""
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         return Response(None, status=401)
 
     try:
@@ -136,14 +136,14 @@ class IsScheduler(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
-        return (request.user.is_authenticated() and
+        return (request.user.is_authenticated and
                 request.user.league is not None)
 
 
 class CanScheduleGame(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
-        return (request.user.is_authenticated() and
+        return (request.user.is_authenticated and
                 request.user in obj.league.schedulers.all())
 
 
@@ -501,7 +501,7 @@ class LoserApplicationViewPermission(CanScheduleGame):
             (request.method == 'GET' and
                 request.user in game.league.schedulers.all()) or
             (request.method == 'POST' and
-                request.user.is_anonymous()))
+                request.user.is_anonymous))
 
 
 class LoserApplicationViewSet(viewsets.ViewSet):

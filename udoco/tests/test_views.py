@@ -230,7 +230,7 @@ class TestGameViewSet(TestCase):
         data = {
             'title': 'Quadruple header',
             'location': 'Anywhere, USA',
-            'start': '2020-10-24T00:00:00-06:10',
+            'start': '2020-10-24T10:12:00-06:00',
         }
 
         response = client.post('/api/games', data, format='json')
@@ -244,8 +244,8 @@ class TestGameViewSet(TestCase):
         self.assertEqual(2020, game.start.year)
         self.assertEqual(10, game.start.month)
         self.assertEqual(24, game.start.day)
-        self.assertEqual(6, game.start.hour)
-        self.assertEqual(10, game.start.minute)
+        self.assertEqual(16, game.start.hour)
+        self.assertEqual(12, game.start.minute)
 
     def test_create_no_schedule(self):
         """Users who can't schedule can't create games."""

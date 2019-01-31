@@ -105,10 +105,10 @@ class Game(models.Model):
     game_type = models.PositiveIntegerField(
         choices=choices.GameTypeChoices.choices)
 
-    league = models.ForeignKey('League')
+    league = models.ForeignKey('League', on_delete=models.CASCADE)
 
     created = models.DateTimeField(_('created'), auto_now_add=True)
-    creator = models.ForeignKey('Official')
+    creator = models.ForeignKey('Official', on_delete=models.CASCADE)
 
     complete = models.BooleanField(default=False)
 
@@ -185,17 +185,19 @@ class Game(models.Model):
 
 class ApplicationNotes(models.Model):
     """Notes for an application."""
-    official = models.ForeignKey(Official, related_name='+')
-    game = models.ForeignKey(Game, related_name='+')
+    official = models.ForeignKey(
+        Official, related_name='+', on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, related_name='+', on_delete=models.CASCADE)
 
     content = models.CharField(max_length=256, blank=True)
 
 
 class ApplicationEntry(models.Model):
     """An application preference entry."""
-    official = models.ForeignKey(Official, related_name='applicationentries')
+    official = models.ForeignKey(
+        Official, related_name='applicationentries', on_delete=models.CASCADE)
     game = models.ForeignKey(
-        Game, related_name='applicationentries')
+        Game, related_name='applicationentries', on_delete=models.CASCADE)
 
     index = models.PositiveIntegerField()
     preference = models.PositiveIntegerField(
@@ -223,9 +225,10 @@ class Loser(models.Model):
 
 class LoserApplicationEntry(models.Model):
     """An application for a Loser."""
-    official = models.ForeignKey(Loser, related_name='applicationentries')
+    official = models.ForeignKey(
+        Loser, related_name='applicationentries', on_delete=models.CASCADE)
     game = models.ForeignKey(
-        Game, related_name='loserapplicationentries')
+        Game, related_name='loserapplicationentries', on_delete=models.CASCADE)
 
     index = models.PositiveIntegerField()
     preference = models.PositiveIntegerField(
@@ -243,60 +246,128 @@ class Roster(models.Model):
         ordering = ['id']
 
     game = models.ForeignKey(
-        Game, on_delete=models.CASCADE, related_name='rosters')
+        Game, related_name='rosters', on_delete=models.CASCADE)
 
-    hr = models.ForeignKey(Official, related_name='hr_games', null=True)
-    ipr = models.ForeignKey(Official, related_name='ipr_games', null=True)
-    jr1 = models.ForeignKey(Official, related_name='jr1_games', null=True)
-    jr2 = models.ForeignKey(Official, related_name='jr2_games', null=True)
-    opr1 = models.ForeignKey(Official, related_name='opr1_games', null=True)
-    opr2 = models.ForeignKey(Official, related_name='opr2_games', null=True)
-    opr3 = models.ForeignKey(Official, related_name='opr3_games', null=True)
-    alt = models.ForeignKey(Official, related_name='alt_games', null=True)
+    hr = models.ForeignKey(
+        Official, related_name='hr_games', null=True, on_delete=models.SET_NULL)
+    ipr = models.ForeignKey(
+        Official, related_name='ipr_games', null=True,
+        on_delete=models.SET_NULL)
+    jr1 = models.ForeignKey(
+        Official, related_name='jr1_games', null=True,
+        on_delete=models.SET_NULL)
+    jr2 = models.ForeignKey(
+        Official, related_name='jr2_games', null=True,
+        on_delete=models.SET_NULL)
+    opr1 = models.ForeignKey(
+        Official, related_name='opr1_games', null=True,
+        on_delete=models.SET_NULL)
+    opr2 = models.ForeignKey(
+        Official, related_name='opr2_games', null=True,
+        on_delete=models.SET_NULL)
+    opr3 = models.ForeignKey(
+        Official, related_name='opr3_games', null=True,
+        on_delete=models.SET_NULL)
+    alt = models.ForeignKey(
+        Official, related_name='alt_games', null=True,
+        on_delete=models.SET_NULL)
 
-    jt = models.ForeignKey(Official, related_name="jt_games", null=True)
-    sk1 = models.ForeignKey(Official, related_name="sk1_games", null=True)
-    sk2 = models.ForeignKey(Official, related_name="sk2_games", null=True)
-    pbm = models.ForeignKey(Official, related_name="pbm_games", null=True)
-    pbt1 = models.ForeignKey(Official, related_name="pbt1_games", null=True)
-    pbt2 = models.ForeignKey(Official, related_name="pbt2_games", null=True)
-    pt1 = models.ForeignKey(Official, related_name="pt1_games", null=True)
-    pt2 = models.ForeignKey(Official, related_name="pt2_games", null=True)
-    pw = models.ForeignKey(Official, related_name="pw_games", null=True)
-    iwb = models.ForeignKey(Official, related_name="iwb_games", null=True)
-    lt1 = models.ForeignKey(Official, related_name="lt1_games", null=True)
-    lt2 = models.ForeignKey(Official, related_name="lt2_games", null=True)
-    so = models.ForeignKey(Official, related_name="so_games", null=True)
-    hnso = models.ForeignKey(Official, related_name="hnso_games", null=True)
-    nsoalt = models.ForeignKey(Official, related_name="nsoalt_games", null=True)
-    ptimer = models.ForeignKey(Official, related_name="ptimer_games", null=True)
+    jt = models.ForeignKey(
+        Official, related_name="jt_games", null=True, on_delete=models.SET_NULL)
+    sk1 = models.ForeignKey(
+        Official, related_name="sk1_games", null=True,
+        on_delete=models.SET_NULL)
+    sk2 = models.ForeignKey(
+        Official, related_name="sk2_games", null=True,
+        on_delete=models.SET_NULL)
+    pbm = models.ForeignKey(
+        Official, related_name="pbm_games", null=True,
+        on_delete=models.SET_NULL)
+    pbt1 = models.ForeignKey(
+        Official, related_name="pbt1_games", null=True,
+        on_delete=models.SET_NULL)
+    pbt2 = models.ForeignKey(
+        Official, related_name="pbt2_games", null=True,
+        on_delete=models.SET_NULL)
+    pt1 = models.ForeignKey(
+        Official, related_name="pt1_games", null=True,
+        on_delete=models.SET_NULL)
+    pt2 = models.ForeignKey(
+        Official, related_name="pt2_games", null=True,
+        on_delete=models.SET_NULL)
+    pw = models.ForeignKey(
+        Official, related_name="pw_games", null=True, on_delete=models.SET_NULL)
+    iwb = models.ForeignKey(
+        Official, related_name="iwb_games", null=True,
+        on_delete=models.SET_NULL)
+    lt1 = models.ForeignKey(
+        Official, related_name="lt1_games", null=True,
+        on_delete=models.SET_NULL)
+    lt2 = models.ForeignKey(
+        Official, related_name="lt2_games", null=True,
+        on_delete=models.SET_NULL)
+    so = models.ForeignKey(
+        Official, related_name="so_games", null=True, on_delete=models.SET_NULL)
+    hnso = models.ForeignKey(
+        Official, related_name="hnso_games", null=True,
+        on_delete=models.SET_NULL)
+    nsoalt = models.ForeignKey(
+        Official, related_name="nsoalt_games", null=True,
+        on_delete=models.SET_NULL)
+    ptimer = models.ForeignKey(
+        Official, related_name="ptimer_games", null=True,
+        on_delete=models.SET_NULL)
 
     # Losers
-    hr_x = models.ForeignKey(Loser, related_name='+', null=True)
-    ipr_x = models.ForeignKey(Loser, related_name='+', null=True)
-    jr1_x = models.ForeignKey(Loser, related_name='+', null=True)
-    jr2_x = models.ForeignKey(Loser, related_name='+', null=True)
-    opr1_x = models.ForeignKey(Loser, related_name='+', null=True)
-    opr2_x = models.ForeignKey(Loser, related_name='+', null=True)
-    opr3_x = models.ForeignKey(Loser, related_name='+', null=True)
-    alt_x = models.ForeignKey(Loser, related_name='+', null=True)
+    hr_x = models.ForeignKey(
+        Loser, related_name='+', null=True, on_delete=models.SET_NULL)
+    ipr_x = models.ForeignKey(
+        Loser, related_name='+', null=True, on_delete=models.SET_NULL)
+    jr1_x = models.ForeignKey(
+        Loser, related_name='+', null=True, on_delete=models.SET_NULL)
+    jr2_x = models.ForeignKey(
+        Loser, related_name='+', null=True, on_delete=models.SET_NULL)
+    opr1_x = models.ForeignKey(
+        Loser, related_name='+', null=True, on_delete=models.SET_NULL)
+    opr2_x = models.ForeignKey(
+        Loser, related_name='+', null=True, on_delete=models.SET_NULL)
+    opr3_x = models.ForeignKey(
+        Loser, related_name='+', null=True, on_delete=models.SET_NULL)
+    alt_x = models.ForeignKey(
+        Loser, related_name='+', null=True, on_delete=models.SET_NULL)
 
-    jt_x = models.ForeignKey(Loser, related_name='+', null=True)
-    sk1_x = models.ForeignKey(Loser, related_name='+', null=True)
-    sk2_x = models.ForeignKey(Loser, related_name='+', null=True)
-    pbm_x = models.ForeignKey(Loser, related_name='+', null=True)
-    pbt1_x = models.ForeignKey(Loser, related_name='+', null=True)
-    pbt2_x = models.ForeignKey(Loser, related_name='+', null=True)
-    pt1_x = models.ForeignKey(Loser, related_name='+', null=True)
-    pt2_x = models.ForeignKey(Loser, related_name='+', null=True)
-    pw_x = models.ForeignKey(Loser, related_name='+', null=True)
-    iwb_x = models.ForeignKey(Loser, related_name='+', null=True)
-    lt1_x = models.ForeignKey(Loser, related_name='+', null=True)
-    lt2_x = models.ForeignKey(Loser, related_name='+', null=True)
-    so_x = models.ForeignKey(Loser, related_name='+', null=True)
-    hnso_x = models.ForeignKey(Loser, related_name='+', null=True)
-    nsoalt_x = models.ForeignKey(Loser, related_name='+', null=True)
-    ptimer_x = models.ForeignKey(Loser, related_name='+', null=True)
+    jt_x = models.ForeignKey(
+        Loser, related_name='+', null=True, on_delete=models.SET_NULL)
+    sk1_x = models.ForeignKey(
+        Loser, related_name='+', null=True, on_delete=models.SET_NULL)
+    sk2_x = models.ForeignKey(
+        Loser, related_name='+', null=True, on_delete=models.SET_NULL)
+    pbm_x = models.ForeignKey(
+        Loser, related_name='+', null=True, on_delete=models.SET_NULL)
+    pbt1_x = models.ForeignKey(
+        Loser, related_name='+', null=True, on_delete=models.SET_NULL)
+    pbt2_x = models.ForeignKey(
+        Loser, related_name='+', null=True, on_delete=models.SET_NULL)
+    pt1_x = models.ForeignKey(
+        Loser, related_name='+', null=True, on_delete=models.SET_NULL)
+    pt2_x = models.ForeignKey(
+        Loser, related_name='+', null=True, on_delete=models.SET_NULL)
+    pw_x = models.ForeignKey(
+        Loser, related_name='+', null=True, on_delete=models.SET_NULL)
+    iwb_x = models.ForeignKey(
+        Loser, related_name='+', null=True, on_delete=models.SET_NULL)
+    lt1_x = models.ForeignKey(
+        Loser, related_name='+', null=True, on_delete=models.SET_NULL)
+    lt2_x = models.ForeignKey(
+        Loser, related_name='+', null=True, on_delete=models.SET_NULL)
+    so_x = models.ForeignKey(
+        Loser, related_name='+', null=True, on_delete=models.SET_NULL)
+    hnso_x = models.ForeignKey(
+        Loser, related_name='+', null=True, on_delete=models.SET_NULL)
+    nsoalt_x = models.ForeignKey(
+        Loser, related_name='+', null=True, on_delete=models.SET_NULL)
+    ptimer_x = models.ForeignKey(
+        Loser, related_name='+', null=True, on_delete=models.SET_NULL)
 
     @property
     def real_hr(self):

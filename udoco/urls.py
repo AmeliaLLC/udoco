@@ -31,7 +31,9 @@ urlpatterns = [
         template_name='robots.txt', content_type='text/plain')),
     url(r'^privacy', TemplateView.as_view(
         template_name='privacy.txt', content_type='text/plain')),
-    url('^auth/', include('social_django.urls', namespace='social')),
+    url('^auth/',
+        include(('social_django.urls', 'social_django'),
+            namespace='social')),
 
     url(r'^api/', include(games_router.urls)),
     url(r'^api/', include(router.urls)),
@@ -46,7 +48,9 @@ urlpatterns = [
     # Views outside the scope of this site, but required for functionality.
     url(r'^manage/', admin.site.urls),
     # Only needed for logout
-    url('', include('django.contrib.auth.urls', namespace='auth')),
+    url(r'^/admin/',
+        include(('django.contrib.auth.urls', 'admin'),
+            namespace='auth')),
     url(r'^logout/$', auth_views.logout, name='logout'),
 
     # XXX: rockstar (28 Jan 2019) - Remove this url and the accompanying
