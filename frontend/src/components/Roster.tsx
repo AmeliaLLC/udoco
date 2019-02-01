@@ -19,18 +19,16 @@ class RosterPosition extends React.Component<IRosterPositionProps, {}> {
         super(props);
     }
 
-    public render() {
+    public render(): JSX.Element {
         return (
             <div>
                 <h6 className="center">{this.props.title}</h6>
-
-                <select id={this.props.indicator} onChange={() => { return; }} value={this.props.value !== null ? this.props.value : ""} className=" center browser-default roster-position">
+                <select id={this.props.indicator} onChange={() => { return; }} value={this.props.value !== null ? this.props.value : ""} className="center browser-default">
                     {this.props.options}
                 </select>
             </div>
         );
     }
-
 }
 
 interface IRosterProps {
@@ -103,8 +101,12 @@ export default class Roster extends React.Component<IRosterProps, {}> {
         const options = applications.concat(this.props.lapplications.map((application, index) => (
             <option key={position + '-' + this.props.index + '-' + (0 - application.id)} value={0 - application.id}>{application.derby_name}</option>
         )));
+        // XXX: rockstar (31 Jan 2019) - This should have disabled={true} like
+        // the line below. However, adding the ability to clear out the
+        // selection is a bit cumbersome, so this will have to do, for now.
+        // <option key="select" value="" disabled={true}>Select Applicant</option>
         options.unshift((
-              <option key="select" value="" disabled={true}>Select Applicant</option>
+            <option key="select" value="">Select Applicant</option>
         ));
         return options;
     }
@@ -113,7 +115,8 @@ export default class Roster extends React.Component<IRosterProps, {}> {
         const target = e.target as HTMLFormElement;
 
         const role = target.getAttribute('id');
-        const value = Number(target.value);
+        // If the value is an empty string, set the value to null.
+        const value = target.value !== "" ? Number(target.value) : null;
 
         this.props.updateRoster(this.props.index, role, value)
     }
