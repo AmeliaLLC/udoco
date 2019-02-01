@@ -76,3 +76,10 @@ img.mobile-profile {
     float: left;
 }
 
+div.rostered {
+    background-color: #fff9c4;
+}
+
+div.scheduled {
+    background-color: #c8e6c9;
+}

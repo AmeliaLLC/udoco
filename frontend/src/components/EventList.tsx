@@ -58,7 +58,7 @@ class Event extends React.Component <IEventProps, {}> {
 
     return (
       <li id={"event-"+event.id} className={gameId !== undefined && gameId === event.id ? "active" : ""}>
-        <div className="collapsible-header">
+        <div className={"collapsible-header" + this.getEventClass()}>
           <div className="row marginLess">
             <div className="col s11 eventHeader">
               {event.league} presents - {event.title}
@@ -73,7 +73,7 @@ class Event extends React.Component <IEventProps, {}> {
             </div>
           </div>
         </div>
-        <div className="collapsible-body">
+        <div className={"collapsible-body" + this.getEventClass()}>
 
 
 
@@ -167,6 +167,18 @@ class Event extends React.Component <IEventProps, {}> {
         </div>
       </li>
     )}
+
+    private getEventClass(): string {
+        const {event} = this.props;
+
+        if (event.complete && event.is_rostered) {
+            return " scheduled";
+        } else if (event.is_rostered) {
+            return " rostered";
+        } else {
+            return "";
+        }
+    }
 }
 
 
