@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import sys
 
@@ -12,9 +13,6 @@ import requests
 
 os.environ['AWS_ACCESS_KEY_ID'] = settings.AWS_ACCESS_KEY_ID
 os.environ['AWS_SECRET_ACCESS_KEY'] = settings.AWS_SECRET_ACCESS_KEY
-
-PROJECT_ID = '137988'
-PROJECT_KEY = '08759bfe62310fbf1c03df886c525000'
 
 
 def manage_certs():
@@ -49,24 +47,36 @@ def migrate():
 
 
 def deploy_notify():
-    """Notify Airbrake about deployment."""
+    """Notify telemetry about deployment."""
+    try:
+        os.environ['SENTRY_AUTH_TOKEN']
+    except KeyError:
+        print('No SENTRY_AUTH_TOKEN found in environment variables.')
+        sys.exit(1)
     gitrev = subprocess.check_output(
         ['git', 'rev-parse', '--short', 'HEAD']).strip().decode('utf-8')
     payload = {
         'environment': 'production',
-        'username': 'rockstar',
-        'repository': 'https://github.com/AmeliaKnows.udoco',
-        'revision': gitrev,
+        'dateStarted': datetime.now().isoformat(),
     }
-    endpoint = 'https://airbrake.io/api/v4/projects/{}/deploys?key={}'.format(
-        PROJECT_ID, PROJECT_KEY)
+    endpoint = 'https://sentry.io/api/0/organizations/{}/releases/{}/deploys/'.format(  # NOQA
+        'amelia-consulting', gitrev)
     requests.post(
         endpoint,
-        headers={'Content-Type': 'application/json'},
+        headers={
+            'Authorization': 'Bearer {}'.format(
+                os.environ['SENTRY_AUTH_TOKEN']),
+            'Content-Type': 'application/json'
+        },
         json=payload).raise_for_status()
 
 
 def deploy():
+    try:
+        os.environ['REACT_APP_SENTRY_DSN']
+    except KeyError:
+        print('No REACT_APP_SENTRY_DSN found in environment variables.')
+        sys.exit(1)
     local('git push origin')
     local('git push --tags origin')
 
@@ -75,6 +85,7 @@ def deploy():
 
     staticupload()
     local('heroku config:set GITVERSION=`git rev-parse --short HEAD`')
+    local('heroku config:set SENTRY_DSN={}'.format(os.environ['SENTRY_DSN']))
     local('git push heroku master')
     migrate()
     deploy_notify()

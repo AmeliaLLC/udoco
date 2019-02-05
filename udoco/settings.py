@@ -9,8 +9,8 @@ https://docs.djangoproject.com/en/1.9/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
-
 import os
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -40,8 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'rest_framework',
+    'raven.contrib.django.raven_compat',
 
+    'rest_framework',
     'social_django',
 
     'storages',
@@ -245,28 +246,51 @@ if 'DATABASE_URL' in os.environ:
 
     LOGGING = {
         'version': 1,
-        'disable_existing_loggers': False,
-        'filters': {
-            'require_debug_false': {
-                '()': 'django.utils.log.RequireDebugFalse'
-            }
+        'disable_existing_loggers': True,
+        'root': {
+            'level': 'WARNING',
+            'handlers': ['sentry'],
+        },
+        'formatters': {
+            'verbose': {
+                'format': '%(levelname)s  %(asctime)s  %(module)s '
+                          '%(process)d  %(thread)d  %(message)s'
+            },
         },
         'handlers': {
-            'airbrake': {
+            'sentry': {
                 'level': 'WARNING',
-                'class': 'airbrake.handlers.AirbrakeHandler',
-                'filters': ['require_debug_false'],
-                'api_key': '08759bfe62310fbf1c03df886c525000',
-                'env_name': 'production',
+                'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',  # NOQA
+                'tags': {'custom-tag': 'x'},
+            },
+            'console': {
+                'level': 'DEBUG',
+                'class': 'logging.StreamHandler',
+                'formatter': 'verbose'
             }
         },
         'loggers': {
-            'django.request': {
-                'handlers': ['airbrake'],
-                'level': 'WARNING',
-                'propagate': True,
+            'django.db.backends': {
+                'level': 'ERROR',
+                'handlers': ['console'],
+                'propagate': False,
             },
-        }
+            'raven': {
+                'level': 'DEBUG',
+                'handlers': ['console'],
+                'propagate': False,
+            },
+            'sentry.errors': {
+                'level': 'DEBUG',
+                'handlers': ['console'],
+                'propagate': False,
+            },
+        },
+    }
+
+    RAVEN_CONFIG = {
+        'dsn': os.environ['SENTRY_DSN'],
+        'release': os.environ['GITVERSION'],
     }
 
     SECURE_SSL_REDIRECT = True

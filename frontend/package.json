@@ -23,6 +23,7 @@
     }
   },
   "dependencies": {
+    "@sentry/browser": "^4.5.3",
     "materialize-css": "^1.0.0",
     "moment": "^2.24.0",
     "react": "^16.7.0",
