@@ -228,6 +228,11 @@ NOSE_ARGS = [
     '-s',
 ]
 
+RAVEN_CONFIG = {
+    'dsn': os.environ.get('SENTRY_DSN'),
+    'release': os.environ.get('GITVERSION'),
+}
+
 if 'DATABASE_URL' in os.environ:
     # We're in the heroku environment
     import dj_database_url
@@ -286,11 +291,6 @@ if 'DATABASE_URL' in os.environ:
                 'propagate': False,
             },
         },
-    }
-
-    RAVEN_CONFIG = {
-        'dsn': os.environ['SENTRY_DSN'],
-        'release': os.environ['GITVERSION'],
     }
 
     SECURE_SSL_REDIRECT = True
