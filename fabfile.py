@@ -57,10 +57,16 @@ def deploy_notify():
         ['git', 'rev-parse', '--short', 'HEAD']).strip().decode('utf-8')
     payload = {
         'environment': 'production',
-        'dateStarted': datetime.now().isoformat(),
+        'dateReleased': datetime.now().isoformat(),
+        'version': gitrev,
+        'ref': gitrev,
+        'url': 'https://github.com/AmeliaLLC/udoco/commit/{}'.format(gitrev),
+        'projects': [
+            'udoco',
+        ],
     }
-    endpoint = 'https://sentry.io/api/0/organizations/{}/releases/{}/deploys/'.format(  # NOQA
-        'amelia-consulting', gitrev)
+    endpoint = 'https://sentry.io/api/0/organizations/{}/releases/'.format(  # NOQA
+        'amelia-consulting')
     requests.post(
         endpoint,
         headers={
