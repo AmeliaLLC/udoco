@@ -214,7 +214,7 @@ CERTBOT_KEY = '9qVj63CKgvMm5j64t4apKc567c9PApt1VQCv6p6Q0s8.1hN7_j2-YyhJL2p6UlQIE
 AWS_S3_HOST = "s3-us-west-1.amazonaws.com"
 
 ANYMAIL = {
-    'MAILGUN_API_KEY': 'key-7bd652048999a824cbd8b5fd00fcd63d',
+    'MAILGUN_API_KEY': os.environ['MAILGUN_API_KEY'],
     'MAILGUN_SENDER_DOMAIN': 'mg.udoco.org',
 }
 EMAIL_BACKEND = 'anymail.backends.mailgun.MailgunBackend'
@@ -239,6 +239,7 @@ if 'DATABASE_URL' in os.environ:
     DATABASES = {
         'default': dj_database_url.config(conn_max_age=500)
     }
+    SECRET_KEY = os.environ['SECRET_KEY']
     GITREV = os.environ['GITVERSION'].strip()
     STATICFILES_LOCATION = 'static/' + GITREV
     MEDIAFILES_LOCATION = 'media'
