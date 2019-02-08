@@ -209,7 +209,7 @@ LOGIN_URL = '/'
 # }
 AWS_ACCESS_KEY_ID = 'AKIAIUM5IHXVVDTZDQZA'
 AWS_SECRET_ACCESS_KEY = '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'
-CERTBOT_KEY = '9qVj63CKgvMm5j64t4apKc567c9PApt1VQCv6p6Q0s8.1hN7_j2-YyhJL2p6UlQIEvs3u7g3uP8LuwyXnjemVoM' # NOQA
+CERTBOT_KEY = 'null.null'
 
 AWS_S3_HOST = "s3-us-west-1.amazonaws.com"
 
@@ -240,6 +240,7 @@ if 'DATABASE_URL' in os.environ:
         'default': dj_database_url.config(conn_max_age=500)
     }
     SECRET_KEY = os.environ['SECRET_KEY']
+    CERTBOT_KEY = os.environ['CERTBOT_KEY']
     GITREV = os.environ['GITVERSION'].strip()
     STATICFILES_LOCATION = 'static/' + GITREV
     MEDIAFILES_LOCATION = 'media'
