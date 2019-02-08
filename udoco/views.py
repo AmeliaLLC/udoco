@@ -74,8 +74,8 @@ class ContactLeaguesView(View):
             mail.EmailMessage(
                 'A message from the UDOCO admins',
                 form.cleaned_data['message'],
-                'United Derby Officials Colorado <no-reply@udoco.org>',
-                ['United Derby Officials Colorado <no-reply@udoco.org>'],
+                'United Derby Officials Colorado <no-reply@mg.udoco.org>',
+                ['United Derby Officials Colorado <no-reply@mg.udoco.org>'],
                 bcc=[o.email for o in officials], connection=connection).send()
 
         messages.add_message(
@@ -125,7 +125,7 @@ def feedback(request):
         mail.EmailMessage(
             render_to_string('email/feedback_title.txt',),
             render_to_string('email/feedback_body.txt', context),
-            'United Derby Officials Colorado <no-reply@udoco.org>',
+            'United Derby Officials Colorado <no-reply@mg.udoco.org>',
             [admin[1] for admin in settings.ADMINS],
             connection=connection).send()
     return Response('')
@@ -207,8 +207,8 @@ class GameViewSet(viewsets.ModelViewSet):
                     render_to_string(
                         'email/scheduling_body.txt',
                         {'game': game}),
-                    'United Derby Officials Colorado <no-reply@udoco.org>',
-                    ['United Derby Officials Colorado <no-reply@udoco.org>'],
+                    'United Derby Officials Colorado <no-reply@mg.udoco.org>',
+                    ['United Derby Officials Colorado <no-reply@mg.udoco.org>'],
                     bcc=game.emails,
                     connection=connection).send()
 
@@ -232,8 +232,8 @@ class GameViewSet(viewsets.ModelViewSet):
                 render_to_string(
                     'email/cancelled_body.txt',
                     {'game': game}),
-                'United Derby Officials Colorado <no-reply@udoco.org>',
-                ['United Derby Officials Colorado <no-reply@udoco.org>'],
+                'United Derby Officials Colorado <no-reply@mg.udoco.org>',
+                ['United Derby Officials Colorado <no-reply@mg.udoco.org>'],
                 bcc=recipients, connection=connection).send()
 
         game.delete()
@@ -400,8 +400,8 @@ class RosterViewSet(viewsets.ModelViewSet):
                     render_to_string(
                         'email/rostered_body.txt',
                         {'game': roster.game}),
-                    'United Derby Officials Colorado <no-reply@udoco.org>',
-                    ['United Derby Officials Colorado <no-reply@udoco.org>'],
+                    'United Derby Officials Colorado <no-reply@mg.udoco.org>',
+                    ['United Derby Officials Colorado <no-reply@mg.udoco.org>'],
                     bcc=[r.email for r in rostered],
                     connection=connection).send()
         serializer = self.serializer_class(roster)
@@ -421,8 +421,8 @@ class RosterViewSet(viewsets.ModelViewSet):
                     render_to_string(
                         'email/rostered_body.txt',
                         {'game': roster.game}),
-                    'United Derby Officials Colorado <no-reply@udoco.org>',
-                    ['United Derby Officials Colorado <no-reply@udoco.org>'],
+                    'United Derby Officials Colorado <no-reply@mg.udoco.org>',
+                    ['United Derby Officials Colorado <no-reply@mg.udoco.org>'],
                     bcc=[r.email for r in rostered],
                     connection=connection).send()
         serializer = self.serializer_class(roster)
