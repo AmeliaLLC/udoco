@@ -233,6 +233,8 @@ RAVEN_CONFIG = {
     'release': os.environ.get('GITVERSION'),
 }
 
+# XXX: rockstar (8 Feb 2019) - This is a poor way of detecting production, as
+# the static file collection uses this method here locally.
 if 'DATABASE_URL' in os.environ:
     # We're in the heroku environment
     import dj_database_url
