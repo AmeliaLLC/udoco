@@ -1,5 +1,7 @@
 import * as Sentry from '@sentry/browser';
+import 'font-awesome/css/font-awesome.min.css';
 import 'materialize-css/dist/css/materialize.css';
+import 'materialize-social/materialize-social.css';
 import * as React from 'react';
 import { Route, Switch } from 'react-router-dom';
 

@@ -83,3 +83,12 @@ div.rostered {
 div.scheduled {
     background-color: #c8e6c9;
 }
+
+i.left.fa {
+    line-height: 32px !important;
+}
+
+div.disclaimer {
+    padding-top: 5px;
+    font-size: 80%;
+}

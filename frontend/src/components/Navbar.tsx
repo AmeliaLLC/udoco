@@ -85,8 +85,8 @@ class Navbar extends React.Component <INavbarProps, {}> {
                         ) : (
                         <ul id="nav-non-mobile" className="right hide-on-med-and-down">
                             <li>
-                                <a href="/auth/login/facebook">
-                                    <i className="left material-icons">lock_outline</i>Log in
+                                <a className="waves-effect waves-light btn social facebook">
+                                    <i className="left fa fa-facebook" /> Sign in with facebook
                                 </a>
                             </li>
                         </ul>
@@ -138,8 +138,8 @@ class Navbar extends React.Component <INavbarProps, {}> {
                     </span>
                     ) : (
                     <li>
-                        <a href="/auth/login/facebook">
-                            <i className="left material-icons">lock_outline</i>Log in
+                        <a className="waves-effect waves-light btn social facebook">
+                            <i className="fa fa-facebook" /> Sign in with facebook
                         </a>
                     </li>
                     )}

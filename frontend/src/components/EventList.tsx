@@ -155,8 +155,10 @@ class Event extends React.Component <IEventProps, {}> {
           {((!event.is_authenticated && !event.complete) &&
           <div className="row">
             <div className="col s12">
-              <a href="/auth/login/facebook" className=" blue-grey darken-4 center waves-effect waves-light btn " >log in to apply</a>
-              <div className="row">
+              <a className="waves-effect waves-light btn social facebook">
+                  <i className="fa fa-facebook" /> Sign in with facebook
+              </a>
+              <div className="row s4 disclaimer">
                 We use Facebook for logins so you don't have to remember another
                 username/password. <a href={`/games/${event.id}/apply`}>I'd rather not use Facebook</a>
               </div>
