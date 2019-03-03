@@ -5,6 +5,9 @@ from django.contrib.auth.models import AbstractUser
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Q
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
 from udoco import choices
@@ -206,6 +209,37 @@ class ApplicationEntry(models.Model):
     @property
     def name(self):
         return choices.OfficialPositions.choices[self.preference][1]
+
+@receiver(pre_delete, sender=ApplicationEntry)
+def unroster_officials(sender, **kwargs):
+    """Unroster officials when their application is deleted."""
+    obj = kwargs['instance']
+    official = obj.official
+    game = obj.game
+
+    rosters = obj.game.rosters.filter(
+        Q(hr=official) | Q(ipr=official) | Q(jr1=official) |
+        Q(jr2=official) | Q(opr1=official) | Q(opr2=official) |
+        Q(opr3=official) | Q(alt=official) | Q(jt=official) |
+        Q(sk1=official) | Q(sk2=official) | Q(pbm=official) |
+        Q(pbt1=official) | Q(pbt2=official) | Q(pt1=official) |
+        Q(pt2=official) | Q(pw=official) | Q(iwb=official) |
+        Q(lt1=official) | Q(lt2=official) | Q(so=official) |
+        Q(hnso=official) | Q(nsoalt=official) | Q(ptimer=official)
+    )
+    for roster in rosters:
+        for field in roster._meta.get_fields():
+            if (type(field) is not models.ForeignKey or
+                    field.related_model is not Official):
+                continue
+            name = field.name
+            # We use == here instead of `is`, as the equality checks are
+            # more correct in this case (memory versus database record).
+            if getattr(roster, name) == official:
+                # XXX: rockstar (3 Mar 2019) - This should emit an email to let
+                # the staffers know.
+                setattr(roster, name, None)
+                roster.save()
 
 
 class Loser(models.Model):

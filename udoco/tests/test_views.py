@@ -833,6 +833,23 @@ class TestApplicationViewSet(TestCase):
         game = models.Game.objects.get(pk=entry.game.id)
         self.assertEqual(0, game.applicants.count())
 
+    def test_delete_rostered(self):
+        """When an applicant withdraws, they are unrostered."""
+        entry = _factory.ApplicationEntryFactory()
+        user = entry.official
+        roster = _factory.RosterFactory(game=entry.game, ipr=user)
+
+        client = APIClient()
+        client.force_authenticate(user)
+
+        response = client.delete(
+            '/api/games/{}/applications/0/'.format(entry.game.id))
+
+        self.assertEqual(204, response.status_code)
+        game = models.Game.objects.get(pk=entry.game.id)
+        self.assertEqual(0, game.applicants.count())
+        self.assertIsNone(game.rosters.all()[0].ipr)
+
     def test_delete_application_notes(self):
         entry = _factory.ApplicationEntryFactory()
         _factory.ApplicationNotesFactory(
