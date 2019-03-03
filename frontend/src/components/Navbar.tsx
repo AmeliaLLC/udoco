@@ -85,7 +85,7 @@ class Navbar extends React.Component <INavbarProps, {}> {
                         ) : (
                         <ul id="nav-non-mobile" className="right hide-on-med-and-down">
                             <li>
-                                <a className="waves-effect waves-light btn social facebook">
+                                <a href="/auth/login/facebook" className="waves-effect waves-light btn social facebook">
                                     <i className="left fa fa-facebook" /> Sign in with facebook
                                 </a>
                             </li>
@@ -138,7 +138,7 @@ class Navbar extends React.Component <INavbarProps, {}> {
                     </span>
                     ) : (
                     <li>
-                        <a className="waves-effect waves-light btn social facebook">
+                        <a href="/auth/login/facebook" className="waves-effect waves-light btn social facebook">
                             <i className="fa fa-facebook" /> Sign in with facebook
                         </a>
                     </li>

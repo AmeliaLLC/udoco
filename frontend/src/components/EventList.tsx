@@ -155,7 +155,7 @@ class Event extends React.Component <IEventProps, {}> {
           {((!event.is_authenticated && !event.complete) &&
           <div className="row">
             <div className="col s12">
-              <a className="waves-effect waves-light btn social facebook">
+              <a href="/auth/login/facebook" className="waves-effect waves-light btn social facebook">
                   <i className="fa fa-facebook" /> Sign in with facebook
               </a>
               <div className="row s4 disclaimer">
