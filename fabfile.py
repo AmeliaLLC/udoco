@@ -15,6 +15,12 @@ os.environ['AWS_ACCESS_KEY_ID'] = settings.AWS_ACCESS_KEY_ID
 os.environ['AWS_SECRET_ACCESS_KEY'] = settings.AWS_SECRET_ACCESS_KEY
 
 
+def test():
+    local('coverage run --source=udoco manage.py test')
+    local('coverage report --fail-under=92')
+    local('flake8 --ignore=D100,D104 --exclude=udoco/migrations/* --max-line-length=80')
+
+
 def manage_certs():
     """Generate a certificate."""
     update = True
