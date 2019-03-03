@@ -207,8 +207,8 @@ LOGIN_URL = '/'
 #     'Expires': 'Thu, 31 Dec 2099 20:00:00 GMT',
 #     'Cache-Control': 'max-age=94608000',
 # }
-AWS_ACCESS_KEY_ID = 'AKIAIUM5IHXVVDTZDQZA'
-AWS_SECRET_ACCESS_KEY = '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'
+AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
+AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
 CERTBOT_KEY = 'null.null'
 
 AWS_S3_HOST = "s3-us-west-1.amazonaws.com"
