@@ -76,6 +76,149 @@ class TestContactLeaguesView(unittest.TestCase):
         self.assertIn('abc@example.com', call['bcc'])
 
 
+class TestEmailHook(unittest.TestCase):
+    """Tests for udoco.views.email_hook."""
+
+    @unittest.mock.patch('udoco.views.mail')
+    def test_post(self, mail):
+        """The email webhook is sent out properly to all officials."""
+        connection = unittest.mock.MagicMock()
+        connection.__enter__.return_value = connection
+        mail.get_connection.return_value = connection
+
+        user = _factory.OfficialFactory()
+        luser = _factory.LoserFactory()
+        roster = _factory.RosterFactory(hr=user, ipr_x=luser)
+        roster.game.complete = True
+        roster.game.save()
+
+        POST = {
+            'recipient': 'udo{}@mg.udoco.org'.format(roster.game.id),
+            'sender': user.email,
+            'subject': 'Keep your foot off the blasted samoflange',
+            'body-plain': 'Release the fucken pipeboys',
+        }
+        request = unittest.mock.MagicMock(user=user, method='POST', POST=POST)
+        from_email = '{} <udo{}@mg.udoco.org>'.format(
+            roster.game.title, roster.game.id)
+
+        response = views.email_hook(request)
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, mail.EmailMessage.call_count)
+        mail.EmailMessage.assert_called_once_with(
+            POST['subject'], POST['body-plain'], from_email, [from_email],
+            bcc=[luser.email, user.email], connection=connection)
+
+    @unittest.mock.patch('udoco.views.mail')
+    def test_post_not_complete(self, mail):
+        """Emails to incomplete events fail."""
+        user = _factory.OfficialFactory()
+        luser = _factory.LoserFactory()
+        roster = _factory.RosterFactory(hr=user, ipr_x=luser)
+
+        POST = {
+            'recipient': 'udo{}@mg.udoco.org'.format(roster.game.id),
+            'sender': user.email,
+            'subject': 'Keep your foot off the blasted samoflange',
+            'body-plain': 'Release the fucken pipeboys',
+        }
+        request = unittest.mock.MagicMock(user=user, method='POST', POST=POST)
+
+        response = views.email_hook(request)
+
+        self.assertEqual(406, response.status_code)
+        self.assertEqual(0, mail.EmailMessage.call_count)
+
+    @unittest.mock.patch('udoco.views.mail')
+    def test_post_not_staffed(self, mail):
+        """Emails from unstaffed peoples are rejected."""
+        user = _factory.OfficialFactory()
+        luser = _factory.LoserFactory()
+        roster = _factory.RosterFactory(hr=user)
+        roster.game.complete = True
+        roster.game.save()
+
+        POST = {
+            'recipient': 'udo{}@mg.udoco.org'.format(roster.game.id),
+            'sender': luser.email,
+            'subject': 'Keep your foot off the blasted samoflange',
+            'body-plain': 'Release the fucken pipeboys',
+        }
+        request = unittest.mock.MagicMock(user=user, method='POST', POST=POST)
+
+        response = views.email_hook(request)
+
+        self.assertEqual(406, response.status_code)
+        self.assertEqual(0, mail.EmailMessage.call_count)
+
+    @unittest.mock.patch('udoco.views.mail')
+    def test_post_quiet_drop(self, mail):
+        """The default to: email isn't *also* forwarded."""
+        user = _factory.OfficialFactory()
+        luser = _factory.LoserFactory()
+        roster = _factory.RosterFactory(hr=user, ipr_x=luser)
+        roster.game.complete = True
+        roster.game.save()
+
+        POST = {
+            'recipient': 'udo{}@mg.udoco.org'.format(roster.game.id),
+            'sender': 'udo{}@mg.udoco.org'.format(roster.game.id),
+            'subject': 'Keep your foot off the blasted samoflange',
+            'body-plain': 'Release the fucken pipeboys',
+        }
+        request = unittest.mock.MagicMock(user=user, method='POST', POST=POST)
+
+        response = views.email_hook(request)
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0, mail.EmailMessage.call_count)
+
+    @unittest.mock.patch('udoco.views.mail')
+    def test_post_bad_address(self, mail):
+        """Impractical email addresses get dropped."""
+        user = _factory.OfficialFactory()
+        luser = _factory.LoserFactory()
+        roster = _factory.RosterFactory(hr=user, ipr_x=luser)
+        roster.game.complete = True
+        roster.game.save()
+
+        POST = {
+            'recipient': 'nothing@mg.udoco.org'.format(roster.game.id),
+            'sender': luser.email,
+            'subject': 'Keep your foot off the blasted samoflange',
+            'body-plain': 'Release the fucken pipeboys',
+        }
+        request = unittest.mock.MagicMock(user=user, method='POST', POST=POST)
+
+        response = views.email_hook(request)
+
+        self.assertEqual(406, response.status_code)
+        self.assertEqual(0, mail.EmailMessage.call_count)
+
+    @unittest.mock.patch('udoco.views.mail')
+    def test_post_malformed_address(self, mail):
+        """Bad id parsing results in a 406."""
+        user = _factory.OfficialFactory()
+        luser = _factory.LoserFactory()
+        roster = _factory.RosterFactory(hr=user, ipr_x=luser)
+        roster.game.complete = True
+        roster.game.save()
+
+        POST = {
+            'recipient': 'udoabc@mg.udoco.org'.format(roster.game.id),
+            'sender': luser.email,
+            'subject': 'Keep your foot off the blasted samoflange',
+            'body-plain': 'Release the fucken pipeboys',
+        }
+        request = unittest.mock.MagicMock(user=user, method='POST', POST=POST)
+
+        response = views.email_hook(request)
+
+        self.assertEqual(406, response.status_code)
+        self.assertEqual(0, mail.EmailMessage.call_count)
+
+
 class TestMe(unittest.TestCase):
     """Tests for udoco.views.me."""
 

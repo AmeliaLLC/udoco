@@ -24,6 +24,11 @@ from rest_framework.response import Response
 from udoco import choices, forms, models, serializers
 
 
+def _generate_from_email(game):
+    """Generate the from address for an email."""
+    return '{} <udo{}@mg.udoco.org>'.format(game.title, game.id)
+
+
 def redirect_old_apply_url(request, game_id):
     """Redirect the old apply url to the new apply url.
 
@@ -86,29 +91,50 @@ class ContactLeaguesView(View):
         return redirect('contact_leagues')
 
 
+class HttpResponseNotAcceptable(HttpResponse):
+    status_code = 406
+
+
 @csrf_exempt
 def email_hook(request):
     """Handle in bound emails from Mailgun.
+
+    The rule on the mailgun configuration is that everything under the pattern
+    `udo.*@mg.udoco.org` comes here. The wildcard there is an event id, which is
+    then used to get the event, make sure the email is coming from a valid official
+    from the event, and then forwarding that email back out.
+
+    This has some oddities, in that it probably breaks threads. There may be some
+    tooling.
 
     See https://mailgun-documentation.readthedocs.io/en/latest/user_manual.html#receiving-forwarding-and-storing-messages
     """
     recipient = request.POST['recipient']
     sender = request.POST['sender']
+    if recipient == sender:  # This is mailgun emailing mailgun (for bcc)
+        return HttpResponse(200)
+    if not recipient.startswith('udo'):  # How did we get here?
+        return HttpResponseNotAcceptable()
+    try:
+        game_id = int(recipient.split('@')[0][3:])
+    except (IndexError, ValueError):  # Unparseable email address
+        return HttpResponseNotAcceptable()
+    game = models.Game.objects.get(id=game_id)
+    if not game.complete:  # Don't send if the scheduling isn't complete
+        return HttpResponseNotAcceptable()
+
+    if sender not in game.emails:  # Not a staffed official
+        return HttpResponseNotAcceptable()
+
     subject = request.POST['subject']
     body = request.POST['body-plain']
-
-    email = '''Recipient: {}
-Sender: {}
-Body: {}'''.format(recipient, sender, body)
+    email_from = _generate_from_email(game)
 
     with mail.get_connection() as connection:
         mail.EmailMessage(
-            subject,
-            email,
-            'United Derby Officials Colorado <no-reply@mg.udoco.org>',
-            [admin[1] for admin in settings.ADMINS],
+            subject, body, email_from, [email_from], bcc=game.emails,
             connection=connection).send()
-
+    return HttpResponse(200)
 
 
 # REST Framework
@@ -233,8 +259,8 @@ class GameViewSet(viewsets.ModelViewSet):
                     render_to_string(
                         'email/scheduling_body.txt',
                         {'game': game}),
-                    'United Derby Officials Colorado <no-reply@mg.udoco.org>',
-                    ['United Derby Officials Colorado <no-reply@mg.udoco.org>'],
+                    _generate_from_email(game),
+                    [_generate_from_email(game)],
                     bcc=game.emails,
                     connection=connection).send()
 
