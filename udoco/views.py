@@ -12,6 +12,7 @@ from django.http import (
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 import pytz
 from rest_framework import status
@@ -85,6 +86,7 @@ class ContactLeaguesView(View):
         return redirect('contact_leagues')
 
 
+@csrf_exempt
 def email_hook(request):
     """Handle in bound emails from Mailgun.
 
