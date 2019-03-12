@@ -9,6 +9,28 @@ import { IEventModel } from '../models/Event';
 import { IURLParams } from '../types';
 import { getCSRFToken } from '../util';
 
+const POSITION_MAP = {
+    'alt': 'Alternate ref',
+    'hnso': 'Head NSO',
+    'hr': 'Head ref',
+    'ipr': 'Inside pack ref',
+    'jr1': 'Jam ref',
+    'jr2': 'Jam ref',
+    'jt': 'Jam timer',
+    'nsoalt': 'Alternate NSO',
+    'opr1': 'Outside pack ref',
+    'opr2': 'Outside pack ref',
+    'opr3': 'Outside pack ref',
+    'pbm': 'Penalty box manager',
+    'pbt1': 'Penalty box timer',
+    'pbt2': 'Penalty box timer',
+    'pt1': 'Penalty/Lineup Tracker',
+    'pt2': 'Penalty/Lineup Tracker',
+    'sk1': 'Scorekeeper',
+    'sk2': 'Scorekeeper',
+    'so': 'Scoreboard operator',
+};
+
 interface IEventProps extends RouteComponentProps<IURLParams> {
     cancelEvent: any;
     event: IEventModel;
@@ -103,14 +125,26 @@ class Event extends React.Component <IEventProps, {}> {
               {`${moment(event.start).subtract(1, 'hours').format('hh:mm a')}`}
             </div>
           </div>
-          {event.complete &&
+          {event.complete && !event.is_rostered &&
             <div className="row">
               <div className="col s12">
                 <b>This game is no longer accepting applications.</b>
               </div>
             </div>
           }
-
+          {event.complete && event.is_rostered &&
+            <div className="row">
+              <div className="col s12">
+                You have been staffed at this event as {event.rostered_as.map((value, idx) => {
+                    return (<span key={idx}>
+                        {(idx === event.rostered_as.length-1) && idx > 0 && <span>and </span>}
+                        <b>{POSITION_MAP[value]}</b>
+                        {(idx !== event.rostered_as.length-1) && <span>, </span>}
+                    </span>);
+                })}.
+              </div>
+            </div>
+          }
 
           {((event.has_applied && !event.complete) &&
           <div className="row">

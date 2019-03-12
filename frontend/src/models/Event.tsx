@@ -12,6 +12,7 @@ interface IEventModel {
     can_schedule: boolean;
     is_authenticated: boolean;
     is_rostered: boolean;
+    rostered_as: string[];
 
     rosters: IRosterModel[];
 }

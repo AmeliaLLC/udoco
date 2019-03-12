@@ -97,6 +97,7 @@ class GameSerializer(serializers.ModelSerializer):
             'has_applied',
             'can_apply',
             'is_rostered',
+            'rostered_as',
 
             'can_schedule',
 
@@ -110,6 +111,7 @@ class GameSerializer(serializers.ModelSerializer):
     is_authenticated = serializers.SerializerMethodField('_is_authenticated')
     can_schedule = serializers.SerializerMethodField('_can_schedule')
     is_rostered = serializers.SerializerMethodField('_is_rostered')
+    rostered_as = serializers.SerializerMethodField('_rostered_as')
 
     def _has_applied(self, instance):
         user = self.context['request'].user
@@ -133,6 +135,21 @@ class GameSerializer(serializers.ModelSerializer):
     def _is_rostered(self, instance):
         user = self.context['request'].user
         return user in instance.rostered
+
+    def _rostered_as(self, instance):
+        rostered_as = []
+        if not instance.complete:
+            return rostered_as
+        user = self.context['request'].user
+        positions = [
+            'hr', 'ipr', 'jr1', 'jr2', 'opr1', 'opr2', 'opr3', 'alt', 'jt',
+            'sk1', 'sk2', 'pbm', 'pbt1', 'pbt2', 'pt1', 'pt2', 'pw', 'iwb',
+            'lt1', 'lt2', 'so', 'hnso', 'nsoalt', 'ptimer']
+        for roster in instance.rosters.all():
+            for position in positions:
+                if getattr(roster, position) == user:
+                    rostered_as.append(position)
+        return rostered_as
 
     # XXX: rockstar (20 Feb 2017) - Ugh ugh ugh.
     def _is_authenticated(self, instance):
