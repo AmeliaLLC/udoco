@@ -44,6 +44,7 @@ urlpatterns = [
         name='contact_leagues'),
     url(r'^\.well-known/acme-challenge/(?P<public>.*)$',  # NOQA
         views.certbot_view),
+    url(r'^_email', views.email_hook),
 
     # Views outside the scope of this site, but required for functionality.
     url(r'^manage/', admin.site.urls),

@@ -85,6 +85,30 @@ class ContactLeaguesView(View):
         return redirect('contact_leagues')
 
 
+def email_hook(request):
+    """Handle in bound emails from Mailgun.
+
+    See https://mailgun-documentation.readthedocs.io/en/latest/user_manual.html#receiving-forwarding-and-storing-messages
+    """
+    recipient = request.POST['recipient']
+    sender = request.POST['sender']
+    subject = request.POST['subject']
+    body = request.POST['body-plain']
+
+    email = '''Recipient: {}
+Sender: {}
+Body: {}'''.format(recipient, sender, body)
+
+    with mail.get_connection() as connection:
+        mail.EmailMessage(
+            subject,
+            email,
+            'United Derby Officials Colorado <no-reply@mg.udoco.org>',
+            [admin[1] for admin in settings.ADMINS],
+            connection=connection).send()
+
+
+
 # REST Framework
 @api_view(['GET', 'PUT'])
 def me(request):
