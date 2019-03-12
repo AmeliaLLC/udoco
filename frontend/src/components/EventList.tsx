@@ -309,7 +309,29 @@ class EventList extends React.Component <IEventListProps, IEventListState> {
     }
 
     public cancelEvent(id: string) {
-        return;
+        const url = `${BaseURL}/api/games/${id}`;
+        fetch(url, {
+            credentials: 'include',
+            headers: {
+                'Content-type': 'application/json',
+                'X-CSRFToken': getCSRFToken(),
+            },
+            method: 'DELETE'
+        })
+        .then((response) => {
+            if (response.status === 204) {
+                M.toast({
+                    displayLength: 1500,
+                    html: 'Event has been deleted.'
+                });
+                this.componentWillMount();
+            } else {
+                M.toast({
+                    displayLength: 1500,
+                    html: 'An unknown error has occurred. Unable to cancel event.'
+                });
+            }
+        });
     }
 
     public render(): JSX.Element {
