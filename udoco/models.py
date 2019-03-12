@@ -170,8 +170,10 @@ class Game(models.Model):
     def rostered(self):
         """Return all rostered officials."""
         rostered = []
+        # XXX: rockstar (12 Mar 2019) - Should this use `staff`?
         for roster in self.rosters.all():
             rostered += roster.officials
+        rostered += self.staffed_losers
         return list(set(rostered))
 
     @property

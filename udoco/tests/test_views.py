@@ -265,7 +265,8 @@ class TestGameViewSet(TestCase):
     @unittest.mock.patch('udoco.views.mail')
     def test_partial_update_complete(self, mail):
         user = _factory.OfficialFactory(email='abc@example.com')
-        roster = _factory.RosterFactory(hr=user)
+        luser = _factory.LoserFactory(email='cba@example.com')
+        roster = _factory.RosterFactory(hr=user, ipr_x=luser)
         game = roster.game
         user.scheduling.add(game.league)
         client = APIClient()
@@ -279,7 +280,10 @@ class TestGameViewSet(TestCase):
         game = models.Game.objects.get(id=game.id)
         self.assertTrue(game.complete)
         call = mail.EmailMessage.call_args[1]
-        self.assertIn('abc@example.com', call['bcc'])
+        self.assertEqual(
+            ['abc@example.com', 'cba@example.com'],
+            sorted(call['bcc']))
+        #self.assertIn('abc@example.com', call['bcc'])
 
     @unittest.mock.patch('udoco.views.mail')
     def test_partial_update(self, mail):
@@ -558,7 +562,8 @@ class TestRosterViewSet(TestCase):
         self.assertEqual(201, response.status_code)
         self.assertEqual(user.id, response.json()['hr'])
         self.assertEqual(0 - loser.id, response.json()['ipr'])
-        self.assertEqual(0, mail.EmailMessage.call_count)
+        call = mail.EmailMessage.call_args[1]
+        self.assertEqual([loser.email], call['bcc'])
 
     @unittest.mock.patch('udoco.views.mail')
     def test_create_roster_competition(self, mail):
