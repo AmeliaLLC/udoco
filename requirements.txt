@@ -1,6 +1,6 @@
 uwsgi==2.0.18
 
-Django==1.11.17
+Django==1.11.28
 python-social-auth==0.3.6
 social-auth-app-django==2.1.0
 social-auth-core==1.7.0
