@@ -9,7 +9,7 @@ django-storages==1.4.1
 boto==2.40.0
 dj-database-url==0.4.1
 psycopg2==2.8.3
-Pillow==5.4.1
+Pillow==8.1.1
 django-anymail==0.5
 djangorestframework==3.9.1
 django-rest-framework-social-oauth2==1.0.7
