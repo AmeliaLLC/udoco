@@ -27,7 +27,7 @@
     "font-awesome": "^4.7.0",
     "materialize-css": "^1.0.0",
     "materialize-social": "^1.0.3",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-router-dom": "^4.3.1",
